@@ -14,6 +14,7 @@ help_command = commands.DefaultHelpCommand(
     no_category = 'Utilities'
 )
 
+
 bot = commands.Bot(
 	command_prefix="-",	# Change to desired prefix
 	case_insensitive=True,	# Commands aren't case-sensitive
