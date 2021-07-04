@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import os
 import time
 
 # if message == None:
@@ -18,7 +19,7 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
 
 
 	@commands.command(name='brdt', help='This command creates a Droptop Announcement', aliases=['broadcast-droptop', 'droptopbr', 'droptopbroadcast', 'droptop-broadcast'])
-	@commands.has_any_role(821049483009458188, 821049516119294002)	#Admin Role ID, Mod Role ID 
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
 	async def brdt_embed(self, ctx):
 		'''Use -brdt'''
 
@@ -46,10 +47,11 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
 		await title.delete()
 		await descreq.delete()
 		await desc.delete()
+	
 
 
 	@commands.command(name='brds', help='This command creates a Discord Announcement', aliases=['broadcast-discord', 'discordbr'])
-	@commands.has_any_role(821049483009458188, 821049516119294002)	#Admin Role ID, Mod Role ID 
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
 	async def brds_embed(self, ctx):
 		'''Use -brds'''
 
@@ -80,14 +82,14 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
 	
 
 	@commands.command(name='brnv', help='This command creates a New Version Announcement', aliases=['broadcast-newversion', 'newversion'])
-	@commands.has_any_role(821049483009458188, 821049516119294002)	#Admin Role ID, Mod Role ID 
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
 	async def brnv_embed(self, ctx):
 		'''Use -brnv'''
 
 		def check(message):
 			return message.author == ctx.author and message.channel == ctx.channel
 
-		nvbrping = discord.utils.get(ctx.guild.roles, id=self.bot.discordping) #Discord BR role ID
+		nvbrping = discord.utils.get(ctx.guild.roles, id=self.bot.newversionping) #Discord BR role ID
 		channel = self.bot.get_channel(self.bot.annchannel) #Discord Announcements channel ID
 
 		titlereq = await ctx.send('Waiting for a Version')

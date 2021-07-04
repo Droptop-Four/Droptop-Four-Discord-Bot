@@ -26,7 +26,7 @@ class DevCommands(commands.Cog, name='Developer'):
 		name='reload',  # Name of the command, defaults to function name.
 		aliases=['rl']  # Aliases for the command.
 	) 
-	@commands.has_any_role(821049483009458188, 821049516119294002)	#Admin Role ID, Mod Role ID 
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
 	async def reload(self, ctx, cog):
 		'''
 		Reloads a cog.
@@ -46,7 +46,7 @@ class DevCommands(commands.Cog, name='Developer'):
 	
 
 	@commands.command(name="unload", aliases=['ul'])
-	@commands.has_any_role(821049483009458188, 821049516119294002)	#Admin Role ID, Mod Role ID 
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
 	async def unload(self, ctx, cog):
 		'''
 		Unload a cog.
@@ -60,7 +60,7 @@ class DevCommands(commands.Cog, name='Developer'):
 	
 
 	@commands.command(name="load")
-	@commands.has_any_role(821049483009458188, 821049516119294002)	#Admin Role ID, Mod Role ID 
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
 	async def load(self, ctx, cog):
 		'''
 		Loads a cog.
@@ -74,7 +74,7 @@ class DevCommands(commands.Cog, name='Developer'):
 
 
 	@commands.command(name="listcogs", aliases=['lc'])
-	@commands.has_any_role(821049483009458188, 821049516119294002)	#Admin Role ID, Mod Role ID 
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
 	async def listcogs(self, ctx):
 		'''
 		Returns a list of all enabled commands.

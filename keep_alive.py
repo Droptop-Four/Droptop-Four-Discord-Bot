@@ -3,7 +3,7 @@ from threading import Thread
 import random
 
 
-app = Flask('')
+app = Flask('Droptop Four Bot')
 
 @app.route('/')
 def home():
