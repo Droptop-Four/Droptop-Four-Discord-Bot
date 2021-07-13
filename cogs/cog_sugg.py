@@ -33,28 +33,28 @@ class SuggestionCommands(commands.Cog, name="Suggestions"):
         """suggestion command"""
         
         channel = self.bot.get_channel(self.bot.suggchannel)
-        
-        
-        
 
         
         if ctx.message.attachments:
         	
-        	attachment_url = ctx.message.attachments[0].url
+        	attachment_url = ctx.message.attachments
         	
         	embed1 = discord.Embed(title='New Suggestion By {}'.format(ctx.author.display_name), color=discord.Color.from_rgb(217, 144, 40))
-        	
         	
         	embed2 = discord.Embed(color=discord.Color.from_rgb(217, 144, 40))
         	embed2.add_field(name='Suggestion: ', value=sugg)
         	embed2.set_footer(text='UserID: ( {} ) | sID: ( {} )'.format(ctx.author.id, ctx.author.display_name), icon_url=ctx.author.avatar_url)
         	
-        	
-        	post={"UserID":ctx.author.id,"sID":ctx.author.display_name,"Suggestion":sugg,"Attachment":attachment_url}
-        	
         	sugg1 = await channel.send(embed=embed1)
-        	attc = await channel.send(attachment_url)
+        	
+        	for url in attachment_url:
+        	    await channel.send(url)
+        	    
         	sugg2 = await channel.send(embed=embed2)
+        	
+        	attcs = ' '.join(map(str, attachment_url))
+        	
+        	post={"UserID":ctx.author.id,"sID":ctx.author.display_name,"Suggestion":sugg,"Attachment":attcs}
             
         	collection_s.insert_one(post)
         	
@@ -62,11 +62,11 @@ class SuggestionCommands(commands.Cog, name="Suggestions"):
         	await sugg2.add_reaction("👎")
         	
         	embed = discord.Embed(description='☑️ Your Suggestion Has Been Sent To <#{}> !'.format(channel.id))
+        	
         	await ctx.message.delete()
         	embsend = await ctx.send(embed = embed)
         	time.sleep(5)
         	await embsend.delete()
-        	
         	
         else:
         	
@@ -78,7 +78,6 @@ class SuggestionCommands(commands.Cog, name="Suggestions"):
         	
         	suggg = await channel.send(embed=embed)
 
-        	
         	collection_s.insert_one(post)
         	await suggg.add_reaction("👍")
         	await suggg.add_reaction("👎")
@@ -86,8 +85,10 @@ class SuggestionCommands(commands.Cog, name="Suggestions"):
         	await ctx.message.delete()
         	embsend = await ctx.send(embed = embed)
         	time.sleep(5)
-        	await embsend.delete
-
+        	await embsend.delete()
+        	
+        	
+        	
 
     @suggest.error
     async def _sug_error(self, ctx, error):
