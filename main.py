@@ -1,6 +1,7 @@
 import os
 from keep_alive import keep_alive
-from discord.ext import commands
+from discord.ext import commands, tasks
+from discord_components import DiscordComponents, Button, Select, SelectOption
 import discord
 import json
 from datetime import date, datetime
@@ -61,6 +62,7 @@ async def on_ready():	# When the bot is ready
 	for guild in bot.guilds:	# Prints all the servers the bot is in
 		print ("Connected to server: {}".format(guild))
 	print("------")
+	DiscordComponents(bot)
 	# change_status.start()
 
 
