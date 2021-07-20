@@ -47,8 +47,8 @@ class SuggestionCommands(commands.Cog, name="Suggestions"):
         	
         	sugg1 = await channel.send(embed=embed1)
         	
-        	for url in attachment_url:
-        	    await channel.send(url)
+        	for proxy_url in attachment_url:
+        	    await channel.send('{}'.format(proxy_url))
         	    
         	sugg2 = await channel.send(embed=embed2)
         	
@@ -70,7 +70,7 @@ class SuggestionCommands(commands.Cog, name="Suggestions"):
         	
         else:
         	
-        	embed = discord.Embed(title=' prova New Suggestion By {}'.format(ctx.author.display_name), color=discord.Color.from_rgb(217, 144, 40))
+        	embed = discord.Embed(title='New Suggestion By {}'.format(ctx.author.display_name), color=discord.Color.from_rgb(217, 144, 40))
         	embed.add_field(name='Suggestion: ', value=sugg)
         	embed.set_footer(text='UserID: ( {} ) | sID: ( {} )'.format(ctx.author.id, ctx.author.display_name), icon_url=ctx.author.avatar_url)
         	
