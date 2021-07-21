@@ -14,7 +14,7 @@
 </p>
 
 <p>
-<h3 align="center"><a href="https://www.droptopfour.com"><strong>Visit the WebSite »</strong></a></h3>
+<h3 align="center"><a href="https://www.droptopfour.com"><strong>Visit the Droptop Four Website »</strong></a></h3>
 </p>
 
 <p align="center">
