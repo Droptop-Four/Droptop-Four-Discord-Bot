@@ -46,7 +46,7 @@ bot.suggchannel = int(os.getenv("suggchannel"))  	# Suggestion Log Channel ID
 bot.betachannel = int(os.getenv("betachannel"))		# Betarequest Log Channel ID
 bot.botchatchannel = int(os.getenv("botchatchannel"))	# Botchat Channel ID
 bot.modlogchannel = int(os.getenv("modlogchannel"))	# Modlog Channel ID
-bot.dtsite = int(os.getenv("dtsite"))	#Droptop WebSite
+bot.dtsite = os.getenv("dtsite")	#Droptop WebSite
 today = date.today()
 now = datetime.now()
 date_time = now.strftime("%d/%m/%Y %H:%M:%S")	# Day/Month/Year Hours:Minutes:Seconds
@@ -66,13 +66,14 @@ async def on_ready():	# When the bot is ready
 		print ("Connected to server: {}".format(guild))
 	print("------")
 	DiscordComponents(bot)
-	# change_status.start()
+	change_status.start()
 
 
-# @bot.event
-# async def on_message(message):
-# 		await bot.process_commands(message)
-
+@tasks.loop()
+async def change_status():
+	while True:
+		await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='over you | -help, -info'))
+		time.sleep(10)
 
 
 @bot.event
