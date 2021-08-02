@@ -11,7 +11,7 @@ from pymongo import MongoClient
 
 now = datetime.now()
 
-cluster = MongoClient(os.getenv("client_id"))
+cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster["Test_Droptop"]
 collection_d = db["BetaPrg"]
 
@@ -174,7 +174,7 @@ class InfoCommands(commands.Cog, name='Info'):
 	@commands.dm_only()
 	async def bapply(self, ctx, name, gmail):
 
-		server = self.bot.get_guild(self.bot.serverid)
+		server = self.bot.get_guild(self.bot.server_id)
 		role = discord.utils.get(server.roles, id=self.bot.betarole)
 		member = server.get_member(ctx.message.author.id)
 

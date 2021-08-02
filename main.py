@@ -27,31 +27,31 @@ bot = commands.Bot(
 
 
 #Variables
-bot.author_id = 330345930198876161	# Personal ID
-bot.serverid=800124057923485728		# Server ID
-bot.cari_id = 584542239900827665	# Cari ID
-bot.adminrole_id=800217789343727657	# Admin Role ID
+bot.author_id = os.getenv("author_id")	# Personal ID
+bot.server_id = os.getenv("server_id")		# Server ID
+bot.cari_id = os.getenv("cari_id")	# Cari ID
+bot.adminrole_id = os.getenv("adminrole_id")	# Admin Role ID
 #IF THIS IS MODIFIED, MODIFY ALSO THE IDs IN THE COGS FOR @COMMAND.HAS_ANY_ROLE()
-bot.modrole_id=801741190227165236	# Mod Role ID
+bot.modrole_id = os.getenv("modrole_id")	# Mod Role ID
 #IF THIS IS MODIFIED, MODIFY ALSO THE IDs IN THE COGS FOR @COMMAND.HAS_ANY_ROLE()
-bot.pollping=822061196567248916			# Pollping Role ID
-bot.droptopping=822061436690890752		# Droptopping Role ID
-bot.discordping=822061367309631499		# Discordping Role ID
-bot.newversionping=822061500747218974   # Newversionping Role ID
-bot.betarole=800130009947045901			# Betatester Role ID
-bot.annchannel=801785532035760138		# Announcements Channel ID
-bot.dsannchannel=801785435198193765		# Discord Announcements Channel ID
-bot.infodeskchannel=871660266595692564	# Infodesk Channel ID
-bot.suggchannel=802849786717274112  	# Suggestion Log Channel ID
-bot.betachannel=859714062769455104		# Betarequest Log Channel ID
-bot.botchatchannel=827513492135084043	# Botchat Channel ID
-bot.modlogchannel=856485433496174592	# Modlog Channel ID
-bot.dtsite="https://blacksquare88.wixsite.com/droptop4"	#Droptop WebSite
+bot.pollping = os.getenv("pollping")			# Pollping Role ID
+bot.droptopping = os.getenv("droptopping")		# Droptopping Role ID
+bot.discordping = os.getenv("discordping")		# Discordping Role ID
+bot.newversionping = os.getenv("newversionping")   # Newversionping Role ID
+bot.betarole = os.getenv("betarole")			# Betatester Role ID
+bot.annchannel = os.getenv("annchannel")		# Announcements Channel ID
+bot.dsannchannel = os.getenv("dsannchannel")		# Discord Announcements Channel ID
+bot.infodeskchannel = os.getenv("infodeskchannel")	# Infodesk Channel ID
+bot.suggchannel = os.getenv("suggchannel")  	# Suggestion Log Channel ID
+bot.betachannel = os.getenv("betachannel")		# Betarequest Log Channel ID
+bot.botchatchannel = os.getenv("botchatchannel")	# Botchat Channel ID
+bot.modlogchannel = os.getenv("modlogchannel")	# Modlog Channel ID
+bot.dtsite = os.getenv("dtsite")	#Droptop WebSite
 today = date.today()
 now = datetime.now()
 date_time = now.strftime("%d/%m/%Y %H:%M:%S")	# Day/Month/Year Hours:Minutes:Seconds
 #Database
-cluster = MongoClient(os.getenv("client_id"))
+cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster["Discord_Droptop"]
 collection = db["MessageLog"]
 
@@ -196,4 +196,4 @@ if __name__ == '__main__':  # Ensures this is the file being ran
 
 #Run
 keep_alive()  # Starts a webserver to be pinged.
-bot.run(os.getenv("token"))  # Starts the bot
+bot.run(os.getenv("ds_token"))  # Starts the bot

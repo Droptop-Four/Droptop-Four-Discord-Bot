@@ -8,7 +8,7 @@ from pymongo import MongoClient
 
 
 
-cluster = MongoClient(os.getenv("client_id"))
+cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster["Discord_Droptop"]
 collection_s = db["Suggestions"]
 

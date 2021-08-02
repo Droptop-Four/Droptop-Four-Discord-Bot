@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 
 
-cluster = MongoClient(os.getenv("client_id"))
+cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster["Discord_Droptop"]
 collection_bw = db["BannedWords"]
 
@@ -107,7 +107,7 @@ class ModCommands(commands.Cog, name='Moderation'):
 	@commands.has_any_role(800217789343727657, 801741190227165236)
 	async def kick(self, ctx, member: discord.Member, *, reason=None):
 		await ctx.guild.kick(user=member, reason=reason)
-		channel = self.bot.get_channel(856485433496174592)
+		channel = self.bot.get_channel(self.bot.modlogchannel)
 		embed = discord.Embed(title=f"{ctx.author.name} kicked: {member.name}", description=reason)
 		await channel.send(embed=embed)
 
@@ -115,7 +115,7 @@ class ModCommands(commands.Cog, name='Moderation'):
 	@commands.has_any_role(800217789343727657, 801741190227165236)
 	async def ban(self, ctx, member: discord.Member, *, reason=None):
 		await ctx.guild.ban(user=member, reason=reason)
-		channel = self.bot.get_channel(856485433496174592)
+		channel = self.bot.get_channel(self.bot.modlogchannel)
 		embed = discord.Embed(title=f"{ctx.author.name} banned: {member.name}", description=reason)
 		await channel.send(embed=embed)
 
@@ -125,7 +125,7 @@ class ModCommands(commands.Cog, name='Moderation'):
 	async def unban(self, ctx, member, *, reason=None):
 		member = await self.bot.fetch_user(int(member))
 		await ctx.guild.unban(member, reason=reason)
-		channel = self.bot.get_channel(856485433496174592)
+		channel = self.bot.get_channel(self.bot.modlogchannel)
 		embed = discord.Embed(title=f"{ctx.author.name} unbanned: {member.name}", description=reason)
 		await channel.send(embed=embed)
 	
@@ -134,7 +134,7 @@ class ModCommands(commands.Cog, name='Moderation'):
 	@commands.has_any_role(800217789343727657, 801741190227165236)
 	async def purge(self, ctx, amount=15):
 		await ctx.channel.purge(limit=amount+1)
-		channel = self.bot.get_channel(856485433496174592)
+		channel = self.bot.get_channel(self.bot.modlogchannel)
 		embed = discord.Embed(title=f"{ctx.author.name} purged: {ctx.channel.name}", description=f"{amount} messages were cleared")
 		await channel.send(embed=embed)
 
