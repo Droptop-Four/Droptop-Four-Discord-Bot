@@ -59,7 +59,7 @@ class InfoCommands(commands.Cog, name='Info'):
 
 
 		if arg == None:
-			send1 = await ctx.send(embed=embed2, components = [[Button(label='Generic Info', id='info', style=2, disabled=True), Button(label='Base Version Info', id="base", style=1), Button(label='Supporter Version Info', id="supp", style=3)], Button(label='Site', style=5, url='https://www.droptopfour.com')])
+			send1 = await ctx.send(embed=embed1, components = [[Button(label='Generic Info', id='info', style=2, disabled=True), Button(label='Base Version Info', id="base", style=1), Button(label='Supporter Version Info', id="supp", style=3)], Button(label='Site', style=5, url='https://www.droptopfour.com')])
 			
 			response = await self.bot.wait_for("button_click", check=check, timeout=60)
 			SelectedButton=response.component.id
