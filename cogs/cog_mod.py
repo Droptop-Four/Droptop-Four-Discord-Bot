@@ -6,21 +6,16 @@ import pymongo
 from pymongo import MongoClient
 
 
-
 cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster["Discord_Droptop"]
 collection_bw = db["BannedWords"]
 
 
-
 class ModCommands(commands.Cog, name='Moderation'):
 	'''These are the Mod Commands'''
-	
-
 
 	def __init__(self, bot):
 		self.bot = bot	
-
 
 
 	@commands.Cog.listener()
@@ -37,7 +32,6 @@ class ModCommands(commands.Cog, name='Moderation'):
 			for bannedword in file:
 				if bannedword in message.content.lower():
 					await message.delete()
-
 
 
 	@commands.command(name='bannedwords', aliases=['bw','banwords','banword','bannedword'])
@@ -111,6 +105,7 @@ class ModCommands(commands.Cog, name='Moderation'):
 		embed = discord.Embed(title=f"{ctx.author.name} kicked: {member.name}", description=reason)
 		await channel.send(embed=embed)
 
+
 	@commands.command(name='ban', aliases=[])
 	@commands.has_any_role(800217789343727657, 801741190227165236)
 	async def ban(self, ctx, member: discord.Member, *, reason=None):
@@ -133,6 +128,7 @@ class ModCommands(commands.Cog, name='Moderation'):
 	@commands.command(name='purge', aliases=[])
 	@commands.has_any_role(800217789343727657, 801741190227165236)
 	async def purge(self, ctx, amount=15):
+		await self.bot.wait_until_ready()
 		await ctx.channel.purge(limit=amount+1)
 		channel = self.bot.get_channel(self.bot.modlogchannel)
 		embed = discord.Embed(title=f"{ctx.author.name} purged: {ctx.channel.name}", description=f"{amount} messages were cleared")

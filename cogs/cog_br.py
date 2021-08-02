@@ -7,15 +7,12 @@ import time
 # 			await channel.send(usage)
 # 			return
 
-
 class BroadcastCommands(commands.Cog, name='Broadcast'):
 	'''These are the Broadcast Commands'''
 
 
-
 	def __init__(self, bot):
 		self.bot = bot
-	
 
 
 	@commands.command(name='brdt', help='This command creates a Droptop Announcement', aliases=['broadcast-droptop', 'droptopbr', 'droptopbroadcast', 'droptop-broadcast'])
@@ -48,7 +45,6 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
 		await descreq.delete()
 		await desc.delete()
 	
-
 
 	@commands.command(name='brds', help='This command creates a Discord Announcement', aliases=['broadcast-discord', 'discordbr'])
 	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
@@ -117,7 +113,6 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
 		await chl.delete()
 		await linkreq.delete()
 		await link.delete()
-
 
 
 def setup(bot):

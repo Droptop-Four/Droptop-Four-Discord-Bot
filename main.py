@@ -27,26 +27,26 @@ bot = commands.Bot(
 
 
 #Variables
-bot.author_id = os.getenv("author_id")	# Personal ID
-bot.server_id = os.getenv("server_id")		# Server ID
-bot.cari_id = os.getenv("cari_id")	# Cari ID
-bot.adminrole_id = os.getenv("adminrole_id")	# Admin Role ID
+bot.author_id = int(os.getenv("author_id"))		# Personal ID
+bot.server_id = int(os.getenv("server_id"))		# Server ID
+bot.cari_id = int(os.getenv("cari_id"))	# Cari ID
+bot.adminrole_id = int(os.getenv("adminrole_id"))	# Admin Role ID
 #IF THIS IS MODIFIED, MODIFY ALSO THE IDs IN THE COGS FOR @COMMAND.HAS_ANY_ROLE()
-bot.modrole_id = os.getenv("modrole_id")	# Mod Role ID
+bot.modrole_id = int(os.getenv("modrole_id"))	# Mod Role ID
 #IF THIS IS MODIFIED, MODIFY ALSO THE IDs IN THE COGS FOR @COMMAND.HAS_ANY_ROLE()
-bot.pollping = os.getenv("pollping")			# Pollping Role ID
-bot.droptopping = os.getenv("droptopping")		# Droptopping Role ID
-bot.discordping = os.getenv("discordping")		# Discordping Role ID
-bot.newversionping = os.getenv("newversionping")   # Newversionping Role ID
-bot.betarole = os.getenv("betarole")			# Betatester Role ID
-bot.annchannel = os.getenv("annchannel")		# Announcements Channel ID
-bot.dsannchannel = os.getenv("dsannchannel")		# Discord Announcements Channel ID
-bot.infodeskchannel = os.getenv("infodeskchannel")	# Infodesk Channel ID
-bot.suggchannel = os.getenv("suggchannel")  	# Suggestion Log Channel ID
-bot.betachannel = os.getenv("betachannel")		# Betarequest Log Channel ID
-bot.botchatchannel = os.getenv("botchatchannel")	# Botchat Channel ID
-bot.modlogchannel = os.getenv("modlogchannel")	# Modlog Channel ID
-bot.dtsite = os.getenv("dtsite")	#Droptop WebSite
+bot.pollping = int(os.getenv("pollping"))			# Pollping Role ID
+bot.droptopping = int(os.getenv("droptopping"))		# Droptopping Role ID
+bot.discordping = int(os.getenv("discordping"))		# Discordping Role ID
+bot.newversionping = int(os.getenv("newversionping"))   # Newversionping Role ID
+bot.betarole = int(os.getenv("betarole"))			# Betatester Role ID
+bot.annchannel = int(os.getenv("annchannel"))		# Announcements Channel ID
+bot.dsannchannel = int(os.getenv("dsannchannel"))		# Discord Announcements Channel ID
+bot.infodeskchannel = int(os.getenv("infodeskchannel"))	# Infodesk Channel ID
+bot.suggchannel = int(os.getenv("suggchannel"))  	# Suggestion Log Channel ID
+bot.betachannel = int(os.getenv("betachannel"))		# Betarequest Log Channel ID
+bot.botchatchannel = int(os.getenv("botchatchannel"))	# Botchat Channel ID
+bot.modlogchannel = int(os.getenv("modlogchannel"))	# Modlog Channel ID
+bot.dtsite = int(os.getenv("dtsite"))	#Droptop WebSite
 today = date.today()
 now = datetime.now()
 date_time = now.strftime("%d/%m/%Y %H:%M:%S")	# Day/Month/Year Hours:Minutes:Seconds

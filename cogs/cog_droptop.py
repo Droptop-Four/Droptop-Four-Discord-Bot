@@ -9,8 +9,8 @@ import re
 import pymongo
 from pymongo import MongoClient
 
-now = datetime.now()
 
+now = datetime.now()
 cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster["Test_Droptop"]
 collection_d = db["BetaPrg"]
@@ -18,23 +18,18 @@ collection_d = db["BetaPrg"]
 
 class InfoCommands(commands.Cog, name='Info'):
 	'''These are the Info Commands'''
-	
 
 
 	def __init__(self, bot):
 		self.bot = bot
 
 
-
 	@commands.command(name='info', help='This command displays info about Droptop Four', aliases=['Droptop', 'Dt'])
 	async def info(self, ctx, arg = None):
-
 		def check(response):
 			return ctx.author == response.user and response.channel == ctx.channel
-
 		basic=['basic', 'Basic', 'base', 'Base']
 		supporter=['supporter', 'Supporter', 'supp', 'Supp', 'sup', 'Sup']
-
 		embed1=discord.Embed(title='Droptop Four', color=discord.Color.from_rgb(75, 215, 100))
 		embed1.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
 		embed1.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
@@ -42,8 +37,8 @@ class InfoCommands(commands.Cog, name='Info'):
 		embed1.add_field(name="Basic Version", value='The `Basic` version has:\n - 7 home bottons icons\n - 6 fully-customizable toolbars\n - 4 themes to choose from', inline=True)
 		embed1.add_field(name='Supporter Version', value='The `Supporter` version has:\n - 300 home buttons icons\n - 12 fully-customizable toolbars\n - 22 themes to choose from', inline=True)
 		embed1.set_footer(text="To see further infos on one of the two versions type `{0}info basic` or `{0}info supporter` or click the buttons below".format(self.bot.command_prefix))
-
 		embed2=discord.Embed(title='Droptop Four Basic Version', color=discord.Color.from_rgb(75, 215, 100))
+		
 		embed2.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
 		embed2.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
 		embed2.add_field(name="What is it?", value="This is the Basic and free version of droptop.", inline=False)
@@ -56,7 +51,6 @@ class InfoCommands(commands.Cog, name='Info'):
 		embed3.add_field(name="What is it?", value="This is the Supporter version of droptop.\nTo download it you can pay what you want through Gumroad.", inline=False)
 		embed3.add_field(name='Perks', value='The `Supporter` version has:\n - 300 home buttons icons\n - 12 fully-customizable toolbars\n - 22 themes to choose from', inline=False)
 		embed3.add_field(name="Download", value='To install it you have to:\n1)	download the Basic version on the DeviantArt page of Droptop Four (https://www.deviantart.com/cariboudjan/art/droptop-four-762812007)\n2)	download the Supporter update through Gumroad choosing how much you want to pay for it (from 0$) (https://gumroad.com/l/droptop)\nTo see further explanations on download methods type `{}download`'.format(self.bot.command_prefix), inline=False)
-
 
 		if arg == None:
 			send1 = await ctx.send(embed=embed1, components = [[Button(label='Generic Info', id='info', style=2, disabled=True), Button(label='Base Version Info', id="base", style=1), Button(label='Supporter Version Info', id="supp", style=3)], Button(label='Site', style=5, url='https://www.droptopfour.com')])
@@ -146,7 +140,6 @@ class InfoCommands(commands.Cog, name='Info'):
 
 
 	@commands.command(name='beta', help='This command sends informations on how to participate to the beta program', aliases =['beta-tester', 'betatester'])
-	
 	async def beta(self, ctx, member: discord.Member=None):
 
 		embed=discord.Embed(title='Beta Program', description='Enroll now to the Droptop Four Beta Program! The procedure is quite easy, just follow the guidelines below!', color=0x409bda)
@@ -167,7 +160,6 @@ class InfoCommands(commands.Cog, name='Info'):
 		embsend=await ctx.send(embed=embed2)
 		time.sleep(5)
 		await embsend.delete()
-
 
 
 	@commands.command(name='beta-apply', help='This command sends your personal details to participate in the beta program')
@@ -211,7 +203,6 @@ class InfoCommands(commands.Cog, name='Info'):
 			await ctx.send("You are not a member")
 
 
-
 	@bapply.error
 	async def _bapply_error(self, ctx, error):
 		if isinstance (error, commands.PrivateMessageOnly):
@@ -221,7 +212,6 @@ class InfoCommands(commands.Cog, name='Info'):
 			await ctx.message.delete()
 			time.sleep(15)
 			await embsend.delete()
-
 
 
 def setup(bot):

@@ -3,15 +3,12 @@ from discord.ext import commands
 import time
 
 
-
 class DevCommands(commands.Cog, name='Developer'):
 	'''These are the developer commands'''
 
 
-
 	def __init__(self, bot):
 		self.bot = bot
-
 
 
 	async def cog_check(self, ctx):  
@@ -19,7 +16,6 @@ class DevCommands(commands.Cog, name='Developer'):
 		The default check for this cog whenever a command is used. Returns True if the command is allowed.
 		'''
 		return ctx.author.id == self.bot.author_id
-
 
 
 	@commands.command(  # Decorator to declare where a command is.
@@ -83,7 +79,6 @@ class DevCommands(commands.Cog, name='Developer'):
 		base_string += "\n".join([str(cog) for cog in self.bot.extensions])
 		base_string += "\n```"
 		await ctx.send(base_string)
-
 
 
 def setup(bot):
