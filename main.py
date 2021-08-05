@@ -67,14 +67,14 @@ async def on_ready():	# When the bot is ready
 		print ("Connected to server: {}".format(guild))
 	print("------")
 	DiscordComponents(bot)
-	change_status.start()
+	# change_status.start()
 
 
-@tasks.loop()
-async def change_status():
-	while True:
-		await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='over you | -help, -info'))
-		time.sleep(10)
+# @tasks.loop()
+# async def change_status():
+# 	while True:
+# 		await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='over you | -help, -info'))
+# 		time.sleep(10)
 
 
 @bot.event
