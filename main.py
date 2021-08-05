@@ -2,6 +2,7 @@ import os
 from keep_alive import keep_alive
 from discord.ext import commands, tasks
 from discord_components import DiscordComponents, Button, Select, SelectOption
+from discord_slash import SlashCommand
 import discord
 import json
 from datetime import date, datetime
@@ -24,7 +25,7 @@ bot = commands.Bot(
 	help_command = None
 )	#Bot initialization
 
-
+slash = SlashCommand(bot, sync_commands=True)
 
 #Variables
 bot.author_id = int(os.getenv("author_id"))		# Personal ID
@@ -66,14 +67,14 @@ async def on_ready():	# When the bot is ready
 		print ("Connected to server: {}".format(guild))
 	print("------")
 	DiscordComponents(bot)
-	change_status.start()
+	# change_status.start()
 
 
-@tasks.loop()
-async def change_status():
-	while True:
-		await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='over you | -help, -info'))
-		time.sleep(10)
+# @tasks.loop()
+# async def change_status():
+# 	while True:
+# 		await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='over you | -help, -info'))
+# 		time.sleep(10)
 
 
 @bot.event
@@ -175,6 +176,40 @@ async def bothelp(ctx):
 		else:
 			await ctx.send(embed=memberemb)
 
+
+@slash.slash(name="help", description="Returns all commands")
+async def slashbothelp(ctx):
+
+		'''Bot Help Command'''
+	 
+		adminrole = discord.utils.get(ctx.guild.roles, id=bot.adminrole_id) #Admin Role ID
+		modrole = discord.utils.get(ctx.guild.roles, id=bot.modrole_id) #Moderator Role ID
+
+		staffemb=discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
+		staffemb.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=bot.user.avatar_url)
+		staffemb.set_thumbnail(url=ctx.guild.icon_url)
+		staffemb.add_field(name="Developer", value='`{0}listcogs`\nReturns a list of all the enabld cogs.\n`{0}load`\nLoads a cog.\n`{0}reload`\nReloads a cog.\n`{0}unload`\nUnloads a cog.'.format(bot.command_prefix), inline=False)
+		staffemb.add_field(name="Reactionrole", value='`{0}reactrole <emoji> <@role> <message>`\nUse it to create a new reactionrole in your current channel.'.format(bot.command_prefix), inline=False)
+		staffemb.add_field(name="Announcements", value='`{3}brdt`\nCreates a Droptop Announcement in <#{0}>.\n`{3}brds`\nCreates a Discord Announcement in <#{1}>.\n`{3}brnv`\nCreates a New Version Announcement <#{2}>.'.format((bot.annchannel), (bot.dsannchannel), (bot.annchannel), (bot.command_prefix)), inline=False)
+		staffemb.add_field(name="Polls", value='`{0}poll <emoji1> <emoji2>`\nCreates a poll with the 2 emojis as voting reactions in your current channel.'.format(bot.command_prefix), inline=False)
+		staffemb.add_field(name="Moderation", value='`{0}bannedwords (arg1) (arg2)`\nIf the two args are empty and if `arg1=list` the banned words list will be shown, if `arg1=add` `arg`2 will be added to the banned words list, if `arg1=remove` `arg2` will be removed from the banned words list. (`arg1` has to be lowercase but `arg2` has to be a single word and will be lowered in any case as every message sent)\n`{0}kick <memberMention>`\nKiks the specified user.\n`{0}ban <memberMention>`\nBans the specified member.\n`{0}unban <memberMention>`\nUnbans the specified user.\n`{0}purge <number>`\nPurges the specified number of messages from teh channel. If no number is given 15 messages will be deleted.'.format(bot.command_prefix), inline=False)
+		staffemb.add_field(name='Droptop',value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format(bot.command_prefix), inline=False)
+		staffemb.add_field(name="Utilities", value='`{0}ping`\nReturns the latency of the bot.\n`{0}bothelp`\nShows this message.'.format(bot.command_prefix), inline=False)
+
+		memberemb=discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
+		memberemb.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=bot.user.avatar_url)
+		memberemb.set_thumbnail(url=ctx.guild.icon_url)
+		memberemb.add_field(name='Droptop',value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format((bot.command_prefix)), inline=False)
+		memberemb.add_field(name="Suggestions", value='`{0}suggest`\nSends a suggestion to <#{1}>.'.format((bot.command_prefix),(bot.suggchannel)), inline=False)
+		memberemb.add_field(name="Utilities", value='`{0}ping`\nReturns the latency of the bot.\n`{0}bothelp`\nShows this message.'.format(bot.command_prefix), inline=False)
+		memberemb.set_footer(text="Other commands are coming out soon, so saty tuned!!\nObviously every suggestion is welcome!")
+
+		if adminrole in ctx.author.roles:
+			await ctx.send(embed=staffemb)
+		elif modrole in ctx.author.roles:
+			await ctx.send(embed=staffemb)
+		else:
+			await ctx.send(embed=memberemb)
 
 
 #Extensions
