@@ -1,11 +1,7 @@
 import discord
 from discord.ext import commands
-from discord import __version__ as discord_version
-from discord_slash import SlashCommand, cog_ext, SlashContext
+# from discord_slash import SlashCommand, cog_ext, SlashContext
 from time import time
-from psutil import Process, virtual_memory
-from platform import python_version
-from datetime import datetime, timedelta
 
 
 class InfoCommands(commands.Cog, name='Info'):
@@ -22,14 +18,14 @@ class InfoCommands(commands.Cog, name='Info'):
 		message=await ctx.send(f'**Pong!** The latency is: `{round(self.bot.latency * 1000)}`ms.')
 		end=time()
 		await message.edit(content=f'**Pong!** The latency is: `{round(self.bot.latency * 1000)}`ms. The response time is: `{(end-start)*1000:.0f}`ms.')
+	
 
-
-	@cog_ext.cog_slash(name="ping", description="Returns the latency")
-	async def slashping(self, ctx: SlashContext):
-		start=time()
-		message=await ctx.send(f'**Pong!** The latency is: `{round(self.bot.latency * 1000)}`ms.')
-		end=time()
-		await message.edit(content=f'**Pong!** The latency is: `{round(self.bot.latency * 1000)}`ms. The response time is: `{(end-start)*1000:.0f}`ms.')
+	# @cog_ext.cog_slash(name="ping", description="Returns the latency")
+	# async def slashping(self, ctx: SlashContext):
+	# 	start=time()
+	# 	message=await ctx.send(f'**Pong!** The latency is: `{round(self.bot.latency * 1000)}`ms.')
+	# 	end=time()
+	# 	await message.edit(content=f'**Pong!** The latency is: `{round(self.bot.latency * 1000)}`ms. The response time is: `{(end-start)*1000:.0f}`ms.')
 
 
 	@commands.command(name='infodesk', help='This command returns a welcome message')
