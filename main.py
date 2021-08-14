@@ -43,6 +43,7 @@ bot.betarole = int(os.getenv("betarole"))			# Betatester Role ID
 bot.annchannel = int(os.getenv("annchannel"))		# Announcements Channel ID
 bot.dsannchannel = int(os.getenv("dsannchannel"))		# Discord Announcements Channel ID
 bot.infodeskchannel = int(os.getenv("infodeskchannel"))	# Infodesk Channel ID
+bot.botcommandschannel = int(os.getenv("botcommandschannel"))	# BotCommand Channel ID
 bot.suggchannel = int(os.getenv("suggchannel"))  	# Suggestion Log Channel ID
 bot.betachannel = int(os.getenv("betachannel"))		# Betarequest Log Channel ID
 bot.botchatchannel = int(os.getenv("botchatchannel"))	# Botchat Channel ID
@@ -157,8 +158,8 @@ async def bothelp(ctx):
 		staffemb.add_field(name="Reactionrole", value='`{0}reactrole <emoji> <@role> <message>`\nUse it to create a new reactionrole in your current channel.'.format(bot.command_prefix), inline=False)
 		staffemb.add_field(name="Announcements", value='`{3}brdt`\nCreates a Droptop Announcement in <#{0}>.\n`{3}brds`\nCreates a Discord Announcement in <#{1}>.\n`{3}brnv`\nCreates a New Version Announcement <#{2}>.'.format((bot.annchannel), (bot.dsannchannel), (bot.annchannel), (bot.command_prefix)), inline=False)
 		staffemb.add_field(name="Polls", value='`{0}poll <emoji1> <emoji2>`\nCreates a poll with the 2 emojis as voting reactions in your current channel.'.format(bot.command_prefix), inline=False)
-		staffemb.add_field(name="Moderation", value='`{0}bannedwords <arg1> <arg2>`\nIf the two args are empty and if `arg1=list` the banned words list will be shown, if `arg1=add` `arg`2 will be added to the banned words list, if `arg1=remove` `arg2` will be removed from the banned words list. (`arg1` has to be lowercase but `arg2` has to be a single word and will be lowered in any case as every message sent)\n`{0}kick <memberMention>`\nKiks the specified user.\n`{0}ban <memberMention>`\nBans the specified member.\n`{0}unban <memberMention>`\nUnbans the specified user.\n`{0}purge <number>`\nPurges the specified number of messages from teh channel. If no number is given 15 messages will be deleted.'.format(bot.command_prefix), inline=False)
-		staffemb.add_field(name='Droptop',value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format((bot.command_prefix)), inline=False)
+		staffemb.add_field(name="Moderation", value='`{0}bannedwords (arg1) (arg2)`\nIf the two args are empty and if `arg1=list` the banned words list will be shown, if `arg1=add` `arg`2 will be added to the banned words list, if `arg1=remove` `arg2` will be removed from the banned words list. (`arg1` has to be lowercase but `arg2` has to be a single word and will be lowered in any case as every message sent)\n`{0}kick <memberMention>`\nKiks the specified user.\n`{0}ban <memberMention>`\nBans the specified member.\n`{0}unban <memberMention>`\nUnbans the specified user.\n`{0}purge <number>`\nPurges the specified number of messages from teh channel. If no number is given 15 messages will be deleted.\n`{0}infodesk`\nSends an infodesk message in the <#{1}> channel\n`{0}helpexample`\nSends the bot commands in <#{2}>'.format((bot.command_prefix), (bot.infodeskchannel), (bot.botcommandschannel)), inline=False)
+		staffemb.add_field(name='Droptop',value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format(bot.command_prefix), inline=False)
 		staffemb.add_field(name="Utilities", value='`{0}ping`\nReturns the latency of the bot.\n`{0}bothelp`\nShows this message.'.format(bot.command_prefix), inline=False)
 
 		memberemb=discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
@@ -167,7 +168,7 @@ async def bothelp(ctx):
 		memberemb.add_field(name='Droptop',value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format((bot.command_prefix)), inline=False)
 		memberemb.add_field(name="Suggestions", value='`{0}suggest`\nSends a suggestion to <#{1}>.'.format((bot.command_prefix),(bot.suggchannel)), inline=False)
 		memberemb.add_field(name="Utilities", value='`{0}ping`\nReturns the latency of the bot.\n`{0}bothelp`\nShows this message.'.format(bot.command_prefix), inline=False)
-		memberemb.set_footer(text="Other commands are coming out soon, so stay tuned!!\nObviously every suggestion is welcome!")
+		memberemb.set_footer(text="Every command suggestion is welcome!")
 
 		if adminrole in ctx.author.roles:
 			await ctx.send(embed=staffemb)

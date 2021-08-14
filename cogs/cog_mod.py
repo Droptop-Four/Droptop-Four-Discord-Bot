@@ -135,5 +135,37 @@ class ModCommands(commands.Cog, name='Moderation'):
 		await channel.send(embed=embed)
 
 
+	@commands.command(name='infodesk', help='This command returns a welcome message')
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
+	async def infodesk(self, ctx):
+		channel = self.bot.get_channel(self.bot.infodeskchannel)
+		embed=discord.Embed(title="WELCOME!!", description="Welcome to the Official Droptop Four Discord Server!!", color=0x60d96b)
+		embed.set_author(name="Droptop Four", url="https://www.droptopfour.com", icon_url="https://cdn.discordapp.com/icons/800124057923485728/a_4be318be5515b8bcc1bc8f5a68e15e46.webp?size=1024")
+		embed.add_field(name="**What is Droptop?**", value="Droptop Four is a popular dropdown app launcher for Windows & Rainmeter. It is available in two version, a `Basic` one, free, and a `Supporter` one, with a 'pay what you want' donation.  Both versions have 14 system tray apps, the Always Show option to make it accessible everywhere on top of your desktop and a lot more.", inline=False)
+		embed.add_field(name="**Further Informations**", value="If you have further informations you can use the `-info` command in <#{}>".format(self.bot.botchatchannel), inline=False)
+		embed.set_footer(text="If you have other questions, feel free to ask them in the server!")
+		await ctx.message.delete()
+		await channel.send(embed=embed)
+
+
+	@commands.command(name='bothelpexample', help='This command shows the help command', aliases=['bhe', 'b-h-e','helpe', 'he', 'helpexample'])
+	@commands.has_any_role(800217789343727657, 801741190227165236)	#Admin Role ID, Mod Role ID 
+	async def bothelp(self, ctx):
+
+		'''Bot Help Command'''
+
+		channel = self.bot.get_channel(self.bot.botcommandschannel)
+
+		helpexample=discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
+		helpexample.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=self.bot.user.avatar_url)
+		helpexample.set_thumbnail(url=ctx.guild.icon_url)
+		helpexample.add_field(name='Droptop',value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format((self.bot.command_prefix)), inline=False)
+		helpexample.add_field(name="Suggestions", value='`{0}suggest`\nSends a suggestion to <#{1}>.'.format((self.bot.command_prefix),(self.bot.suggchannel)), inline=False)
+		helpexample.add_field(name="Utilities", value='`{0}ping`\nReturns the latency of the bot.\n`{0}bothelp`\nShows this message.'.format(self.bot.command_prefix), inline=False)
+		helpexample.set_footer(text="Every command suggestion is welcome!")
+		
+		await channel.send(embed=helpexample)
+
+
 def setup(bot):
 	bot.add_cog(ModCommands(bot))
