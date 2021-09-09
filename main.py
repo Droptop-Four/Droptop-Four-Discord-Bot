@@ -119,11 +119,11 @@ async def on_raw_reaction_remove(payload):
                 await bot.get_guild(payload.guild_id).get_member(payload.user_id).remove_roles(role)
 
 
-@bot.command(name='reactionrole', aliases=['rr', 'reactrole'], help='This command creates a reactionrole in the channel.')
+@bot.command(name='reactionrole', aliases=['rr', 'reactrole'], help='This command creates a reactionrole in the channel')
 # Admin Role ID, Mod Role ID
 @commands.has_any_role(800217789343727657, 801741190227165236)
 async def reactrole(ctx, emoji, role: discord.Role, *, message):
-    '''Creates a reactionrole in the channel.'''
+    '''Creates a reactionrole in the channel'''
 
     emb = discord.Embed(description=message)
     msg = await ctx.channel.send(embed=emb)

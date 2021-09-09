@@ -42,14 +42,14 @@ class ModerationCommands(commands.Cog, name='Moderation'):
                     await message.delete()
 
 
-    @commands.command(name='bannedwords', aliases=['bw', 'banwords', 'banword', 'bannedword'], help='This command lets you set the banned words.')
+    @commands.command(name='bannedwords', aliases=['bw', 'banwords', 'banword', 'bannedword'], help='This command lets you set the banned words')
     @commands.has_any_role(800217789343727657, 801741190227165236)
     async def bannedwords(self, ctx, arg1=None, arg2=None):
         '''Lets you set the banned words'''
         
-        bwls = ['ls', 'list', 'all', ]
-        bwadd = ['add', ]
-        bwremove = ['rm', 'remove', 'delete', ]
+        bwls = ['ls', 'Ls', 'LS', 'list', 'List', 'LIST', 'all', 'All', 'ALL',]
+        bwadd = ['add', 'Add', 'ADD',]
+        bwremove = ['rm', 'Rm', 'RM', 'remove', 'Remove', 'REMOVE', 'delete', 'Delete', 'DELETE',]
         
         if arg1 is None:
             mydoc = collection_bw.find()
@@ -64,7 +64,7 @@ class ModerationCommands(commands.Cog, name='Moderation'):
                 await ctx.send('The banned words are: '+result)
             else:
                 await ctx.send('Currently there are no banned words.')
-                
+
         elif arg1 in bwls:
             mydoc = collection_bw.find()
             f = open("bannedwords.txt", "w")
@@ -77,7 +77,7 @@ class ModerationCommands(commands.Cog, name='Moderation'):
                 await ctx.send('The banned words are: '+result)
             else:
                 await ctx.send('Currently there are no banned words.')
-                
+
         elif arg1 in bwadd:
             if arg2 is None:
                 await ctx.send('You need to add a word to be added to the banned words list.')
@@ -92,7 +92,7 @@ class ModerationCommands(commands.Cog, name='Moderation'):
                     query = x['name']+' '
                     f.write(query)
                 f.close()
-                
+
         elif arg1 in bwremove:
             if arg2 is None:
                 await ctx.send('You need to add a word to be removed from the banned words list.')
@@ -107,15 +107,15 @@ class ModerationCommands(commands.Cog, name='Moderation'):
                     query = x['name']+' '
                     f.write(query)
                 f.close()
-                
+
         else:
             pass
 
 
-    @commands.command(name='kick', aliases=[], help='This command lets you kick a user')
+    @commands.command(name='kick', aliases=[], help='This command lets you kick a member')
     @commands.has_any_role(800217789343727657, 801741190227165236)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
-        '''Lets you kick a user'''
+        '''Lets you kick a member'''
         
         await ctx.guild.kick(user=member, reason=reason)
         channel = self.bot.get_channel(self.bot.modlogchannel)
@@ -123,10 +123,10 @@ class ModerationCommands(commands.Cog, name='Moderation'):
         await channel.send(embed=embed)
 
 
-    @commands.command(name='ban', aliases=[], help='This command lets you ban a user')
+    @commands.command(name='ban', aliases=[], help='This command lets you ban a member')
     @commands.has_any_role(800217789343727657, 801741190227165236)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
-        '''Lets you ban a user'''
+        '''Lets you ban a member'''
         
         await ctx.guild.ban(user=member, reason=reason)
         channel = self.bot.get_channel(self.bot.modlogchannel)
@@ -134,10 +134,10 @@ class ModerationCommands(commands.Cog, name='Moderation'):
         await channel.send(embed=embed)
 
 
-    @commands.command(name='unban', aliases=[], help='This command lets you unban a user')
+    @commands.command(name='unban', aliases=[], help='This command lets you unban a member')
     @commands.has_any_role(800217789343727657, 801741190227165236)
     async def unban(self, ctx, member, *, reason=None):
-        '''Lets you unban a user'''
+        '''Lets you unban a member'''
         
         member = await self.bot.fetch_user(int(member))
         await ctx.guild.unban(member, reason=reason)

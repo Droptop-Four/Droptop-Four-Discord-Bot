@@ -29,8 +29,7 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
             return message.author == ctx.author and message.channel == ctx.channel
 
         dtbrping = discord.utils.get(ctx.guild.roles, id=self.bot.droptopping)  # Droptop BR role ID
-        # Droptop Announcements channel ID
-        channel = self.bot.get_channel(self.bot.annchannel)
+        channel = self.bot.get_channel(self.bot.annchannel)  # Droptop Announcements channel ID
 
         titlereq = await ctx.send('Waiting for a title')
         title = await self.bot.wait_for('message', check=check)
@@ -62,8 +61,7 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
             return message.author == ctx.author and message.channel == ctx.channel
 
         dsbrping = discord.utils.get(ctx.guild.roles, id=self.bot.discordping)  # Discord BR role ID
-        # Discord Announcements channel ID
-        channel = self.bot.get_channel(self.bot.dsannchannel)
+        channel = self.bot.get_channel(self.bot.dsannchannel)  # Discord Announcements channel ID
 
         titlereq = await ctx.send('Waiting for a title')
         title = await self.bot.wait_for('message', check=check)
@@ -95,8 +93,7 @@ class BroadcastCommands(commands.Cog, name='Broadcast'):
             return message.author == ctx.author and message.channel == ctx.channel
 
         nvbrping = discord.utils.get(ctx.guild.roles, id=self.bot.newversionping)  # Discord BR role ID
-        # Discord Announcements channel ID
-        channel = self.bot.get_channel(self.bot.annchannel)
+        channel = self.bot.get_channel(self.bot.annchannel)  # Discord Announcements channel ID
 
         titlereq = await ctx.send('Waiting for a Version')
         title = await self.bot.wait_for('message', check=check)
