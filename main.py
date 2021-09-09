@@ -3,7 +3,7 @@
     Discord: https://discord.gg/hQGDm4F5Ef
     Author: Bunz (bunz#3066)
     Date created: 19/03/2021
-    Date last modified: 06/09/2021
+    Date last modified: 09/09/2021
     Bot Version: 2.6
     Python Version: 3.8.10
     Cogs: 7
