@@ -20,6 +20,7 @@ collection_s = db["Suggestions"]
 
 
 class SuggestionCommands(commands.Cog, name="Suggestions"):
+    '''These are the Suggestions Commands'''
 
 
     def __init__(self, bot):
