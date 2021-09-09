@@ -19,8 +19,7 @@ def run():
 
 
 def keep_alive():
-    '''
-    Creates and starts new thread that runs the function run.
-    '''
+    '''Creates and starts new thread that runs the function run.'''
+    
     t = Thread(target=run)
     t.start()
