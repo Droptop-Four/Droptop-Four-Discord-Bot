@@ -40,8 +40,10 @@ class SuggestionCommands(commands.Cog, name="Suggestions"):
             embed2.add_field(name='Suggestion: ', value=sugg)
             embed2.set_footer(text='UserID: ( {} ) | sID: ( {} )'.format(ctx.author.id, ctx.author.display_name), icon_url=ctx.author.avatar_url)
             sugg1 = await channel.send(embed=embed1)
+            
             for proxy_url in attachment_url:
                 await channel.send('{}'.format(proxy_url))
+            
             sugg2 = await channel.send(embed=embed2)
             attcs = ' '.join(map(str, attachment_url))
             post = {"UserID": ctx.author.id, "sID": ctx.author.display_name, "Suggestion": sugg, "Attachment": attcs}
