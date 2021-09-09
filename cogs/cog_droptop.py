@@ -43,7 +43,7 @@ class DroptopCommands(commands.Cog, name='Droptop'):
         supporter = ['supporter', 'Supporter', 'supp', 'Supp', 'sup', 'Sup']
 
         generic = discord.Embed(title='Droptop Four', color=discord.Color.from_rgb(75, 215, 100))
-        generic.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+        generic.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
         generic.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
         generic.add_field(name="What is it?", value="Droptop Four is a popular dropdown app launcher for Windows & Rainmeter.\nIt is available in two version, a `Basic` one, free, and a `Supporter` one, with a \'pay what you want\' donation.\nBoth versions have 14 system tray apps, the Always Show option to make it accessible everywhere on top of your desktop and a lot more.", inline=False)
         generic.add_field(name="Basic Version", value='The `Basic` version has:\n - 7 home bottons icons\n - 6 fully-customizable toolbars\n - 4 themes to choose from', inline=True)
@@ -51,21 +51,21 @@ class DroptopCommands(commands.Cog, name='Droptop'):
         generic.set_footer(text="To see further infos on one of the two versions type `{0}info basic` or `{0}info supporter` or click the buttons below".format(self.bot.command_prefix))
 
         base = discord.Embed(title='Droptop Four Basic Version', color=discord.Color.from_rgb(75, 215, 100))
-        base.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+        base.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
         base.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
         base.add_field(name="What is it?", value="This is the Basic and free version of droptop.", inline=False)
         base.add_field(name="Perks", value='The `Basic` version has:\n - 7 home bottons icons\n - 6 fully-customizable toolbars\n - 4 themes to choose from', inline=False)
         base.add_field(name="Download", value='To install it you have to download it on the DeviantArt page of Droptop Four:\nhttps://www.deviantart.com/cariboudjan/art/droptop-four-762812007\nTo see further explanations on download methods type `{}download`'.format(self.bot.command_prefix), inline=False)
 
         supp = discord.Embed(title='Droptop Four Supporter Version', color=discord.Color.from_rgb(75, 215, 100))
-        supp.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+        supp.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
         supp.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
         supp.add_field(name="What is it?", value="This is the Supporter version of droptop.\nTo download it you can pay what you want through Gumroad.", inline=False)
         supp.add_field(name='Perks', value='The `Supporter` version has:\n - 300 home buttons icons\n - 12 fully-customizable toolbars\n - 22 themes to choose from', inline=False)
         supp.add_field(name="Download", value='To install it you have to:\n1)	download the Basic version on the DeviantArt page of Droptop Four (https://www.deviantart.com/cariboudjan/art/droptop-four-762812007)\n2)	download the Supporter update through Gumroad choosing how much you want to pay for it (from 0$) (https://gumroad.com/l/droptop)\nTo see further explanations on download methods type `{}download`'.format(self.bot.command_prefix), inline=False)
 
         if arg == None:
-            send1 = await ctx.send(embed=generic, components=[[Button(label='Generic Info', id='generic', style=2, disabled=True), Button(label='Base Version Info', id="base", style=1), Button(label='Supporter Version Info', id="supp", style=3)], Button(label='Site', style=5, url='https://www.droptopfour.com')])
+            send1 = await ctx.send(embed=generic, components=[[Button(label='Generic Info', id='generic', style=2, disabled=True), Button(label='Base Version Info', id="base", style=1), Button(label='Supporter Version Info', id="supp", style=3)], Button(label='Site', style=5, url=self.bot.dtsite)])
 
             response = await self.bot.wait_for("button_click", check=check, timeout=60)
             SelectedButton = response.component.id
@@ -87,7 +87,7 @@ class DroptopCommands(commands.Cog, name='Droptop'):
                 return
 
         if arg in basic:
-            send2 = await ctx.send(embed=base, components=[[Button(label='Generic Info', id='generic', style=2), Button(label='Base Version Info', id="base", style=1, disabled=True), Button(label='Supporter Version Info', id="supp", style=3)], Button(label='Site', style=5, url='https://www.droptopfour.com')])
+            send2 = await ctx.send(embed=base, components=[[Button(label='Generic Info', id='generic', style=2), Button(label='Base Version Info', id="base", style=1, disabled=True), Button(label='Supporter Version Info', id="supp", style=3)], Button(label='Site', style=5, url=self.bot.dtsite)])
 
             response = await self.bot.wait_for("button_click", check=check, timeout=60)
             SelectedButton = response.component.id
@@ -109,7 +109,7 @@ class DroptopCommands(commands.Cog, name='Droptop'):
                 return
 
         if arg in supporter:
-            send3 = await ctx.send(embed=supp, components=[[Button(label='Generic Info', id='generic', style=2, ), Button(label='Base Version Info', id="base", style=1), Button(label='Supporter Version Info', id="supp", style=3, disabled=True)], Button(label='Site', style=5, url='https://www.droptopfour.com')])
+            send3 = await ctx.send(embed=supp, components=[[Button(label='Generic Info', id='generic', style=2, ), Button(label='Base Version Info', id="base", style=1), Button(label='Supporter Version Info', id="supp", style=3, disabled=True)], Button(label='Site', style=5, url=self.bot.dtsite)])
 
             response = await self.bot.wait_for("button_click", check=check, timeout=60)
             SelectedButton = response.component.id
@@ -142,7 +142,7 @@ class DroptopCommands(commands.Cog, name='Droptop'):
     # 	supporter=['supporter', 'Supporter', 'supp', 'Supp', 'sup', 'Sup']
 
     # 	generic=discord.Embed(title='Droptop Four', color=discord.Color.from_rgb(75, 215, 100))
-    # 	generic.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+    # 	generic.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
     # 	generic.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
     # 	generic.add_field(name="What is it?", value="Droptop Four is a popular dropdown app launcher for Windows & Rainmeter.\nIt is available in two version, a `Basic` one, free, and a `Supporter` one, with a \'pay what you want\' donation.\nBoth versions have 14 system tray apps, the Always Show option to make it accessible everywhere on top of your desktop and a lot more.", inline=False)
     # 	generic.add_field(name="Basic Version", value='The `Basic` version has:\n - 7 home bottons icons\n - 6 fully-customizable toolbars\n - 4 themes to choose from', inline=True)
@@ -150,14 +150,14 @@ class DroptopCommands(commands.Cog, name='Droptop'):
     # 	generic.set_footer(text="To see further infos on one of the two versions type `{0}info basic` or `{0}info supporter` or click the buttons below".format(self.bot.command_prefix))
 
     # 	base=discord.Embed(title='Droptop Four Basic Version', color=discord.Color.from_rgb(75, 215, 100))
-    # 	base.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+    # 	base.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
     # 	base.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
     # 	base.add_field(name="What is it?", value="This is the Basic and free version of droptop.", inline=False)
     # 	base.add_field(name="Perks", value='The `Basic` version has:\n - 7 home bottons icons\n - 6 fully-customizable toolbars\n - 4 themes to choose from', inline=False)
     # 	base.add_field(name="Download", value='To install it you have to download it on the DeviantArt page of Droptop Four:\nhttps://www.deviantart.com/cariboudjan/art/droptop-four-762812007\nTo see further explanations on download methods type `{}download`'.format(self.bot.command_prefix), inline=False)
 
     # 	supp=discord.Embed(title='Droptop Four Supporter Version', color=discord.Color.from_rgb(75, 215, 100))
-    # 	supp.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+    # 	supp.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
     # 	supp.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
     # 	supp.add_field(name="What is it?", value="This is the Supporter version of droptop.\nTo download it you can pay what you want through Gumroad.", inline=False)
     # 	supp.add_field(name='Perks', value='The `Supporter` version has:\n - 300 home buttons icons\n - 12 fully-customizable toolbars\n - 22 themes to choose from', inline=False)
@@ -171,11 +171,11 @@ class DroptopCommands(commands.Cog, name='Droptop'):
         '''Returns the download possibilities'''
         
         down = discord.Embed(title='Droptop Four Downloads', color=discord.Color.from_rgb(75, 215, 100))
-        down.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+        down.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
         down.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
         down.add_field(name="Where to download?", value="The Droptop **Base** version can be downloaded on the DeviantArt page of Droptop *[https://www.deviantart.com/cariboudjan/art/droptop-four-762812007]* or by being redirected to it on the Droptop Official Site *[https://blacksquare88.wixsite.com/droptop4]* (for help about the Base version type `{0}info base`)\n\nThe Droptop **Supporter** version can be downloaded after paying what you want on Gumroad *[https://gumroad.com/l/droptop]* (for help about the Supporter version type `{0}info supporter`)".format(self.bot.command_prefix), inline=False)
 
-        await ctx.send(embed=down, components=[[Button(label='Base', style=5, url="https://www.deviantart.com/cariboudjan/art/droptop-four-762812007"), Button(label='Supporter', style=5, url='https://gumroad.com/l/droptop'), Button(label='Site', style=5, url='https://www.droptopfour.com')]])
+        await ctx.send(embed=down, components=[[Button(label='Base', style=5, url="https://www.deviantart.com/cariboudjan/art/droptop-four-762812007"), Button(label='Supporter', style=5, url='https://gumroad.com/l/droptop'), Button(label='Site', style=5, url=self.bot.dtsite)]])
 
 
     # @cog_ext.cog_slash(name="download", description="Returns download informations")
@@ -183,7 +183,7 @@ class DroptopCommands(commands.Cog, name='Droptop'):
     #   '''Returns the download possibilities'''
     
     # 	down=discord.Embed(title='Droptop Four Downloads', color=discord.Color.from_rgb(75, 215, 100))
-    # 	down.set_author(name="Created by Cariboudjan", url="https://blacksquare88.wixsite.com/droptop4", icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
+    # 	down.set_author(name="Created by Cariboudjan", url=self.bot.dtsite, icon_url='https://cdn.discordapp.com/avatars/584542239900827665/8d070369e6169444ad45c479ef0eec9a.png?size=1024')
     # 	down.set_thumbnail(url='https://cdn.discordapp.com/icons/800124057923485728/7e8f7f08dce1d220711ee2488d497c8f.webp?size=1024')
     # 	down.add_field(name="Where to download?", value="The Droptop **Base** version can be downloaded on the DeviantArt page of Droptop *[https://www.deviantart.com/cariboudjan/art/droptop-four-762812007]* or by being redirected to it on the Droptop Official Site *[https://blacksquare88.wixsite.com/droptop4]* (for help about the Base version type `{0}info base`)\n\nThe Droptop **Supporter** version can be downloaded after paying what you want on Gumroad *[https://gumroad.com/l/droptop]* (for help about the Supporter version type `{0}info supporter`)".format(self.bot.command_prefix), inline=False)
 
@@ -216,7 +216,7 @@ class DroptopCommands(commands.Cog, name='Droptop'):
         '''Sends informations on how to participate to the beta program'''
 
         embed = discord.Embed(title='Beta Program', description='Enroll now to the Droptop Four Beta Program! The procedure is quite easy, just follow the guidelines below!', color=0x409bda)
-        embed.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=self.bot.user.avatar_url)
+        embed.set_author(name="Droptop Four", url=self.bot.dtsite, icon_url=self.bot.user.avatar_url)
         embed.add_field(name='How', value='To enroll you have to have a Gmail account and send me the command `{0}beta-apply \"<name>\" \"<Gmail address>\"`'.format(self.bot.command_prefix), inline=False)
         embed.add_field(name='IMPORTANT!!', value='You have to follow the syntax of the command or your subscription wont be guaranteed.\n**REMEMBER TO USE QUOTATION MARKS**', inline=False)
         embed.add_field(name='Example', value='`{0}beta-apply \"John Doe\" \"john.doe@gmail.com\"`'.format(self.bot.command_prefix), inline=False)
@@ -240,7 +240,7 @@ class DroptopCommands(commands.Cog, name='Droptop'):
     #   '''Returns beta informations'''
 
     # 	embed=discord.Embed(title='Beta Program', description='Enroll now to the Droptop Four Beta Program! The procedure is quite easy, just follow the guidelines below!', color=0x409bda)
-    # 	embed.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=self.bot.user.avatar_url)
+    # 	embed.set_author(name="Droptop Four", url=self.bot.dtsite, icon_url=self.bot.user.avatar_url)
     # 	embed.add_field(name='How', value='To enroll you have to have a Gmail account and send me the command `{0}beta-apply \"<name>\" \"<Gmail address>\"`'.format(self.bot.command_prefix), inline=False)
     # 	embed.add_field(name='IMPORTANT!!', value='You have to follow the syntax of the command or your subscription wont be guaranteed.\n**REMEMBER TO USE QUOTATION MARKS**', inline=False)
     # 	embed.add_field(name='Example', value='`{0}beta-apply \"John Doe\" \"john.doe@gmail.com\"`'.format(self.bot.command_prefix), inline=False)

@@ -160,7 +160,7 @@ async def bothelp(ctx):
     modrole = discord.utils.get(ctx.guild.roles, id=bot.modrole_id)  # Moderator Role ID
 
     staffemb = discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
-    staffemb.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=bot.user.avatar_url)
+    staffemb.set_author(name="Droptop Four", url=bot.dtsite, icon_url=bot.user.avatar_url)
     staffemb.set_thumbnail(url=ctx.guild.icon_url)
     staffemb.add_field(name="Developer", value='`{0}listcogs`\nReturns a list of all the enabld cogs.\n`{0}load`\nLoads a cog.\n`{0}reload`\nReloads a cog.\n`{0}unload`\nUnloads a cog.'.format(bot.command_prefix), inline=False)
     staffemb.add_field(name="Reactionrole", value='`{0}reactrole <emoji> <@role> <message>`\nUse it to create a new reactionrole in your current channel.'.format(bot.command_prefix), inline=False)
@@ -171,7 +171,7 @@ async def bothelp(ctx):
     staffemb.add_field(name="Utilities", value='`{0}ping`\nReturns the latency of the bot.\n`{0}bothelp`\nShows this message.'.format(bot.command_prefix), inline=False)
 
     memberemb = discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
-    memberemb.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=bot.user.avatar_url)
+    memberemb.set_author(name="Droptop Four", url=bot.dtsite, icon_url=bot.user.avatar_url)
     memberemb.set_thumbnail(url=ctx.guild.icon_url)
     memberemb.add_field(name='Droptop', value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format((bot.command_prefix)), inline=False)
     memberemb.add_field(name="Suggestions", value='`{0}suggest`\nSends a suggestion to <#{1}>.'.format((bot.command_prefix), (bot.suggchannel)), inline=False)
@@ -194,7 +194,7 @@ async def bothelp(ctx):
 # 		modrole = discord.utils.get(ctx.guild.roles, id=bot.modrole_id) #Moderator Role ID
 
 # 		staffemb=discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
-# 		staffemb.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=bot.user.avatar_url)
+# 		staffemb.set_author(name="Droptop Four", url=bot.dtsite, icon_url=bot.user.avatar_url)
 # 		staffemb.set_thumbnail(url=ctx.guild.icon_url)
 # 		staffemb.add_field(name="Developer", value='`{0}listcogs`\nReturns a list of all the enabld cogs.\n`{0}load`\nLoads a cog.\n`{0}reload`\nReloads a cog.\n`{0}unload`\nUnloads a cog.'.format(bot.command_prefix), inline=False)
 # 		staffemb.add_field(name="Reactionrole", value='`{0}reactrole <emoji> <@role> <message>`\nUse it to create a new reactionrole in your current channel.'.format(bot.command_prefix), inline=False)
@@ -205,7 +205,7 @@ async def bothelp(ctx):
 # 		staffemb.add_field(name="Utilities", value='`{0}ping`\nReturns the latency of the bot.\n`{0}bothelp`\nShows this message.'.format(bot.command_prefix), inline=False)
 
 # 		memberemb=discord.Embed(title='Bot Commands', color=discord.Color.from_rgb(75, 215, 100))
-# 		memberemb.set_author(name="Droptop Four", url="https://blacksquare88.wixsite.com/droptop4", icon_url=bot.user.avatar_url)
+# 		memberemb.set_author(name="Droptop Four", url=bot.dtsite, icon_url=bot.user.avatar_url)
 # 		memberemb.set_thumbnail(url=ctx.guild.icon_url)
 # 		memberemb.add_field(name='Droptop',value='`{0}info`\nShows info about the Droptop Four bar.\n`{0}download`\nShows the Droptop Four download possibilities.\n`{0}faq`\nShows the FAQ link.\n`{0}beta`\nThis command sends you informations on how to apply to the beta-testing program.'.format((bot.command_prefix)), inline=False)
 # 		memberemb.add_field(name="Suggestions", value='`{0}suggest`\nSends a suggestion to <#{1}>.'.format((bot.command_prefix),(bot.suggchannel)), inline=False)
