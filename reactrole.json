@@ -1,0 +1,26 @@
+[
+    {
+        "role_name": "Droptop Ping",
+        "role_id": 822061436690890752,
+        "emoji": "\ud83c\udd70\ufe0f",
+        "message_id": 827598923971166281
+    },
+	{
+        "role_name": "New Version Ping",
+        "role_id": 822061500747218974,
+        "emoji": "\ud83c\udd71\ufe0f",
+        "message_id": 827598989146718218
+    },
+	{
+        "role_name": "Discord Ping",
+        "role_id": 822061367309631499,
+        "emoji": "\ud83c\udde8",
+        "message_id": 827599086466891826
+    },
+	{
+        "role_name": "Poll Ping",
+        "role_id": 822061196567248916,
+        "emoji": "\ud83c\udde9",
+        "message_id": 827599270873661520
+    }
+]

@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "Droptop Four Discord Bot"
+version = "3.1"
+description = "The discord bot of the official Droptop Four discord server"
+authors = ["Bunz"]
+[tool.black]
+preview = true
+[tool.poetry.dependencies]
+python = "^3.11"
+python-lsp-black = "^1.2.1"
+tomli = "^2.0.1"
+"discord.py" = "^2.0.0"
+Pillow = "^9.3.0"
+PyGithub = "^1.56"
+emoji = "^2.2.0"
+requests = "^2.28.1"
+discord = "^2.0.0"
+pymongo = "^4.3.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
