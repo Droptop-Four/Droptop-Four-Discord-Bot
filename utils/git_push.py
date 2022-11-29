@@ -1,5 +1,5 @@
 import github
-import os, json
+import os, json, time
 from utils import github_reader
 import pymongo
 from pymongo import MongoClient
@@ -60,25 +60,25 @@ def push_rmskin(type, title, author, package_name, version=None, ):
 			file = file_content
 			all_files.append(str(file).replace('ContentFile(path="','').replace('")',''))
 
-	with open(f'tmp/{package_name}.rmskin', 'rb') as file:
+	with open(f'tmp/{package_name}', 'rb') as file:
 		content = file.read()
 
-	git_file = git_prefix + package_name + ".rmskin"
+	git_file = git_prefix + package_name
 	
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"Update {title}-{author}-v{version}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{time.strftime('%y.%m%d')}", content, contents.sha, branch="main")
 		else:
-			repo.update_file(contents.path, f"Update {title}-{author}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{time.strftime('%y.%m%d')}", content, contents.sha, branch="main")
 		creation = False
 		return creation
 	
 	else:
 		if type == "app":
-			repo.create_file(git_file, f"Release {title}-{author}-v{version}", content, branch="main")
+			repo.create_file(git_file, f"{time.strftime('%y.%m%d')}", content, branch="main")
 		else:
-			repo.create_file(git_file, f"Release {title}-{author}", content, branch="main")
+			repo.create_file(git_file, f"{time.strftime('%y.%m%d')}", content, branch="main")
 		creation = True
 		return creation
 
@@ -126,17 +126,17 @@ def push_image(type, title, author, image_name, version=None):
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"Update {title}-{author}-v{version}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{time.strftime('%y.%m%d')}", content, contents.sha, branch="main")
 		else:
-			repo.update_file(contents.path, f"Update {title}-{author}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{time.strftime('%y.%m%d')}", content, contents.sha, branch="main")
 		creation = False
 		return creation
 	
 	else:
 		if type == "app":
-			repo.create_file(git_file, f"Release {title}-{author}-v{version}", content, branch="main")
+			repo.create_file(git_file, f"{time.strftime('%y.%m%d')}", content, branch="main")
 		else:
-			repo.create_file(git_file, f"Release {title}-{author}", content, branch="main")
+			repo.create_file(git_file, f"{time.strftime('%y.%m%d')}", content, branch="main")
 		creation = True
 		return creation
 
@@ -192,7 +192,7 @@ def update_json(type, title=None, author=None, description=None, rmskin_name=Non
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"Update {title}-{author}-{version}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{time.strftime('%y.%m%d')}", json_content, content.sha, branch="main")
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
@@ -216,7 +216,7 @@ def update_json(type, title=None, author=None, description=None, rmskin_name=Non
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"Update {title}-{author}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{time.strftime('%y.%m%d')}", json_content, content.sha, branch="main")
 				download_link = theme_tags["direct_download_link"]
 				image_link = theme_tags["image_url"]
 				item_id = theme_tags["id"]
@@ -245,10 +245,10 @@ def update_json(type, title=None, author=None, description=None, rmskin_name=Non
 		
 		if new_item:
 			if type == "app":
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}.rmskin"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/{image_name}.webp"
 			elif type == "theme":
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}.rmskin"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/{image_name}.webp"
 			else:
 				pass
@@ -314,9 +314,9 @@ def update_json(type, title=None, author=None, description=None, rmskin_name=Non
 				json_content = f.read()
 			
 			if type == "app":
-				repo.update_file(content.path, f"Release {title}-{author}-v{version}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{time.strftime('%y.%m%d')}", json_content, content.sha, branch="main")
 			elif type == "theme":
-				repo.update_file(content.path, f"Release {title}-{author}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{time.strftime('%y.%m%d')}", json_content, content.sha, branch="main")
 	
 			temp_json.unlink()
 		else:

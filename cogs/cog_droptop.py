@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_rename, to_webp, update_json
+from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_name_check, rmskin_rename, to_webp, update_json, get_title_author
 
 from typing import Optional, List
 import traceback
@@ -12,23 +12,15 @@ from pathlib import Path
 
 class NewAppRelease(discord.ui.Modal, title="New App Release"):
 
-	def __init__(self, configs, image_mode, rmskin_package, image_preview, channel):
+	def __init__(self, configs, app_title, author, image_mode, rmskin_package, image_preview, channel):
 		super().__init__()
+		self.app_title = app_title
+		self.author = author
 		self.configs = configs
 		self.image_mode = image_mode
 		self.rmskin_package = rmskin_package
 		self.image_preview = image_preview
 		self.channel = channel
-
-	app_title = discord.ui.TextInput(
-		label="Title",
-		placeholder="Title here...",
-	)
-	
-	author = discord.ui.TextInput(
-		label="Author",
-		placeholder="Author here...",
-	)
 
 	version = discord.ui.TextInput(
 		label="Version",
@@ -45,24 +37,25 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		
 		if self.image_mode == "jpg":
 			await interaction.response.send_message(f"Your app is being released... Please wait...", ephemeral=True)
-			rmskin_name = rmskin_rename("app", self.app_title.value, self.author.value)
-			package_path = Path(f"tmp/{rmskin_name}.rmskin")
+			#rmskin_name = rmskin_rename("app", self.app_title, self.author)
+			rmskin_name = rmskin_rename("app", self.rmskin_package.filename)
+			package_path = Path(f"tmp/{rmskin_name}")
 			await self.rmskin_package.save(package_path)
-			rmskin_creation = push_rmskin("app", self.app_title.value, self.author.value, rmskin_name, self.version.value)
+			rmskin_creation = push_rmskin("app", self.app_title, self.author, rmskin_name, self.version.value)
 			image_extension = Path(self.image_preview.filename).suffix
-			image_name = img_rename(self.app_title.value, self.author.value)
+			image_name = img_rename("app", self.rmskin_package.filename)
 			image_path = Path(f"tmp/{image_name}{image_extension}")
 			await self.image_preview.save(image_path)
 			webp_path = to_webp(image_path)
-			image_creation = push_image("app", self.app_title.value, self.author.value, image_name, self.version.value)
-			updated_json, download_link, image_link, app_id = update_json("app", self.app_title.value, self.author.value, self.description.value, rmskin_name, image_name, self.version.value)
+			image_creation = push_image("app", self.app_title, self.author, image_name, self.version.value)
+			updated_json, download_link, image_link, app_id = update_json("app", self.app_title, self.author, self.description.value, rmskin_name, image_name, self.version.value)
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
 			download_button = discord.ui.Button(style=style, label="Download", url=download_link)
 			site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-apps#{app_id}")
 			view.add_item(item=download_button)
 			view.add_item(item=site_button)
-			embed = discord.Embed(title=f"{self.app_title.value} - {self.author.value}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+			embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 			embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
 			embed.add_field(name="Version: ", value=self.version.value, inline=False)
 			embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )", icon_url=interaction.user.avatar.url)
@@ -71,34 +64,35 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			threads = []
 			for thread in self.channel.threads:
 				threads.append(thread.name)
-			if f"{self.app_title.value} - {self.author.value}" in threads:
+			if f"{self.app_title} - {self.author}" in threads:
 				for thread in self.channel.threads:
-					if f"{self.app_title.value} - {self.author.value}" in thread.name:
+					if f"{self.app_title} - {self.author}" in thread.name:
 						same_thread = thread
 				await same_thread.send(embed=embed, file=image_file, view=view)
 			else:
-				await self.channel.create_thread(name=f"{self.app_title.value} - {self.author.value}", embed=embed, file=image_file, view=view)
+				await self.channel.create_thread(name=f"{self.app_title} - {self.author}", embed=embed, file=image_file, view=view)
 			webp_path.unlink()
-			await interaction.followup.send(f"You successfully published **{self.app_title.value}** in <#{self.channel.id}>", ephemeral=True)
+			await interaction.followup.send(f"You successfully published **{self.app_title}** in <#{self.channel.id}>", ephemeral=True)
 
 		else:
 			await interaction.response.send_message(f"Your app is being released... Please wait...", ephemeral=True)
-			rmskin_name = rmskin_rename("app", self.app_title.value, self.author.value)
-			package_path = Path(f"tmp/{rmskin_name}.rmskin")
+			#rmskin_name = rmskin_rename("app", self.app_title, self.author)
+			rmskin_name = rmskin_rename("app", self.rmskin_package.filename)
+			package_path = Path(f"tmp/{rmskin_name}")
 			await self.rmskin_package.save(package_path)
-			rmskin_creation = push_rmskin("app", self.app_title.value, self.author.value, rmskin_name, self.version.value)
-			image_name = img_rename(self.app_title.value, self.author.value)
+			rmskin_creation = push_rmskin("app", self.app_title, self.author, rmskin_name, self.version.value)
+			image_name = img_rename("app", self.rmskin_package.filename)
 			webp_path = Path(f"tmp/{image_name}.webp")
 			await self.image_preview.save(webp_path)
-			image_creation = push_image("app", self.app_title.value, self.author.value, image_name, self.version.value)
-			updated_json, download_link, image_link, app_id = update_json("app", self.app_title.value, self.author.value, self.description.value, rmskin_name, image_name, self.version.value)
+			image_creation = push_image("app", self.app_title, self.author, image_name, self.version.value)
+			updated_json, download_link, image_link, app_id = update_json("app", self.app_title, self.author, self.description.value, rmskin_name, image_name, self.version.value)
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
 			download_button = discord.ui.Button(style=style, label="Download", url=download_link)
 			site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-apps#{app_id}")
 			view.add_item(item=download_button)
 			view.add_item(item=site_button)
-			embed = discord.Embed(title=f"{self.app_title.value} - {self.author.value}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+			embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 			embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
 			embed.add_field(name="Version: ", value=self.version.value, inline=False)
 			embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )", icon_url=interaction.user.avatar.url)
@@ -107,15 +101,15 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			threads = []
 			for thread in self.channel.threads:
 				threads.append(thread.name)
-			if f"{self.app_title.value} - {self.author.value}" in threads:
+			if f"{self.app_title} - {self.author}" in threads:
 				for thread in self.channel.threads:
-					if f"{self.app_title.value} - {self.author.value}" in thread.name:
+					if f"{self.app_title} - {self.author}" in thread.name:
 						same_thread = thread
 				await same_thread.send(embed=embed, file=image_file, view=view)
 			else:
-				await self.channel.create_thread(name=f"{self.app_title.value} - {self.author.value}", embed=embed, file=image_file, view=view)		
+				await self.channel.create_thread(name=f"{self.app_title} - {self.author}", embed=embed, file=image_file, view=view)		
 			webp_path.unlink()
-			await interaction.followup.send(f"You successfully published **{self.app_title.value}** in <#{self.channel.id}>", ephemeral=True)
+			await interaction.followup.send(f"You successfully published **{self.app_title}** in <#{self.channel.id}>", ephemeral=True)
 		package_path.unlink()
 
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
@@ -125,23 +119,15 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 
 class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 
-	def __init__(self, configs, image_mode, rmskin_package, image_preview, channel):
+	def __init__(self, configs, theme_title, author, image_mode, rmskin_package, image_preview, channel):
 		super().__init__()
+		self.theme_title = theme_title
+		self.author = author
 		self.configs = configs
 		self.image_mode = image_mode
 		self.rmskin_package = rmskin_package
 		self.image_preview = image_preview
 		self.channel = channel
-
-	theme_title = discord.ui.TextInput(
-		label="Title",
-		placeholder="Title here...",
-	)
-	
-	author = discord.ui.TextInput(
-		label="Author",
-		placeholder="Author here...",
-	)
 
 	description = discord.ui.TextInput(
 		label="Description",
@@ -153,17 +139,18 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 	async def on_submit(self, interaction: discord.Interaction):
 		if self.image_mode == "jpg":
 			await interaction.response.send_message(f"Your theme is being released... Please wait...", ephemeral=True)
-			rmskin_name = rmskin_rename("theme", self.theme_title.value, self.author.value)
-			package_path = Path(f"tmp/{rmskin_name}.rmskin")
+			#rmskin_name = rmskin_rename("theme", self.theme_title, self.author)
+			rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
+			package_path = Path(f"tmp/{rmskin_name}")
 			await self.rmskin_package.save(package_path)
-			rmskin_creation = push_rmskin("theme", self.theme_title.value, self.author.value, rmskin_name)
+			rmskin_creation = push_rmskin("theme", self.theme_title, self.author, rmskin_name)
 			image_extension = Path(self.image_preview.filename).suffix
-			image_name = img_rename(self.theme_title.value, self.author.value)
+			image_name = img_rename("theme", self.rmskin_package.filename)
 			image_path = Path(f"tmp/{image_name}{image_extension}")
 			await self.image_preview.save(image_path)
 			webp_path = to_webp(image_path)
-			image_creation = push_image("theme", self.theme_title.value, self.author.value, image_name)
-			updated_json, download_link, image_link, theme_id = update_json("theme", self.theme_title.value, self.author.value, self.description.value, rmskin_name, image_name)
+			image_creation = push_image("theme", self.theme_title, self.author, image_name)
+			updated_json, download_link, image_link, theme_id = update_json("theme", self.theme_title, self.author, self.description.value, rmskin_name, image_name)
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
 			download_button = discord.ui.Button(style=style, label="Download", url=download_link)
@@ -171,9 +158,9 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 			view.add_item(item=download_button)
 			view.add_item(item=site_button)
 			if self.description.value:
-				embed = discord.Embed(title=f"{self.theme_title.value} - {self.author.value}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+				embed = discord.Embed(title=f"{self.theme_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 			else:
-				embed = discord.Embed(title=f"{self.theme_title.value} - {self.author.value}", description="", color=discord.Color.from_rgb(75, 215, 100))
+				embed = discord.Embed(title=f"{self.theme_title} - {self.author}", description="", color=discord.Color.from_rgb(75, 215, 100))
 			embed.set_author(name="New Community Theme Release", url=self.configs["website"]+"/community-themes")
 			embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )", icon_url=interaction.user.avatar.url)
 			image_file = await self.image_preview.to_file(filename="image.png")
@@ -181,27 +168,28 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 			threads = []
 			for thread in self.channel.threads:
 				threads.append(thread.name)
-			if f"{self.theme_title.value} - {self.author.value}" in threads:
+			if f"{self.theme_title} - {self.author}" in threads:
 				for thread in self.channel.threads:
-					if f"{self.theme_title.value} - {self.author.value}" in thread.name:
+					if f"{self.theme_title} - {self.author}" in thread.name:
 						same_thread = thread
 				await same_thread.send(embed=embed, file=image_file, view=view)
 			else:
-				await self.channel.create_thread(name=f"{self.theme_title.value} - {self.author.value}", embed=embed, file=image_file, view=view)
+				await self.channel.create_thread(name=f"{self.theme_title} - {self.author}", embed=embed, file=image_file, view=view)
 			webp_path.unlink()
-			await interaction.followup.send(f"You successfully published **{self.theme_title.value}** in <#{self.channel.id}>", ephemeral=True)
+			await interaction.followup.send(f"You successfully published **{self.theme_title}** in <#{self.channel.id}>", ephemeral=True)
 
 		else:
 			await interaction.response.send_message(f"Your theme is being released... Please wait...", ephemeral=True)
-			rmskin_name = rmskin_rename("theme", self.theme_title.value, self.author.value)
-			package_path = Path(f"tmp/{rmskin_name}.rmskin")
+			#rmskin_name = rmskin_rename("theme", self.theme_title, self.author)
+			rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
+			package_path = Path(f"tmp/{rmskin_name}")
 			await self.rmskin_package.save(package_path)
-			rmskin_creation = push_rmskin("theme", self.theme_title.value, self.author.value, rmskin_name)
-			image_name = img_rename(self.theme_title.value, self.author.value)
+			rmskin_creation = push_rmskin("theme", self.theme_title, self.author, rmskin_name)
+			image_name = img_rename("theme", self.rmskin_package.filename)
 			webp_path = Path(f"tmp/{image_name}.webp")
 			await self.image_preview.save(webp_path)
-			image_creation = push_image("theme", self.theme_title.value, self.author.value, image_name)
-			updated_json, download_link, image_link, theme_id = update_json("theme", self.theme_title.value, self.author.value, self.description.value, rmskin_name, image_name)
+			image_creation = push_image("theme", self.theme_title, self.author, image_name)
+			updated_json, download_link, image_link, theme_id = update_json("theme", self.theme_title, self.author, self.description.value, rmskin_name, image_name)
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
 			download_button = discord.ui.Button(style=style, label="Download", url=download_link)
@@ -209,9 +197,9 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 			view.add_item(item=download_button)
 			view.add_item(item=site_button)
 			if self.description.value:
-				embed = discord.Embed(title=f"{self.theme_title.value} - {self.author.value}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+				embed = discord.Embed(title=f"{self.theme_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 			else:
-				embed = discord.Embed(title=f"{self.theme_title.value} - {self.author.value}", description="", color=discord.Color.from_rgb(75, 215, 100))
+				embed = discord.Embed(title=f"{self.theme_title} - {self.author}", description="", color=discord.Color.from_rgb(75, 215, 100))
 			embed.set_author(name="New Community Theme Release", url=self.configs["website"]+"/community-themes")
 			embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )", icon_url=interaction.user.avatar.url)
 			image_file = await self.image_preview.to_file(filename="image.png")
@@ -219,15 +207,15 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 			threads = []
 			for thread in self.channel.threads:
 				threads.append(thread.name)
-			if f"{self.theme_title.value} - {self.author.value}" in threads:
+			if f"{self.theme_title} - {self.author}" in threads:
 				for thread in self.channel.threads:
-					if f"{self.theme_title.value} - {self.author.value}" in thread.name:
+					if f"{self.theme_title} - {self.author}" in thread.name:
 						same_thread = thread
 				await same_thread.send(embed=embed, file=image_file, view=view)
 			else:
-				await self.channel.create_thread(name=f"{self.theme_title.value} - {self.author.value}", embed=embed, file=image_file, view=view)
+				await self.channel.create_thread(name=f"{self.theme_title} - {self.author}", embed=embed, file=image_file, view=view)
 			webp_path.unlink()
-			await interaction.followup.send(f"You successfully published **{self.theme_title.value}** in <#{self.channel.id}>", ephemeral=True)
+			await interaction.followup.send(f"You successfully published **{self.theme_title}** in <#{self.channel.id}>", ephemeral=True)
 		package_path.unlink()
 
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
@@ -519,18 +507,19 @@ class DroptopCommands(commands.Cog):
 		
 		channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
 
-		if rmskin_package.filename.lower().endswith(".rmskin"):
+		if rmskin_name_check("app", rmskin_package.filename):
+			title, author = get_title_author("app", rmskin_package.filename)
 			if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-				await interaction.response.send_modal(NewAppRelease(self.bot.configs, "jpg", rmskin_package, image_preview, channel))
+				await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "jpg", rmskin_package, image_preview, channel))
 				
 			elif image_preview.filename.lower().endswith(".webp"):
-				await interaction.response.send_modal(NewAppRelease(self.bot.configs, "webp", rmskin_package, image_preview, channel))
+				await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "webp", rmskin_package, image_preview, channel))
 
 			else:
 				await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 			
 		else:
-			await interaction.response.send_message("No rmskin package was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
+			await interaction.response.send_message("Make sure you uploaded the right file and your rmksin file name is the same as the output of the Droptop app builder (example: `AppName - AppAuthor (Droptop App)`).", ephemeral=True)
 
 
 
@@ -543,18 +532,19 @@ class DroptopCommands(commands.Cog):
 		
 		channel = self.bot.get_channel(self.bot.configs["themereleases_channel"])
 
-		if rmskin_package.filename.lower().endswith(".rmskin"):
+		if rmskin_name_check("theme", rmskin_package.filename):
+			title, author = get_title_author("theme", rmskin_package.filename)
 			if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-				await interaction.response.send_modal(NewThemeRelease(self.bot.configs, "jpg", rmskin_package, image_preview, channel))
+				await interaction.response.send_modal(NewThemeRelease(self.bot.configs, title, author, "jpg", rmskin_package, image_preview, channel))
 				
 			elif image_preview.filename.lower().endswith(".webp"):
-				await interaction.response.send_modal(NewThemeRelease(self.bot.configs, "webp", rmskin_package, image_preview, channel))
+				await interaction.response.send_modal(NewThemeRelease(self.bot.configs, title, author, "webp", rmskin_package, image_preview, channel))
 
 			else:
 				await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 			
 		else:
-			await interaction.response.send_message("No rmskin package was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
+			await interaction.response.send_message("Make sure you uploaded the right file and your rmksin file name is the same as the output of the Droptop app builder (example: `ThemeName - ThemeAuthor (Droptop Theme)`).", ephemeral=True)
 
 
 

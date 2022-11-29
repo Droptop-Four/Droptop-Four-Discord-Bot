@@ -4,6 +4,6 @@ from .command_mention import command_mention
 from .github_file_reader import github_reader
 from .git_push import push_rmskin, push_image, update_json
 from .image_converter import to_webp
-from .name_validator import img_rename, rmskin_rename
+from .name_validator import img_rename, rmskin_rename, rmskin_name_check, get_title_author
 from .time_utils import date_time, today_date
 from .version_validator import version_validator

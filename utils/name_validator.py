@@ -1,27 +1,81 @@
+import re
+
+def rmskin_name_check(type, name):
+	"""
+	Checks if the rmskin file has the proper name
+ 
+	Args:
+		type (str): The type of package [app, theme]
+		name (str): The name of the package
+  
+	Returns:
+		bool
+ 	"""
+
+	if type == "app":
+		pattern = r"(\w+)_-_(\w+)_Droptop_App.rmskin"
+	else:
+		pattern = r"(\w+)_-_(\w+)_Droptop_Theme.rmskin"
+	prog = re.compile(pattern)
+	result = prog.search(name)
+
+	if result:
+		return True
+	else:
+		return False
 
 
-def rmskin_rename(type, title, author):
+
+def rmskin_rename(type, name):
 	"""
 	Renames the rmskin file to the proper name
  
 	Args:
 		type (str): The type of package [app, theme]
-		title (str): The title of the package
-		author (str): The author of the package
+		name (str): The name of the package
   
 	Returns:
 		name (str): The new name of the package
  	"""
 	
+	name = name.replace("_", " ")
 	if type == "app":
-		name = title + " - " + author + " (Droptop App)"
+		name = name.replace("Droptop App", "(Droptop App)")
 	else:
-		name = title + " - " + author + " (Droptop Theme)"
+		name = name.replace("Droptop Theme", "(Droptop Theme)")
+		
 	return name
 
 
 
-def img_rename(title, author):
+def get_title_author(type, name):
+	
+	lista = name.split("_-_")
+	lista2 = []
+	lista3 = []
+	
+	for element in lista:
+		if "_Droptop_App.rmskin" in element:
+			element = element.replace("_Droptop_App.rmskin", "")
+			lista2.append(element)
+		elif "_Droptop_Theme.rmskin" in element:
+			element = element.replace("_Droptop_Theme.rmskin", "")
+			lista2.append(element)
+		else:
+			lista2.append(element)
+	
+	for element in lista2:
+		element = element.replace("_", " ")
+		lista3.append(element)
+
+	title = lista3[0]
+	author = lista3[1]
+	
+	return title, author
+
+
+
+def img_rename(type, name):
 	"""
 	Renames the image file to the proper name
  
@@ -32,7 +86,12 @@ def img_rename(title, author):
 	Returns:
 		name (str): The new name of the image
  	"""
-
-	name = title.replace(" ", "_") + "-" + author.replace(" ", "_")
+	
+	name = name.replace("_-_", "-")
+	if type == "app":
+		name = name.replace("_Droptop_App.rmskin", "")
+	else:
+		name = name.replace("_Droptop_Theme.rmskin", "")
+	
 	return name
 
