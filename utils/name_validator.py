@@ -1,5 +1,7 @@
 import re
 
+
+
 def rmskin_name_check(type, name):
 	"""
 	Checks if the rmskin file has the proper name

@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ext.tasks import loop
 
-from utils import github_reader, update_json, version_validator
+from utils import github_reader, json_update, version_validator
 import emoji as ej
 import json, os, time, traceback
 import pymongo
@@ -54,7 +54,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
 			await interaction.response.send_message(f"Version {self.version.value} of droptop is being released", ephemeral=True)
 			
-			updated_json = update_json("version", version = version)
+			updated_json = json_update("version", version = version)
 	
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
@@ -63,24 +63,22 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 	
 			embed = discord.Embed(title=f"📢 Droptop Four {self.version.value}", url="https://github.com/Droptop-Four/Update/releases/tag/Update", color=0x2F3136)
 			if self.features.value:
-				embed.add_field(name="New features <:New:1041649766175625296>", value=self.features.value, inline=False)
+				embed.add_field(name="New features 🆕", value=self.features.value, inline=False)
 			if self.modifications.value:
-				embed.add_field(name="Modifications <:WarningSign:1041651261595975720>", value=self.modifications.value, inline=False)
+				embed.add_field(name="Modifications ⚠️", value=self.modifications.value, inline=False)
 			if self.bugfixes.value:
-				embed.add_field(name="Bug Fixes <:Bug:1041649763625472030>", value=self.bugfixes.value, inline=False)
-			embed.add_field(name="Download <:Download:1041649764929916938>", value=" https://github.com/Droptop-Four/Update/releases/tag/Update", inline=False)
+				embed.add_field(name="Bug Fixes 🪲", value=self.bugfixes.value, inline=False)
+			embed.add_field(name="Download", value="⬇️ Download:\nhttps://github.com/Droptop-Four/Update/releases/tag/Update", inline=False)
 			embed.set_footer(text="UserID: ( {} ) | sID: ( {} )".format(interaction.user.id, interaction.user.display_name), icon_url=interaction.user.avatar.url)
-			await annchannel.send(f"New Droptop Version! {dtbrping.mention}")
+			await annchannel.send(f"New Droptop Announcement! {dtbrping.mention}")
 			await annchannel.send(embed=embed, view=view)
 			await interaction.followup.send(f"Version {self.version.value} of droptop was released", ephemeral=True)
-		
 		else:
 			await interaction.response.send_message(f"Version `{self.version.value}` is not accettable", ephemeral=True)
 	
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
 		await interaction.response.send_message(f"Oops! Something went wrong.\n{error}", ephemeral=True)
 		traceback.print_tb(error.__traceback__)
-
 
 
 class NewPoll(discord.ui.Modal, title="New Poll"):
@@ -120,18 +118,17 @@ class NewPoll(discord.ui.Modal, title="New Poll"):
 		traceback.print_tb(error.__traceback__)
 
 
-
 class AdminCommands(commands.Cog):
 	def __init__(self, bot: commands.Bot) -> None:
 		self.bot = bot
 
-
+	
 	@commands.Cog.listener()
 	async def on_ready(self):
 		self.member_stats.start()
 		self.version_stats.start()
 
-	
+
 	@loop(seconds=600)
 	async def member_stats(self):
 		channel = self.bot.get_channel(self.bot.configs["memberstats_channel"])
@@ -192,7 +189,6 @@ class AdminCommands(commands.Cog):
 		"""Creates a poll"""
 
 		await interaction.response.send_modal(NewPoll(emoji_1, emoji_2))
-
 
 
 

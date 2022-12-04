@@ -24,4 +24,3 @@ def version_validator(version):
 			break
 
 	return is_valid
-

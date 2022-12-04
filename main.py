@@ -3,7 +3,7 @@
     Discord: https://discord.gg/hQGDm4F5Ef
     Author: Bunz (bunz#3066)
     Date created: 21/10/2022
-    Bot Version: 3.1
+    Bot Version: 3.5
     Python Version: 3.10.4
     Cogs: 6
 '''
@@ -31,7 +31,7 @@ from utils import date_time
 
 # load_dotenv()
 
-main_prefix = "_"
+main_prefix = ()
 
 bot = commands.Bot(
 	command_prefix=main_prefix,

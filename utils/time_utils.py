@@ -12,3 +12,6 @@ def today_date():
 	today = date.today()
 	return today
 
+def push_desc():
+	string = time.strftime('%y.%m%d')
+	return string
