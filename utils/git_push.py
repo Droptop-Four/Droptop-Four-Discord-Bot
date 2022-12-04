@@ -4,6 +4,9 @@ from .github_file_reader import github_reader
 from .generators import generate_uuid_string
 from .time_utils import push_desc
 
+import pymongo
+from pymongo import MongoClient
+
 
 from pathlib import Path
 
@@ -13,8 +16,14 @@ def git_auth():
  	Initializes github session
  	"""
 	
-	token = os.environ['GITHUB_TOKEN']
-	g = github.Github(token)
+	cluster = MongoClient(os.getenv("mongodb_id"))
+	db = cluster[os.getenv("db_cluster")]
+	config_collection = db["Config"]
+	
+	configs = config_collection.find_one({},{"_id": 0})
+	github_token = configs['github_token']
+	
+	g = github.Github(github_token)
 	all_files = []
 	return g, all_files
 

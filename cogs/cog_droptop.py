@@ -286,7 +286,7 @@ class DroptopCommands(commands.Cog):
 	async def community_app_edit(self, interaction: discord.Interaction, community_app: str, image_preview: discord.Attachment = None, authorised_member_1: Optional[discord.Member] = None, authorised_member_2: Optional[discord.Member] = None):
 		"""Edits a Community App Release."""
 
-		channel = self.bot.get_channel(self.bot.configs["themereleases_channel"])
+		channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
 		authorised_members = []
 
 		if authorised_member_1:
@@ -311,7 +311,7 @@ class DroptopCommands(commands.Cog):
 		delete_release_channel = "If to delete the release channel"
 	)
 	@app_commands.autocomplete(community_app=authorised_community_app_autocomplete, delete_release_channel=delete_channel_autocomplete)
-	async def community_app_delete(self, interaction: discord.Interaction, community_app: str, delete_release_channel: Optional[str] = "False"):
+	async def community_app_delete(self, interaction: discord.Interaction, community_app: str, delete_release_channel: Optional[str] = "True"):
 		"""Deletes a Community App Release."""
 
 		view = Confirm(community_app)
@@ -337,6 +337,8 @@ class DroptopCommands(commands.Cog):
 					await interaction.followup.send(f"The {community_app} app was succesfully deleted.\nAlso the post in <#{channel.id}> was deleted", ephemeral=True)
 				else:
 					await interaction.followup.send(f"The {community_app} app was succesfully deleted.", ephemeral=True)
+			else:
+				await interaction.followup.send(f"The {community_app} app was succesfully deleted.", ephemeral=True)
 		else:
 			pass
 
@@ -469,7 +471,7 @@ class DroptopCommands(commands.Cog):
 		delete_release_channel = "If to delete the release channel"
 	)
 	@app_commands.autocomplete(community_theme=authorised_community_theme_autocomplete, delete_release_channel=delete_channel_autocomplete)
-	async def community_theme_delete(self, interaction: discord.Interaction, community_theme: str, delete_release_channel: Optional[str] = "False"):
+	async def community_theme_delete(self, interaction: discord.Interaction, community_theme: str, delete_release_channel: Optional[str] = "True"):
 		"""Deletes a Community Theme Release."""
 
 		view = Confirm(community_theme)
@@ -495,6 +497,8 @@ class DroptopCommands(commands.Cog):
 					await interaction.followup.send(f"The {community_theme} theme was succesfully deleted.\nAlso the post in <#{channel.id}> was deleted", ephemeral=True)
 				else:
 					await interaction.followup.send(f"The {community_theme} theme was succesfully deleted.", ephemeral=True)
+			else:
+				await interaction.followup.send(f"The {community_theme} theme was succesfully deleted.", ephemeral=True)
 		else:
 			pass
 
@@ -835,6 +839,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 				self.uuid = app["app"]["uuid"]
 				self.default_name = app["app"]["name"]
 				self.default_author = app["app"]["author"]
+				self.version = app["app"]["version"]
 				self.default_description = app["app"]["desc"]
 				self.default_github_profile = app["app"]["author_link"]
 				self.default_github_repo = app["app"]["official_link"]
@@ -902,9 +907,9 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-apps#{app_id}")
 		view.add_item(item=download_button)
 		view.add_item(item=site_button)
-		embed = discord.Embed(title=f"{self.community_theme}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+		embed = discord.Embed(title=f"{self.community_app}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 		embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
-		embed.add_field(name="Version: ", value=self.version.value, inline=False)
+		embed.add_field(name="Version: ", value=self.version, inline=False)
 		embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )", icon_url=interaction.user.avatar.url)
 		if self.image_preview:
 			image_file = await self.image_preview.to_file(filename="image.png")
@@ -914,19 +919,19 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		threads = []
 		for thread in self.channel.threads:
 			threads.append(thread.name)
-		if f"{self.community_theme}" in threads:
+		if f"{self.community_app}" in threads:
 			if self.image_preview:
 				await thread.send(embed=embed, file=image_file, view=view)
 			else:
 				await thread.send(embed=embed, view=view)
 		else:
 			if self.image_preview:
-				await self.channel.create_thread(name=f"{self.community_theme}", embed=embed, file=image_file, view=view)
+				await self.channel.create_thread(name=f"{self.community_app}", embed=embed, file=image_file, view=view)
 			else:
-				await self.channel.create_thread(name=f"{self.community_theme}", embed=embed, view=view)
+				await self.channel.create_thread(name=f"{self.community_app}", embed=embed, view=view)
 		if self.image_preview:
 			webp_path.unlink()
-		await interaction.followup.send(f"You successfully published **{self.app_title}** in <#{self.channel.id}>", ephemeral=True)
+		await interaction.followup.send(f"You successfully published **{self.community_app}** in <#{self.channel.id}>", ephemeral=True)
 
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
 		await interaction.followup.send(f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True)
