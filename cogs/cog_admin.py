@@ -77,7 +77,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 			await interaction.response.send_message(f"Version `{self.version.value}` is not accettable", ephemeral=True)
 	
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
-		await interaction.response.send_message(f"Oops! Something went wrong.\n{error}", ephemeral=True)
+		await interaction.followup.send(f"Oops! Something went wrong.\n{error}", ephemeral=True)
 		traceback.print_tb(error.__traceback__)
 
 
@@ -114,7 +114,7 @@ class NewPoll(discord.ui.Modal, title="New Poll"):
 		await embedsend.add_reaction(self.emoji_2)
 
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
-		await interaction.response.send_message(f"Oops! Something went wrong.\n{error}", ephemeral=True)
+		await interaction.followup.send(f"Oops! Something went wrong.\n{error}", ephemeral=True)
 		traceback.print_tb(error.__traceback__)
 
 

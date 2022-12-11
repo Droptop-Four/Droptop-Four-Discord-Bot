@@ -139,7 +139,7 @@ def push_image(type, image_name):
 		return creation
 
 
-def json_update(type, *, authorised_members, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None):
+def json_update(type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None):
 	"""
 	Updates the json file with the new package information
 
@@ -300,10 +300,10 @@ def json_update(type, *, authorised_members, title=None, author=None, descriptio
 		
 		if new_item:
 			if type == "app":
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}.rmskin"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/{image_name}.webp"
 			else:
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}.rmskin"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/{image_name}.webp"
 
 			item_id = max(idlist) + 1
