@@ -332,7 +332,8 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 						"direct_download_link": download_link,
 						"secondary_link": "",
 						"image_url": image_link,
-						"authorised_members": authorised_members
+						"authorised_members": authorised_members,
+						"hidden": 0
 					}
 				}
 				community_json["apps"].append(item_json)
@@ -353,7 +354,8 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 						"direct_download_link": download_link,
 						"secondary_link": "",
 						"image_url": image_link,
-						"authorised_members": authorised_members
+						"authorised_members": authorised_members,
+						"hidden": 0
 					}
 				}
 				community_json["themes"].append(item_json)
