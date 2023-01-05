@@ -610,11 +610,20 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				threads = []
+				all_threads = []
+
 				for thread in self.channel.threads:
-					threads.append(thread.name)
-				if f"{self.app_title} - {self.author}" in threads:
-					await thread.send(embed=embed, file=image_file, view=view)
+					print(thread.name)
+					all_threads.append(thread)
+		
+				async for thread in self.channel.archived_threads():
+					print(thread.name)
+					all_threads.append(thread)
+		
+				for thread in all_threads:
+					if thread.name == f"{self.app_title} - {self.author}":
+						await thread.send(embed=embed, file=image_file, view=view)
+						break
 				else:
 					await self.channel.create_thread(name=f"{self.app_title} - {self.author}", embed=embed, file=image_file, view=view)
 				webp_path.unlink()
@@ -646,11 +655,20 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				embed.set_footer(text=f"author_id: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				threads = []
+				all_threads = []
+
 				for thread in self.channel.threads:
-					threads.append(thread.name)
-				if f"{self.app_title} - {self.author}" in threads:
-					await thread.send(embed=embed, file=image_file, view=view)
+					print(thread.name)
+					all_threads.append(thread)
+		
+				async for thread in self.channel.archived_threads():
+					print(thread.name)
+					all_threads.append(thread)
+		
+				for thread in all_threads:
+					if thread.name == f"{self.app_title} - {self.author}":
+						await thread.send(embed=embed, file=image_file, view=view)
+						break
 				else:
 					await self.channel.create_thread(name=f"{self.app_title} - {self.author}", embed=embed, file=image_file, view=view)		
 				webp_path.unlink()
@@ -767,11 +785,20 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				threads = []
+				all_threads = []
+
 				for thread in self.channel.threads:
-					threads.append(thread.name)
-				if f"{self.theme_title} - {self.author}" in threads:
-					await thread.send(embed=embed, file=image_file, view=view)
+					print(thread.name)
+					all_threads.append(thread)
+		
+				async for thread in self.channel.archived_threads():
+					print(thread.name)
+					all_threads.append(thread)
+		
+				for thread in all_threads:
+					if thread.name == f"{self.theme_title} - {self.author}":
+						await thread.send(embed=embed, file=image_file, view=view)
+						break
 				else:
 					await self.channel.create_thread(name=f"{self.theme_title} - {self.author}", embed=embed, file=image_file, view=view)
 				webp_path.unlink()
@@ -805,11 +832,20 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				threads = []
+				all_threads = []
+
 				for thread in self.channel.threads:
-					threads.append(thread.name)
-				if f"{self.theme_title} - {self.author}" in threads:
-					await thread.send(embed=embed, file=image_file, view=view)
+					print(thread.name)
+					all_threads.append(thread)
+		
+				async for thread in self.channel.archived_threads():
+					print(thread.name)
+					all_threads.append(thread)
+		
+				for thread in all_threads:
+					if thread.name == f"{self.theme_title} - {self.author}":
+						await thread.send(embed=embed, file=image_file, view=view)
+						break
 				else:
 					await self.channel.create_thread(name=f"{self.theme_title} - {self.author}", embed=embed, file=image_file, view=view)
 				webp_path.unlink()
