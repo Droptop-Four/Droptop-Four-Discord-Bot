@@ -597,7 +597,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps#{app_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps?id={app_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
@@ -642,7 +642,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps#{app_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps?id={app_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
@@ -772,7 +772,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes#{theme_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes?id={theme_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				if self.description.value:
@@ -819,7 +819,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes#{theme_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes?id={theme_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				if self.description.value:
@@ -938,7 +938,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
 		download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps#{app_id}")
+		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps?id={app_id}")
 		view.add_item(item=download_button)
 		view.add_item(item=site_button)
 		embed = discord.Embed(title=f"{self.community_app}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
@@ -1052,7 +1052,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
 		download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes#{theme_id}")
+		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes?id={theme_id}")
 		view.add_item(item=download_button)
 		view.add_item(item=site_button)
 		embed = discord.Embed(title=f"{self.community_theme}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
