@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_name_check, rmskin_rename, to_webp, json_update, get_title_author, json_edit, json_delete, rmskin_delete, image_delete
+from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_name_check, rmskin_rename, to_webp, json_update, get_title_author, json_edit, json_delete, rmskin_delete, image_delete, push_desc
 
 from typing import Optional, List
 import traceback
@@ -43,7 +43,7 @@ class DroptopCommands(commands.Cog):
 				for field in data["messages"][0]["content"][1]["fields"]:
 					embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 				embed.set_footer(text=data["messages"][0]["content"][1]["footer"])
-				await interaction.response.send_message(embed=embed, ephemeral=True)
+				await interaction.response.send_message(embed=embed)
 			
 			elif variant == "Supporter":
 				embed = discord.Embed(title="Droptop Four - Supporter Variant", color=discord.Color.from_rgb(75, 215, 100))
@@ -52,7 +52,7 @@ class DroptopCommands(commands.Cog):
 				for field in data["messages"][0]["content"][2]["fields"]:
 					embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 				embed.set_footer(text=data["messages"][0]["content"][2]["footer"])
-				await interaction.response.send_message(embed=embed, ephemeral=True)
+				await interaction.response.send_message(embed=embed)
 			else:
 				await interaction.response.send_message(f"The {variant} variant doesn't exists.", ephemeral=True)
 		else:
@@ -63,7 +63,7 @@ class DroptopCommands(commands.Cog):
 				embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 			embed.add_field(name="Latest Version", value=version["version"], inline=False)
 			embed.set_footer(text=data["messages"][0]["content"][0]["footer"])
-			await interaction.response.send_message(embed=embed, ephemeral=True)
+			await interaction.response.send_message(embed=embed)
 
 
 	@app_commands.command(name="download")
@@ -88,7 +88,7 @@ class DroptopCommands(commands.Cog):
 				for field in data["messages"][1]["content"][1]["fields"]:
 					embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 				embed.set_footer(text=data["messages"][1]["content"][1]["footer"])
-				await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+				await interaction.response.send_message(embed=embed, view=view)
 			
 			elif variant == "Supporter":
 				view = discord.ui.View()
@@ -101,7 +101,7 @@ class DroptopCommands(commands.Cog):
 				for field in data["messages"][1]["content"][2]["fields"]:
 					embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 				embed.set_footer(text=data["messages"][1]["content"][2]["footer"])
-				await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+				await interaction.response.send_message(embed=embed, view=view)
 			else:
 				await interaction.response.send_message(f"The {variant} variant doesn't exists.", ephemeral=True)
 		else:
@@ -117,7 +117,7 @@ class DroptopCommands(commands.Cog):
 			for field in data["messages"][1]["content"][0]["fields"]:
 				embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 			embed.set_footer(text=data["messages"][1]["content"][0]["footer"])
-			await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+			await interaction.response.send_message(embed=embed, view=view)
 
 
 	@app_commands.command(name="update")
@@ -137,7 +137,7 @@ class DroptopCommands(commands.Cog):
 		for field in data["messages"][2]["content"][0]["fields"]:
 			embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 		embed.set_footer(text=data["messages"][2]["content"][0]["footer"])
-		await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+		await interaction.response.send_message(embed=embed, view=view)
 
 
 	@app_commands.command(name="faq")
@@ -148,13 +148,13 @@ class DroptopCommands(commands.Cog):
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
-		button = discord.ui.Button(style=style, label="FAQs", url="https://droptop-four.github.io/faq")
+		button = discord.ui.Button(style=style, label="FAQs", url="https://droptopfour.com/faq")
 		view.add_item(item=button)
 
 		embed = discord.Embed(title="Droptop Four F.A.Q.", color=discord.Color.from_rgb(75, 215, 100))
 		for field in data["messages"][3]["content"][0]["fields"]:
 			embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
-		await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+		await interaction.response.send_message(embed=embed, view=view)
 
 	
 	@app_commands.command(name="website")
@@ -165,13 +165,13 @@ class DroptopCommands(commands.Cog):
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
-		button = discord.ui.Button(style=style, label="Website", url="https://droptop-four.github.io")
+		button = discord.ui.Button(style=style, label="Website", url="https://droptopfour.com")
 		view.add_item(item=button)
 
 		embed = discord.Embed(title="Droptop Four website", color=discord.Color.from_rgb(75, 215, 100))
 		for field in data["messages"][4]["content"][0]["fields"]:
 			embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
-		await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+		await interaction.response.send_message(embed=embed, view=view)
 
 
 
@@ -237,7 +237,7 @@ class DroptopCommands(commands.Cog):
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
 			download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-			site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-apps#{id}")
+			site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps?id={id}")
 			view.add_item(item=download_button)
 			view.add_item(item=site_button)
 	
@@ -398,7 +398,7 @@ class DroptopCommands(commands.Cog):
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
 			download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-			site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-themes#{id}")
+			site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes/?id={id}")
 			view.add_item(item=download_button)
 			view.add_item(item=site_button)
 	
@@ -529,11 +529,6 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				self.default_description = ""
 				self.default_github_profile = ""
 				self.default_github_repo = ""
-
-		self.version = discord.ui.TextInput(
-			label="Version",
-			placeholder="Version here..."
-		)
 	
 		self.description = discord.ui.TextInput(
 			label="Description",
@@ -556,7 +551,6 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			required=False
 		)
 
-		self.add_item(self.version)
 		self.add_item(self.description)
 		self.add_item(self.github_profile)
 		self.add_item(self.github_repo)
@@ -567,6 +561,8 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		community_json = github_reader("data/community_apps/community_apps.json")
 
 		authorised_members = []
+
+		version = push_desc()
 
 		for item in community_json["apps"]:
 			app_tags = item["app"]
@@ -582,7 +578,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		if interaction.user.id in authorised_members:
 
 			if self.image_mode == "jpg":
-				await interaction.response.send_message(f"Your app is being released... Please wait...", ephemeral=True)
+				await interaction.response.send_message("Your app is being released... Please wait...", ephemeral=True)
 				
 				rmskin_name = rmskin_rename("app", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
@@ -596,28 +592,28 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				webp_path = to_webp(image_path)
 				image_creation = push_image("app", image_name)
 				
-				updated_json, download_link, image_link, app_id, uuid = json_update("app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=self.version.value, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, app_id, uuid = json_update("app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-apps#{app_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps#{app_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 				embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
-				embed.add_field(name="Version: ", value=self.version.value, inline=False)
+				embed.add_field(name="Version: ", value=version, inline=False)
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
 				all_threads = []
 
 				for thread in self.channel.threads:
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				for thread in all_threads:
@@ -629,7 +625,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				webp_path.unlink()
 				await interaction.followup.send(f"You successfully published **{self.app_title}** in <#{self.channel.id}>", ephemeral=True)
 			else:
-				await interaction.response.send_message(f"Your app is being released... Please wait...", ephemeral=True)
+				await interaction.response.send_message("Your app is being released... Please wait...", ephemeral=True)
 				
 				rmskin_name = rmskin_rename("app", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
@@ -641,28 +637,28 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				await self.image_preview.save(webp_path)
 				image_creation = push_image("app", image_name)
 				
-				updated_json, download_link, image_link, app_id, uuid = json_update("app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=self.version.value, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, app_id, uuid = json_update("app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-apps#{app_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps#{app_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 				embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
-				embed.add_field(name="Version: ", value=self.version.value, inline=False)
+				embed.add_field(name="Version: ", value=version, inline=False)
 				embed.set_footer(text=f"author_id: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
 				all_threads = []
 
 				for thread in self.channel.threads:
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				for thread in all_threads:
@@ -742,6 +738,8 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 
 		authorised_members = []
 
+		version = push_desc()
+
 		for item in community_json["themes"]:
 			theme_tags = item["theme"]
 			if theme_tags["name"] == self.theme_title:
@@ -755,7 +753,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 		
 		if interaction.user.id in authorised_members:
 			if self.image_mode == "jpg":
-				await interaction.response.send_message(f"Your theme is being released... Please wait...", ephemeral=True)
+				await interaction.response.send_message("Your theme is being released... Please wait...", ephemeral=True)
 				
 				rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
@@ -769,12 +767,12 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				webp_path = to_webp(image_path)
 				image_creation = push_image("theme", image_name)
 				
-				updated_json, download_link, image_link, theme_id, uuid = json_update("theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, theme_id, uuid = json_update("theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-themes#{theme_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes#{theme_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				if self.description.value:
@@ -788,11 +786,11 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				all_threads = []
 
 				for thread in self.channel.threads:
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				for thread in all_threads:
@@ -804,7 +802,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				webp_path.unlink()
 				await interaction.followup.send(f"You successfully published **{self.theme_title}** in <#{self.channel.id}>", ephemeral=True)
 			else:
-				await interaction.response.send_message(f"Your theme is being released... Please wait...", ephemeral=True)
+				await interaction.response.send_message("Your theme is being released... Please wait...", ephemeral=True)
 				
 				rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
@@ -821,7 +819,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
 				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-themes#{theme_id}")
+				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes#{theme_id}")
 				view.add_item(item=download_button)
 				view.add_item(item=site_button)
 				if self.description.value:
@@ -835,11 +833,11 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				all_threads = []
 
 				for thread in self.channel.threads:
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					print(thread.name)
+					#print(thread.name)
 					all_threads.append(thread)
 		
 				for thread in all_threads:
@@ -917,7 +915,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 
 
 	async def on_submit(self, interaction: discord.Interaction):
-		await interaction.response.send_message(f"Your app is being edited... Please wait...", ephemeral=True)
+		await interaction.response.send_message("Your app is being edited... Please wait...", ephemeral=True)
 
 		if self.image_preview:
 			if self.suffix == "jpg":
@@ -940,7 +938,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
 		download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-apps#{app_id}")
+		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps#{app_id}")
 		view.add_item(item=download_button)
 		view.add_item(item=site_button)
 		embed = discord.Embed(title=f"{self.community_app}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
@@ -1031,7 +1029,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 
 
 	async def on_submit(self, interaction: discord.Interaction):
-		await interaction.response.send_message(f"Your theme is being edited... Please wait...", ephemeral=True)
+		await interaction.response.send_message("Your theme is being edited... Please wait...", ephemeral=True)
 
 		if self.image_preview:
 			if self.suffix == "jpg":
@@ -1054,7 +1052,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
 		download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptop-four.github.io/community-themes#{theme_id}")
+		site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-themes#{theme_id}")
 		view.add_item(item=download_button)
 		view.add_item(item=site_button)
 		embed = discord.Embed(title=f"{self.community_theme}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))

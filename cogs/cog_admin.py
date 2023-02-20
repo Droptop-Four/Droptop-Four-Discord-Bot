@@ -21,7 +21,12 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
 	version = discord.ui.TextInput(
 		label="Version",
-		placeholder="Use only numbers and dots. ex '4.309.58'",
+		placeholder="Use only numbers and dots. ex '4.309'",
+	)
+
+	miniversion = discord.ui.TextInput(
+		label="Mini Version",
+		placeholder="Use only numbers. ex '58'",
 	)
 
 	features = discord.ui.TextInput(
@@ -50,18 +55,18 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 		annchannel = interaction.guild.get_channel(configs["announcements_channel"])
 
 		if version_validator(self.version.value):
-			version = self.version.value[:5]
+			versiontuple = (self.version.value, self.miniversion.value)
 
 			await interaction.response.send_message(f"Version {self.version.value} of droptop is being released", ephemeral=True)
 			
-			updated_json = json_update("version", version = version)
+			updated_json = json_update("version", version = versiontuple)
 	
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
 			download_button = discord.ui.Button(style=style, label="Download", url="https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin")
 			view.add_item(item=download_button)
 	
-			embed = discord.Embed(title=f"📢 Droptop Four {self.version.value}", url="https://github.com/Droptop-Four/Update/releases/tag/Update", color=0x2F3136)
+			embed = discord.Embed(title=f"📢 Droptop Four {self.version.value}.{self.miniversion.value}", url="https://github.com/Droptop-Four/Update/releases/tag/Update", color=0x2F3136)
 			if self.features.value:
 				embed.add_field(name="New features 🆕", value=self.features.value, inline=False)
 			if self.modifications.value:
@@ -70,9 +75,10 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 				embed.add_field(name="Bug Fixes 🪲", value=self.bugfixes.value, inline=False)
 			embed.add_field(name="Download", value="⬇️ Download:\nhttps://github.com/Droptop-Four/Update/releases/tag/Update", inline=False)
 			embed.set_footer(text="UserID: ( {} ) | sID: ( {} )".format(interaction.user.id, interaction.user.display_name), icon_url=interaction.user.avatar.url)
+			
 			await annchannel.send(f"New Droptop Announcement! {dtbrping.mention}")
 			await annchannel.send(embed=embed, view=view)
-			await interaction.followup.send(f"Version {self.version.value} of droptop was released", ephemeral=True)
+			await interaction.followup.send(f"Version {self.version.value}.{self.miniversion.value} of droptop was released", ephemeral=True)
 		else:
 			await interaction.response.send_message(f"Version `{self.version.value}` is not accettable", ephemeral=True)
 	

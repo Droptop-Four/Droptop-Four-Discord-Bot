@@ -86,7 +86,7 @@ async def on_ready():
 	threading.Thread(target=server.HTTPServer(("", 80), Server).serve_forever).start()
 	try:
 		# Add repl to up.repl.link so it can be kept alive
-		request.urlopen(f"https://up.repl.link/add?repl={os.environ['REPL_SLUG']}&author={os.environ['REPL_OWNER']}")
+		request.urlopen(f"https://ced0775a-02a8-41d5-a6cf-14815ad4a73e.id.repl.co/add?repl={os.environ['REPL_SLUG']}&author={os.environ['REPL_OWNER']}")
 	except:
 		pass
 

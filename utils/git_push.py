@@ -280,8 +280,12 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 				pass
 
 	else:
+
+		mainversion, miniversion = version
+		
 		json_content = {
-			"version": f"{version}"
+			"version": f"{mainversion}",
+			"miniversion": f"{miniversion}"
 		}
 		json_content = json.dumps(json_content, indent = 4)
 		repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
@@ -536,10 +540,12 @@ def image_delete(type, name):
 	repo = g.get_repo("Droptop-Four/GlobalData")
 	if type == "app":
 		git_prefix = 'data/community_apps/img/'
-		package_name = name.replace(" ", "") + ".webp"
+		package_name = name.replace(" - ", "-")
+		package_name = package_name.replace(" ", "_") + ".webp"
 	else:
 		git_prefix = 'data/community_themes/img/'
-		package_name = name.replace(" ", "") + ".webp"
+		package_name = name.replace(" - ", "-")
+		package_name = package_name.replace(" ", "_") + ".webp"
 	git_file = git_prefix + package_name
 	contents = repo.get_contents(git_file, ref="main")
 	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="main")

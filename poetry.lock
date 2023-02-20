@@ -137,6 +137,17 @@ wrapt = ">=1.10,<2"
 dev = ["tox", "bump2version (<1)", "sphinx (<2)", "importlib-metadata (<3)", "importlib-resources (<4)", "configparser (<5)", "sphinxcontrib-websupport (<2)", "zipp (<2)", "PyTest (<5)", "PyTest-Cov (<2.6)", "pytest", "pytest-cov"]
 
 [[package]]
+name = "discord"
+version = "2.1.0"
+description = "A mirror package for discord.py. Please install that instead."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+"discord.py" = ">=2.1.0"
+
+[[package]]
 name = "discord.py"
 version = "2.1.0"
 description = "A Python wrapper for the Discord API"
@@ -491,7 +502,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.11"
-content-hash = "2b103f0977ab1f74a853842a2bccedd07325ae889f3f3365a190fc1e3dee6fe7"
+content-hash = "962272334f807972324cf935b947609789217e75e05c1a2d65c1a669b06c39c8"
 
 [metadata.files]
 aiohttp = []
@@ -505,6 +516,7 @@ charset-normalizer = []
 click = []
 colorama = []
 deprecated = []
+discord = []
 "discord.py" = []
 dnspython = []
 emoji = []
