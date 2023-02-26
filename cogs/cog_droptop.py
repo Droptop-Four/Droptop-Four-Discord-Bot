@@ -120,6 +120,23 @@ class DroptopCommands(commands.Cog):
 			await interaction.response.send_message(embed=embed, view=view)
 
 
+	@app_commands.command(name="solved")
+	async def solved(self, interaction: discord.Interaction):
+		"""Adds the solved tag to help-bug report forum channel"""
+
+		if interaction.channel.parent.id == 1019694544876482670:
+			await interaction.response.send_message("This thread was set as closed", ephemeral=True)
+			
+			await interaction.channel.add_tags(discord.Object(1019696466425561108))
+	
+			await interaction.channel.remove_tags(discord.Object(1030636641951420457))
+
+			await interaction.channel.edit(archived=True)
+
+			
+
+
+	
 	@app_commands.command(name="update")
 	async def update(self, interaction: discord.Interaction):
 		"""Displays update info about Droptop Four"""

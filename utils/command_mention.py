@@ -10,8 +10,6 @@ def command_mention(name, id):
  	Returns:
   		mention (str): The mention of the command
  	"""
-
-
 	
 	mention = f"</{name}:{id}>"
 	return mention

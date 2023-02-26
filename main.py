@@ -23,7 +23,7 @@ from pymongo import MongoClient
 import logging
 import logging.handlers
 
-from utils import date_time
+from utils import date_time, command_mention
 
 # from dotenv import load_dotenv
 
@@ -73,6 +73,18 @@ class Server(server.BaseHTTPRequestHandler):
 
 
 @bot.event
+async def on_thread_create(thread):
+	if thread.parent.id == 1019694544876482670:
+		await thread.add_tags(discord.Object(1030636641951420457))
+
+		await thread.starter_message.pin()
+
+		messaggio = await thread.send(f"To close this message use {command_mention('solved', '1078282304876707891')}")
+
+		await messaggio.pin()
+
+
+@bot.event
 async def on_ready():
 	print(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
 	logging.info(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
@@ -97,6 +109,11 @@ async def on_message(msg):
 		return
 	if re.fullmatch(rf"<@!?{bot.user.id}>", msg.content):
 		return await msg.channel.send(f"You can use me with slash commands now!\nType `/` to see a list of possible commands.")
+	#if msg.type is discord.MessageType.pins_add:
+		#if msg.channel.type is discord.ChannelType.public_thread:
+			#if msg.channel.parent.id == 1019694544876482670:
+				#await msg.delete()
+	
 	return await bot.process_commands(msg)
 
 
