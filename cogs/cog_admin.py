@@ -107,14 +107,14 @@ class NewPoll(discord.ui.Modal, title="New Poll"):
 	)
 
 	async def on_submit(self, interaction: discord.Interaction):
-		poll_role = discord.utils.get(interaction.guild.roles, id=configs["newversion_role"])
+		poll_role = discord.utils.get(interaction.guild.roles, id=configs["poll_role"])
 		await interaction.response.send_message("Sending poll...", ephemeral=True)
 		if self.description.value:
 			embed = discord.Embed(title=self.poll_title.value, description=self.description.value, color=discord.Color.from_rgb(75, 215, 100))
 		else:
 			embed = discord.Embed(title=self.poll_title.value, description="", color=discord.Color.from_rgb(75, 215, 100))
 		embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
-		await interaction.channel.send(f"New Droptop Announcement! {poll_role.mention}")
+		await interaction.channel.send(f"New Poll! {poll_role.mention}")
 		embedsend = await interaction.channel.send(embed=embed)
 		await embedsend.add_reaction(self.emoji_1)
 		await embedsend.add_reaction(self.emoji_2)

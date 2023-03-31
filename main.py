@@ -68,7 +68,7 @@ class Server(server.BaseHTTPRequestHandler):
 		self.end_headers()
 		# Set the content of the website
 		self.wfile.write(
-			f"<!DOCTYPE html><meta charset=utf-8><meta name=viewport content='width=device-width'><title>Discord Bot</title><html lang=en>{bot.user} is alive!<br>Latency: {round(bot.latency*1000)}ms<br>Servers: {len(bot.guilds)}".encode()
+			f"<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>Discord Bot</title></head>{bot.user} is alive!<br>Latency: {round(bot.latency*1000)}ms<br>Servers: {len(bot.guilds)}</html>".encode()
 		)
 
 

@@ -9,11 +9,56 @@ import traceback
 
 from pathlib import Path
 
+import gspread
+import json
+
 
 
 class DroptopCommands(commands.Cog):
 	def __init__(self, bot: commands.Bot) -> None:
 		self.bot = bot
+
+
+	@app_commands.command(name="translation_status")
+	async def translation_status(self, interaction: discord.Interaction):
+
+		credentials = json.loads(self.bot.configs["google_creds"])
+		url = "https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing"
+
+		embed = discord.Embed(title="Translations Status", color=discord.Color.from_rgb(75, 215, 100))
+		embed.add_field(name="Loading...", value="Loading the translation status...")
+		embed.set_author(name="Go to the translation file", url="https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Google_Sheets_2020_Logo.svg/1024px-Google_Sheets_2020_Logo.svg.png")
+
+		await interaction.response.send_message(embed=embed)
+
+		gc = gspread.service_account_from_dict(credentials)
+		sh = gc.open_by_url(url)
+		wsh = sh.sheet1
+		cell_range = wsh.range('C2:D22')
+
+		values = []
+		
+		for cell in cell_range:
+			if cell.value.startswith("✔"):
+				cell_value = cell.value.replace("✔", "✅").replace(")", " missing)")
+			elif cell.value.startswith("X"):
+				cell_value = cell.value.replace("X", "❌").replace(")", " missing)")
+			else:
+				cell_value = cell.value.split(" (")[0]
+			values.append(cell_value)
+
+		num_cols = 2
+		results = [values[i:i+num_cols] for i in range(0, len(values), num_cols)]
+		
+		i = 0
+		for result in results:
+			i = i + 1
+			embed.add_field(name=f"{i}: {result[0]}", value=result[1], inline=True)
+		embed.set_footer(text=f"Droptop currently has partial or complete support for {i} languages.")
+
+		message = await interaction.original_response()
+		await message.edit(embed=embed)
+		
 
 
 	droptop_group = app_commands.Group(name="droptop_four", description="Droptop Four command")
