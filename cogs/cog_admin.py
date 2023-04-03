@@ -158,31 +158,6 @@ class AdminCommands(commands.Cog):
 		"""Creates a new version of droptop."""
 
 		await interaction.response.send_modal(NewVersion())
-	
-	
-	@app_commands.command(name="reactrole")
-	@app_commands.describe(
-		emoji="The emoji you want people to react with",
-		role="The role you want to add",
-		message="The message you want to show on the embed"
-	)
-	@app_commands.default_permissions(manage_roles=True)
-	async def reactrole(self, interaction: discord.Interaction, emoji: str, role: discord.Role, message: str):
-		"""Creates a reactionrole in the channel"""
-		
-		if emoji not in ej.UNICODE_EMOJI["en"]:
-			await interaction.response.send_message("You didn't set a supported emoji or no emoji at all.\nTry again using a UNICODE emoji (all the default ones supported by Discord).", ephemeral=True)
-		else:
-			emb = discord.Embed(description=message)
-			await interaction.response.send_message(embed=emb)
-			ogmsg = await interaction.original_message()
-			await ogmsg.add_reaction(emoji)
-			with open("reactrole.json") as json_file:
-				data = json.load(json_file)
-				new_react_role = {"role_name": role.name, "role_id": role.id, "emoji": emoji, "message_id": ogmsg.id, "message": message}
-				data.append(new_react_role)
-			with open("reactrole.json", "w") as f:
-				json.dump(data, f, indent=4)
 
 
 	@app_commands.command(name="poll")
