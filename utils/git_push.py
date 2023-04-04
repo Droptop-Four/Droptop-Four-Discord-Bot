@@ -69,17 +69,17 @@ def push_rmskin(type, package_name):
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="v3")
 		else:
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="v3")
 		creation = False
 		return creation
 	
 	else:
 		if type == "app":
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{push_desc()}", content, branch="v3")
 		else:
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{push_desc()}", content, branch="v3")
 		creation = True
 		return creation
 
@@ -124,17 +124,17 @@ def push_image(type, image_name):
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="v3")
 		else:
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="v3")
 		creation = False
 		return creation
 	
 	else:
 		if type == "app":
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{push_desc()}", content, branch="v3")
 		else:
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{push_desc()}", content, branch="v3")
 		creation = True
 		return creation
 
@@ -204,7 +204,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
@@ -232,7 +232,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
@@ -270,7 +270,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 				download_link = theme_tags["direct_download_link"]
 				image_link = theme_tags["image_url"]
 				item_id = theme_tags["id"]
@@ -288,7 +288,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 			"miniversion": f"{miniversion}"
 		}
 		json_content = json.dumps(json_content, indent = 4)
-		repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+		repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 
 		updated_json = True
 		return updated_json
@@ -304,11 +304,11 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 		
 		if new_item:
 			if type == "app":
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
-				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/{image_name}.webp"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/v3/Apps/{rmskin_name.replace(' ', '%20')}"
+				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_apps/img/{image_name}.webp"
 			else:
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
-				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/{image_name}.webp"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/v3/Themes/{rmskin_name.replace(' ', '%20')}"
+				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_themes/img/{image_name}.webp"
 
 			item_id = max(idlist) + 1
 			
@@ -373,9 +373,9 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 				json_content = f.read()
 			
 			if type == "app":
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 			else:
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 	
 			temp_json.unlink()
 
@@ -444,7 +444,7 @@ def json_edit(type, uuid, *, author=None, description=None, author_link=None, gi
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
@@ -486,7 +486,7 @@ def json_edit(type, uuid, *, author=None, description=None, author_link=None, gi
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 				download_link = theme_tags["direct_download_link"]
 				image_link = theme_tags["image_url"]
 				item_id = theme_tags["id"]
@@ -520,8 +520,8 @@ def rmskin_delete(type, name):
 		git_prefix = 'Themes/'
 		package_name = name + " (Droptop Theme).rmskin"
 	git_file = git_prefix + package_name
-	contents = repo.get_contents(git_file, ref="main")
-	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="main")
+	contents = repo.get_contents(git_file, ref="v3")
+	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="v3")
 
 
 
@@ -547,8 +547,8 @@ def image_delete(type, name):
 		package_name = name.replace(" - ", "-")
 		package_name = package_name.replace(" ", "_") + ".webp"
 	git_file = git_prefix + package_name
-	contents = repo.get_contents(git_file, ref="main")
-	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="main")
+	contents = repo.get_contents(git_file, ref="v3")
+	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="v3")
 
 
 
@@ -577,7 +577,7 @@ def json_delete(type, uuid):
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 				temp_json.unlink()
 				break
 	else:
@@ -592,7 +592,7 @@ def json_delete(type, uuid):
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="v3")
 				temp_json.unlink()
 				break
 
