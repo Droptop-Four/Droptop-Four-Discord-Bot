@@ -50,8 +50,8 @@ commands_collection = db["Commands"]
 
 bot.configs = config_collection.find_one({},{"_id": 0})
 
-bot.cari_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/logos/cariboudjan_logo.png"
-bot.droptopfour_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/logos/droptopfour_logo.png"
+bot.cari_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/logos/cariboudjan_logo.png"
+bot.droptopfour_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/logos/droptopfour_logo.png"
 
 
 
