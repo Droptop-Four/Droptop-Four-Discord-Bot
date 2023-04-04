@@ -2,7 +2,7 @@
 <br />
 <p align="center">
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot">
-        <img src="https://user-images.githubusercontent.com/66331265/126289423-0bd9f075-44aa-4664-9df2-2227cd2aa8bb.png"
+        <img src="https://user-images.githubusercontent.com/66331265/229746054-eb3759dd-fb32-4f1f-9d9d-45b5f3764c33.png"
             alt="Logo" width="300" height="300">
     </a>
 </p>
