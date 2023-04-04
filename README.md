@@ -15,9 +15,10 @@
     The Official Discord Bot of the Droptop Four Discord Server!
 </p>
 
-<!-- SITE -->
-<p>
-<h3 align="center"><a href="https://www.droptopfour.com"><strong>Visit the Droptop Four Website »</strong></a></h3>
+<!-- DROPTOP SITE -->
+<p align="center">
+    <a href="https://droptopfour.com"><img
+            src="https://img.shields.io/static/v1?label=Droptop+Four&message=Website&color=50AE5C&style=for-the-badge" alt="Droptop Four Website"></a>
 </p>
 
 <!-- BUTTONS -->
@@ -40,19 +41,33 @@
     <a href="https://GitHub.com/66Bunz/Droptop-Four-Discord-Bot/pull/"><img
             src="https://img.shields.io/github/issues-pr/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Pull Requests"></a>
 </p>
+<!-- DROPTOPFOUR DOWNLOAD -->
 <p align="center">
-    <a href="https://discord.gg/dYtjFfbJG7"><img
-            src="https://img.shields.io/discord/800124057923485728.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"
-            alt="Join Discord"></a>
-    <br />
-    <br />
-    <br />
+    <a href="https://github.com/Droptop-Four/Basic-Version/releases/tag/Current-Stable"><img
+            src="https://img.shields.io/static/v1?label=Download&message=Droptop+Four&color=50AE5C&style=for-the-badge" alt="Download Droptop Four"></a>
+</p>  
+
+<!-- DROPTOPFOUR DISCORD -->
+<p><h2 align="center">Join the Community Now!!</h2></p>
+
+<!-- DISCORD BANNER -->
+<p align="center">
+  <a href="https://discord.gg/aGQ6uE4Fgp" target="_blank">
+    <img src="https://discordapp.com/api/guilds/800124057923485728/widget.png?style=banner3" alt="Discord Community Invite"/>
+  </a>
 </p>
 
+<!-- DROPTOPFOUR CONTACTS -->
+<p><h2 align="center">Contacts</h2></p>
 
-
-
-
-Droptop Four: www.droptopfour.com  
-deviantArt: https://www.deviantart.com/cariboudjan/art/droptop-four-762812007  
-Discord Server: https://discord.gg/dYtjFfbJG7
+<!-- CONTACTS -->
+<p align="center">
+    <a href="https://www.deviantart.com/cariboudjan/art/droptop-four-762812007">
+      <img src="https://img.shields.io/badge/DeviantArt-05CC47?style=for-the-badge&logo=deviantart&logoColor=white" alt="deviantArt"></a>
+    <a href="https://github.com/Droptop-Four">
+      <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="Github"></a>
+    <a href="https://cariboudjan.gumroad.com/l/droptop">
+      <img src="https://img.shields.io/badge/Gumroad-36A9AE?style=for-the-badge&logo=gumroad&logoColor=white" alt="Gumroad"></a>
+    <a href="https://discord.gg/aGQ6uE4Fgp">
+      <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
+</p>  
