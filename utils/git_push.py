@@ -69,17 +69,17 @@ def push_rmskin(type, package_name):
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="v3")
+			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
 		else:
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="v3")
+			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
 		creation = False
 		return creation
 	
 	else:
 		if type == "app":
-			repo.create_file(git_file, f"{push_desc()}", content, branch="v3")
+			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
 		else:
-			repo.create_file(git_file, f"{push_desc()}", content, branch="v3")
+			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
 		creation = True
 		return creation
 
@@ -304,10 +304,10 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 		
 		if new_item:
 			if type == "app":
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/v3/Apps/{rmskin_name.replace(' ', '%20')}"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_apps/img/{image_name}.webp"
 			else:
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/v3/Themes/{rmskin_name.replace(' ', '%20')}"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_themes/img/{image_name}.webp"
 
 			item_id = max(idlist) + 1
@@ -520,8 +520,8 @@ def rmskin_delete(type, name):
 		git_prefix = 'Themes/'
 		package_name = name + " (Droptop Theme).rmskin"
 	git_file = git_prefix + package_name
-	contents = repo.get_contents(git_file, ref="v3")
-	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="v3")
+	contents = repo.get_contents(git_file, ref="main")
+	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="main")
 
 
 
