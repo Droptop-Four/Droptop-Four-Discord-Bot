@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Droptop Four Discord Bot"
-version = "3.1"
+version = "3.6"
 description = "The discord bot of the official Droptop Four discord server"
 authors = ["Bunz"]
 [tool.black]
@@ -17,6 +17,7 @@ pymongo = "^4.3.2"
 "discord.py" = "^2.1.0"
 discord = "^2.1.0"
 gspread = "5.7.2"
+Flask = "^2.2.3"
 
 [tool.poetry.dev-dependencies]
 

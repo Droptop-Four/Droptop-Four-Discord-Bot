@@ -1,16 +1,17 @@
 '''
-    Project name: Droptop Four Discord Bot
-    Discord: https://discord.gg/hQGDm4F5Ef
-    Author: Bunz (bunz#3066)
-    Date created: 21/10/2022
-    Bot Version: 3.5
-    Python Version: 3.10.4
-    Cogs: 6
+	Project name: Droptop Four Discord Bot
+	Discord: https://discord.gg/hQGDm4F5Ef
+	Author: Bunz (bunz#3066)
+	Date created: 21/10/2022
+	Bot Version: 3.6
+	Python Version: 3.10.8
+	Cogs: 6
 '''
 
 
 
 import discord, os, threading
+from discord import app_commands
 from discord.ext import commands
 
 from http import server
@@ -24,6 +25,8 @@ import logging
 import logging.handlers
 
 from utils import date_time, command_mention
+
+from keep_alive import keep_alive
 
 # from dotenv import load_dotenv
 
@@ -56,20 +59,20 @@ bot.droptopfour_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalDat
 
 
 # HTTP request handler
-class Server(server.BaseHTTPRequestHandler):
+#class Server(server.BaseHTTPRequestHandler):
 	# Override the log_request function to prevent spammy logging output
-	def log_request(self, code="", size=""):
-		pass
+	#def log_request(self, code="", size=""):
+		#pass
 
-	def do_GET(self):
-		self.send_response(200)
-		self.send_header("Content-Type", "text/html")
-		self.send_header("Cache-Control", "max-age=180")
-		self.end_headers()
+	#def do_GET(self):
+		#self.send_response(200)
+		#self.send_header("Content-Type", "text/html")
+		#self.send_header("Cache-Control", "max-age=180")
+		#self.end_headers()
 		# Set the content of the website
-		self.wfile.write(
-			f"<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>Discord Bot</title></head>{bot.user} is alive!<br>Latency: {round(bot.latency*1000)}ms<br>Servers: {len(bot.guilds)}</html>".encode()
-		)
+		#self.wfile.write(
+			#f"<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>Discord Bot</title></head>{bot.user} is alive!<br>Latency: {round(bot.latency*1000)}ms<br>Servers: {len(bot.guilds)}</html>".encode()
+		#)
 
 
 @bot.event
@@ -95,12 +98,12 @@ async def on_ready():
 	logging.info("------")
 
 	# Start the http server at port 80, using the handler class created earlier
-	threading.Thread(target=server.HTTPServer(("", 80), Server).serve_forever).start()
-	try:
+	#threading.Thread(target=server.HTTPServer(("", 80), Server).serve_forever).start()
+	#try:
 		# Add repl to up.repl.link so it can be kept alive
-		request.urlopen(f"https://ced0775a-02a8-41d5-a6cf-14815ad4a73e.id.repl.co/add?repl={os.environ['REPL_SLUG']}&author={os.environ['REPL_OWNER']}")
-	except:
-		pass
+		#request.urlopen(f"https://ced0775a-02a8-41d5-a6cf-14815ad4a73e.id.repl.co/add?repl={os.environ['REPL_SLUG']}&author={os.environ['REPL_OWNER']}")
+	#except:
+		#pass
 
 
 @bot.event
@@ -119,39 +122,28 @@ async def on_message(msg):
 
 @bot.event
 async def on_app_command_completion(interaction, command):
-	post = {"UserID": interaction.user.id, "UsersID": interaction.user.name, "channelID": interaction.channel_id, "channel": interaction.channel.name, "command": "/"+command.qualified_name}
-	commands_collection.insert_one(post)
+	
+	channel = bot.get_channel(1095273572106248262)
+
+	embed = discord.Embed(title="Command")
+	embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+	embed.add_field(name="Channel", value=f"<#{interaction.channel_id}>", inline=False)
+	embed.add_field(name="Command", value=f"{command.qualified_name}", inline=False)
+	embed.add_field(name="Command mention", value=f"{command.extras['mention']}", inline=False)
+	params = []
+	for parameter in interaction.namespace:
+		params.append(parameter)
+	embed.add_field(name="Params", value=f"{params}", inline=False)
+
+	await channel.send(embed=embed)
 	
 
 @bot.event
 async def on_command_error(ctx, error):
-    await ctx.send(f"Error: {error}")
-    raise error
-
-
-@bot.event
-async def on_raw_reaction_add(payload):
-	if payload.member.bot:
-		pass
-	else:
-		with open("reactrole.json") as react_file:
-			data = json.load(react_file)
-			for x in data:
-				if x["emoji"] == payload.emoji.name:
-					role = discord.utils.get(bot.get_guild(
-						payload.guild_id).roles, id=x["role_id"])
-					await payload.member.add_roles(role)
-
-
-@bot.event
-async def on_raw_reaction_remove(payload):
-	with open("reactrole.json") as react_file:
-		data = json.load(react_file)
-		for x in data:
-			if x["emoji"] == payload.emoji.name:
-				role = discord.utils.get(bot.get_guild(
-					payload.guild_id).roles, id=x["role_id"])
-				await bot.get_guild(payload.guild_id).get_member(payload.user_id).remove_roles(role)
+	await ctx.send(f"Error: {error}")
+	channel = bot.get_channel(1095273572106248262)
+	channel.send(f"{ctx.message.author.mention}\nError: {error}""")
+	raise error
 
 
 @bot.event
@@ -161,23 +153,30 @@ async def setup_hook():
 		"cogs.cog_dev",
 		"cogs.cog_mod",
 		"cogs.cog_droptop",
-		"cogs.cog_sugg",
 		"cogs.cog_misc"
 	]
 	for extension in extensions:
 		await bot.load_extension(extension)
 	bot.tree.clear_commands(guild=discord.Object(id=bot.configs["server_id"]))
-	await bot.tree.sync()
+	guild = await bot.tree.sync()
+	for synced in guild: 
+		command = bot.tree.get_command(synced.name, type=synced.type)
+		if command is None:
+			continue
+		command.extras['mention'] = synced.mention
+		if isinstance(command, app_commands.Group):
+			for child in command.walk_commands():
+				child.extras['mention'] = f'</{child.qualified_name}:{synced.id}>'
 
 
 
 @bot.tree.error
 async def on_tree_error(interaction, error):
-    try:
-        await interaction.response.send_message(f"Error: {error}", ephemeral=True)
-    except discord.InteractionResponded:
-        await interaction.followup.send(f"Error: {error}", ephemeral=True)
-    raise error
+	try:
+		await interaction.response.send_message(f"Error: {error}", ephemeral=True)
+	except discord.InteractionResponded:
+		await interaction.followup.send(f"Error: {error}", ephemeral=True)
+	raise error
 
 
 
@@ -186,10 +185,10 @@ logger.setLevel(logging.DEBUG)
 logging.getLogger('discord.http').setLevel(logging.INFO)
 
 handler = logging.handlers.RotatingFileHandler(
-    filename='discord.log',
-    encoding='utf-8',
-    maxBytes=32 * 1024 * 1024,  # 32 MiB
-    backupCount=5,  # Rotate through 5 files
+	filename='discord.log',
+	encoding='utf-8',
+	maxBytes=8 * 1024 * 1024,  # 8 MiB
+	backupCount=5,  # Rotate through 5 files
 )
 dt_fmt = '%Y-%m-%d %H:%M:%S'
 formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
@@ -199,6 +198,7 @@ logger.addHandler(handler)
 
 
 try:
+	keep_alive()
 	bot.run(bot.configs["discord_token"])
 except discord.HTTPException as err:
 	if err.status == 429:
