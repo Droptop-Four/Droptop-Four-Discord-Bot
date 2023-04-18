@@ -49,7 +49,9 @@ class DroptopCommands(commands.Cog):
 
 		num_cols = 2
 		results = [values[i:i+num_cols] for i in range(0, len(values), num_cols)]
-		
+
+		embed.remove_field(0)
+
 		i = 0
 		for result in results:
 			i = i + 1
