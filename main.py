@@ -26,13 +26,13 @@ import logging.handlers
 
 from utils import date_time, command_mention
 
-from keep_alive import keep_alive
+# from keep_alive import keep_alive
 
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 
 
-# load_dotenv()
+load_dotenv()
 
 main_prefix = ()
 
@@ -116,13 +116,13 @@ async def on_message(msg):
 		#if msg.channel.type is discord.ChannelType.public_thread:
 			#if msg.channel.parent.id == 1019694544876482670:
 				#await msg.delete()
-	
+
 	return await bot.process_commands(msg)
 
 
 @bot.event
 async def on_app_command_completion(interaction, command):
-	
+
 	channel = bot.get_channel(1095273572106248262)
 
 	embed = discord.Embed(title="Command")
@@ -136,7 +136,7 @@ async def on_app_command_completion(interaction, command):
 	embed.add_field(name="Params", value=f"{params}", inline=False)
 
 	await channel.send(embed=embed)
-	
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -198,7 +198,7 @@ logger.addHandler(handler)
 
 
 try:
-	keep_alive()
+	# keep_alive()
 	bot.run(bot.configs["discord_token"])
 except discord.HTTPException as err:
 	if err.status == 429:

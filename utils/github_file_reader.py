@@ -5,6 +5,12 @@ import base64
 import pymongo
 from pymongo import MongoClient
 
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster[os.getenv("db_cluster")]
 config_collection = db["Config"]
