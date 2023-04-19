@@ -23,13 +23,18 @@ class DroptopCommands(commands.Cog):
 	async def translation_status(self, interaction: discord.Interaction):
 
 		credentials = json.loads(self.bot.configs["google_creds"])
-		url = "https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing"
+		file_url = "https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing"
+
+		view = discord.ui.View()
+		style = discord.ButtonStyle.url
+		button_b = discord.ui.Button(style=style, label="Translation File", url=file_url)
+		view.add_item(item=button_b)
 
 		embed = discord.Embed(title="Translations Status", color=discord.Color.from_rgb(75, 215, 100))
 		embed.add_field(name="Loading...", value="Loading the translation status...")
-		embed.set_author(name="Go to the translation file", url="https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Google_Sheets_2020_Logo.svg/1024px-Google_Sheets_2020_Logo.svg.png")
+		embed.set_author(name="Go to the translation file", url=file_url, icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Google_Sheets_2020_Logo.svg/1024px-Google_Sheets_2020_Logo.svg.png")
 
-		await interaction.response.send_message(embed=embed)
+		await interaction.response.send_message(embed=embed, view=view)
 
 		gc = gspread.service_account_from_dict(credentials)
 		sh = gc.open_by_url(url)
