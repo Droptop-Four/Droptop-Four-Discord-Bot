@@ -37,7 +37,7 @@ class DroptopCommands(commands.Cog):
 		await interaction.response.send_message(embed=embed, view=view)
 
 		gc = gspread.service_account_from_dict(credentials)
-		sh = gc.open_by_url(url)
+		sh = gc.open_by_url(file_url)
 		wsh = sh.sheet1
 		cell_range = wsh.range('C2:D22')
 
