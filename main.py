@@ -24,7 +24,7 @@ from pymongo import MongoClient
 import logging
 import logging.handlers
 
-from utils import date_time, command_mention
+from utils import date_time, command_mention, initialize_firebase
 
 # from keep_alive import keep_alive
 
@@ -55,6 +55,8 @@ bot.configs = config_collection.find_one({},{"_id": 0})
 
 bot.cari_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/logos/cariboudjan_logo.png"
 bot.droptopfour_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/logos/droptopfour_logo.png"
+
+initialize_firebase(json.loads(bot.configs["firebase_creds"]))
 
 
 

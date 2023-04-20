@@ -4,11 +4,13 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ext.tasks import loop
 
-from utils import github_reader, json_update, version_validator
+from utils import github_reader, json_update, version_validator, sync_files
 import emoji as ej
-import json, os, time, traceback
+import json, os, time, traceback, requests
 import pymongo
 from pymongo import MongoClient
+
+from pathlib import Path
 
 cluster = MongoClient(os.getenv("mongodb_id"))
 db = cluster[os.getenv("db_cluster")]
@@ -78,7 +80,44 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 			
 			await annchannel.send(f"New Droptop Announcement! {dtbrping.mention}")
 			await annchannel.send(embed=embed, view=view)
-			await interaction.followup.send(f"Version {self.version.value}.{self.miniversion.value} of droptop was released", ephemeral=True)
+			await interaction.edit_original_response(content=f"Version {self.version.value}.{self.miniversion.value} of droptop was released")
+
+			mess = await interaction.followup.send("Syncing files on firebase...")
+
+			urls = []
+			files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
+			names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
+			file_names = []
+			messages = []
+
+			for i in range(len(files)):
+				r = requests.get(files[i])
+				filename = Path(f"tmp/{names[i]}")
+				file_names.append(filename)
+				f = open(filename,'wb')
+				f.write(r.content)
+				name = names[i].replace(".rmskin", "")
+				messages.append(f"- {name} downloaded")
+				if i == 0:
+					await mess.edit(content=messages[i])
+				else:
+					await mess.edit(content=f"{messages[0]}\n{messages[1]}")
+	
+			for i in range(len(names)):
+				url = sync_files(names[i])
+				urls.append(url)
+				messages.append(f"- {name} uploaded to firebase")
+	
+				if i == 0:
+					await mess.edit(content=f"{messages[0]}\n{messages[1]}\n\n{messages[2]}")
+				else:
+					await mess.edit(content=f"{messages[0]}\n{messages[1]}\n\n{messages[2]}\n{messages[3]}")
+	
+			for file in file_names:
+				file.unlink()
+
+			await mess.edit(content="Files synced on firebase")
+		
 		else:
 			await interaction.response.send_message(f"Version `{self.version.value}` is not accettable", ephemeral=True)
 	
