@@ -1025,8 +1025,25 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		if f"{self.community_app}" in threads:
 			if self.image_preview:
 				await thread.send(embed=embed, file=image_file, view=view)
+
+				messages = [message async for message in thread.history(limit=1, oldest_first=True)]
+
+				newembed = discord.Embed(title=f"{self.community_app}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+				newembed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
+				newembed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )", icon_url=interaction.user.avatar.url)
+				if self.image_preview:
+					image_file = await self.image_preview.to_file(filename="image.png")
+					newembed.set_image(url="attachment://image.png")
+				else:
+					newembed.set_image(url=self.image_url)
+				
+				await messages[0].edit(embed=newembed, attachments=[image_file], view=view)
 			else:
 				await thread.send(embed=embed, view=view)
+
+				messages = [message async for message in thread.history(limit=1, oldest_first=True)]
+
+				await messages[0].edit(embed=embed, view=view)
 		else:
 			if self.image_preview:
 				await self.channel.create_thread(name=f"{self.community_app}", embed=embed, file=image_file, view=view)
@@ -1138,8 +1155,25 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 		if f"{self.community_theme}" in threads:
 			if self.image_preview:
 				await thread.send(embed=embed, file=image_file, view=view)
+
+				messages = [message async for message in thread.history(limit=1, oldest_first=True)]
+
+				newembed = discord.Embed(title=f"{self.community_theme}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+				newembed.set_author(name="New Community Theme Release", url=self.configs["website"]+"/community-themes")
+				newembed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )", icon_url=interaction.user.avatar.url)
+				if self.image_preview:
+					image_file = await self.image_preview.to_file(filename="image.png")
+					newembed.set_image(url="attachment://image.png")
+				else:
+					newembed.set_image(url=self.image_url)
+				
+				await messages[0].edit(embed=newembed, attachments=[image_file], view=view)
 			else:
 				await thread.send(embed=embed, view=view)
+
+				messages = [message async for message in thread.history(limit=1, oldest_first=True)]
+
+				await messages[0].edit(embed=embed, view=view)
 		else:
 			if self.image_preview:
 				await self.channel.create_thread(name=f"{self.community_theme}", embed=embed, file=image_file, view=view)
