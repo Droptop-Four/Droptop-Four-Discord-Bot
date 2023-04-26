@@ -23,7 +23,7 @@ class DroptopCommands(commands.Cog):
 	async def translation_status(self, interaction: discord.Interaction):
 
 		credentials = json.loads(self.bot.configs["google_creds"])
-		file_url = "https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing"
+		file_url = "https://translate.droptopfour.com"
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
@@ -225,6 +225,23 @@ class DroptopCommands(commands.Cog):
 			embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 		await interaction.response.send_message(embed=embed, view=view)
 
+
+	@app_commands.command(name="docs")
+	async def docs(self, interaction: discord.Interaction):
+		"""Displays the docs link"""
+
+		data = github_reader("data/droptop_info.json")
+
+		view = discord.ui.View()
+		style = discord.ButtonStyle.url
+		button = discord.ui.Button(style=style, label="Docs", url="https://docs.droptopfour.com/")
+		view.add_item(item=button)
+
+		embed = discord.Embed(title="Droptop Four docs", color=discord.Color.from_rgb(75, 215, 100))
+		for field in data["messages"][4]["content"][0]["fields"]:
+			embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
+		await interaction.response.send_message(embed=embed, view=view)
+
 	
 	@app_commands.command(name="website")
 	async def website(self, interaction: discord.Interaction):
@@ -238,7 +255,7 @@ class DroptopCommands(commands.Cog):
 		view.add_item(item=button)
 
 		embed = discord.Embed(title="Droptop Four website", color=discord.Color.from_rgb(75, 215, 100))
-		for field in data["messages"][4]["content"][0]["fields"]:
+		for field in data["messages"][5]["content"][0]["fields"]:
 			embed.add_field(name=field["name"], value=field["content"], inline=field["inline"])
 		await interaction.response.send_message(embed=embed, view=view)
 
