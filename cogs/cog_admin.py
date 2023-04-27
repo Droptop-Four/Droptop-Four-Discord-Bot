@@ -82,7 +82,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 			await annchannel.send(embed=embed, view=view)
 			await interaction.edit_original_response(content=f"Version {self.version.value}.{self.miniversion.value} of droptop was released")
 
-			mess = await interaction.followup.send("Syncing files on firebase...")
+			mess = await interaction.followup.send("Syncing files on firebase...", ephemeral=True)
 
 			urls = []
 			files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
