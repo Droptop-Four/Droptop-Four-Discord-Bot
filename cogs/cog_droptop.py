@@ -1036,7 +1036,16 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 			embed.set_image(url="attachment://image.png")
 		else:
 			embed.set_image(url=self.image_url)
+
+		all_threads = []
+
 		for thread in self.channel.threads:
+			all_threads.append(thread)
+	
+		async for thread in self.channel.archived_threads():
+			all_threads.append(thread)
+			
+		for thread in all_threads:
 			if f"{self.community_app}" == thread.name:
 				if self.image_preview:
 					await thread.send(embed=embed, file=image_file, view=view)
@@ -1044,7 +1053,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 					messages = [message async for message in thread.history(limit=1, oldest_first=True)]
 	
 					newembed = discord.Embed(title=f"{self.community_app}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
-					newembed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
+					newembed.set_author(name="App Release Modified", url=self.configs["website"]+f"/community-apps?id={app_id}")
 					newembed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )", icon_url=interaction.user.avatar.url)
 					if self.image_preview:
 						image_file = await self.image_preview.to_file(filename="image.png")
@@ -1060,17 +1069,15 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 	
 					await messages[0].edit(embed=embed, view=view)
 				break
+		else:
+			if self.image_preview:
+				await self.channel.create_thread(name=f"{self.community_app}", embed=embed, file=image_file, view=view)
 			else:
-				if self.image_preview:
-					await self.channel.create_thread(name=f"{self.community_app}", embed=embed, file=image_file, view=view)
-					break
-				else:
-					await self.channel.create_thread(name=f"{self.community_app}", embed=embed, view=view)
-					break
+				await self.channel.create_thread(name=f"{self.community_app}", embed=embed, view=view)
 			
 		if self.image_preview:
 			webp_path.unlink()
-		await interaction.followup.send(f"You successfully published **{self.community_app}** in <#{self.channel.id}>", ephemeral=True)
+		await interaction.followup.send(f"You successfully modified **{self.community_app}** in <#{self.channel.id}>", ephemeral=True)
 
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
 		await interaction.followup.send(f"Oops! Something went wrong, contact Bunz.\n```{error}```", ephemeral=True)
@@ -1168,7 +1175,16 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 			embed.set_image(url="attachment://image.png")
 		else:
 			embed.set_image(url=self.image_url)
+
+		all_threads = []
+
 		for thread in self.channel.threads:
+			all_threads.append(thread)
+	
+		async for thread in self.channel.archived_threads():
+			all_threads.append(thread)
+		
+		for thread in all_threads:
 			if f"{self.community_theme}" == thread.name:
 				if self.image_preview:
 					await thread.send(embed=embed, file=image_file, view=view)
@@ -1192,13 +1208,12 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 	
 					await messages[0].edit(embed=embed, view=view)
 				break
+		else:
+			if self.image_preview:
+				await self.channel.create_thread(name=f"{self.community_theme}", embed=embed, file=image_file, view=view)
 			else:
-				if self.image_preview:
-					await self.channel.create_thread(name=f"{self.community_theme}", embed=embed, file=image_file, view=view)
-					break
-				else:
-					await self.channel.create_thread(name=f"{self.community_theme}", embed=embed, view=view)
-					break
+				await self.channel.create_thread(name=f"{self.community_theme}", embed=embed, view=view)
+				
 		if self.image_preview:
 			webp_path.unlink()
 		await interaction.followup.send(f"You successfully published **{self.community_theme}** in <#{self.channel.id}>", ephemeral=True)
