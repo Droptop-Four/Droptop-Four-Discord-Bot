@@ -716,7 +716,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				rmskin_name = rmskin_rename("app", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
 				await self.rmskin_package.save(package_path)
-				rmskin_creation = push_rmskin("app", image_name)
+				rmskin_creation = push_rmskin("app", rmskin_name)
 				
 				image_name = img_rename("app", self.rmskin_package.filename)
 				webp_path = Path(f"tmp/{image_name}.webp")
@@ -893,7 +893,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
 				await self.rmskin_package.save(package_path)
-				rmskin_creation = push_rmskin("theme", image_name)
+				rmskin_creation = push_rmskin("theme", rmskin_name)
 				
 				image_name = img_rename("theme", self.rmskin_package.filename)
 				webp_path = Path(f"tmp/{image_name}.webp")
