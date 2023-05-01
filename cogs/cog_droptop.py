@@ -1006,13 +1006,13 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		if self.image_preview:
 			if self.suffix == "jpg":
 				image_extension = Path(self.image_preview.filename).suffix
-				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_apps/img/", "")
+				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/", "")
 				image_name = image_name.replace(".webp", "")
 				image_path = Path(f"tmp/{image_name}{image_extension}")
 				await self.image_preview.save(image_path)
 				webp_path = to_webp(image_path)
 			else:
-				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_apps/img/", "")
+				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/", "")
 				image_name = image_name.replace(".webp", "")
 				webp_path = Path(f"tmp/{image_name}.webp")
 				await self.image_preview.save(webp_path)
@@ -1146,13 +1146,13 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 		if self.image_preview:
 			if self.suffix == "jpg":
 				image_extension = Path(self.image_preview.filename).suffix
-				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_themes/img/", "")
+				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/", "")
 				image_name = image_name.replace(".webp", "")
 				image_path = Path(f"tmp/{image_name}{image_extension}")
 				await self.image_preview.save(image_path)
 				webp_path = to_webp(image_path)
 			else:
-				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/v3/data/community_themes/img/", "")
+				image_name = self.image_url.replace("https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/", "")
 				image_name = image_name.replace(".webp", "")
 				webp_path = Path(f"tmp/{image_name}.webp")
 				await self.image_preview.save(webp_path)
