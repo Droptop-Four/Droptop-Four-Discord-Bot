@@ -23,7 +23,7 @@ class DroptopCommands(commands.Cog):
 	async def translation_status(self, interaction: discord.Interaction):
 
 		credentials = json.loads(self.bot.configs["google_creds"])
-		file_url = "https://translate.droptopfour.com"
+		file_url = "https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing"
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
