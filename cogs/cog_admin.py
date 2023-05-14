@@ -82,41 +82,12 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 			await annchannel.send(embed=embed, view=view)
 			await interaction.edit_original_response(content=f"Version {self.version.value}.{self.miniversion.value} of droptop was released")
 
-			mess = await interaction.followup.send("Syncing files on firebase...", ephemeral=True)
+			await interaction.followup.send("Syncing files on firebase...", ephemeral=True)
 
-			urls = []
 			files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
 			names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
-			file_names = []
-			messages = []
 
-			for i in range(len(files)):
-				r = requests.get(files[i])
-				filename = Path(f"tmp/{names[i]}")
-				file_names.append(filename)
-				f = open(filename,'wb')
-				f.write(r.content)
-				name = names[i].replace(".rmskin", "")
-				messages.append(f"- {name} downloaded")
-				if i == 0:
-					await mess.edit(content=messages[i])
-				else:
-					await mess.edit(content=f"{messages[0]}\n{messages[1]}")
-	
-			for i in range(len(names)):
-				url = sync_files(names[i])
-				urls.append(url)
-				messages.append(f"- {name} uploaded to firebase")
-	
-				if i == 0:
-					await mess.edit(content=f"{messages[0]}\n{messages[1]}\n\n{messages[2]}")
-				else:
-					await mess.edit(content=f"{messages[0]}\n{messages[1]}\n\n{messages[2]}\n{messages[3]}")
-	
-			for file in file_names:
-				file.unlink()
-
-			await mess.edit(content="Files synced on firebase")
+			sync_files(files, names)
 		
 		else:
 			await interaction.response.send_message(f"Version `{self.version.value}` is not accettable", ephemeral=True)
@@ -209,6 +180,19 @@ class AdminCommands(commands.Cog):
 		"""Creates a poll"""
 
 		await interaction.response.send_modal(NewPoll(emoji_1, emoji_2))
+
+
+	@app_commands.command(name="sync_firebase")
+	async def sync_firebase(self, interaction: discord.Interaction):
+		"""Syncs firebase with github"""
+
+		await interaction.response.send_message("Syncing files on firebase...", ephemeral=True)
+
+
+		files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
+		names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
+
+		sync_files(files, names)
 
 
 
