@@ -86,8 +86,9 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
 			files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
 			names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
+			url = configs["log_channel_webhook_url"]
 
-			sync_files(files, names)
+			sync_files(files, names, url)
 		
 		else:
 			await interaction.response.send_message(f"Version `{self.version.value}` is not accettable", ephemeral=True)
@@ -191,8 +192,9 @@ class AdminCommands(commands.Cog):
 
 		files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
 		names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
+		url = configs["log_channel_webhook_url"]
 
-		sync_files(files, names)
+		sync_files(files, names, url)
 
 
 
