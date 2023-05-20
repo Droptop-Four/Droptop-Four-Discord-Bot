@@ -1,4 +1,3 @@
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -11,8 +10,7 @@ original_extensions = [
 	"cogs.cog_dev",
 	"cogs.cog_mod",
 	"cogs.cog_droptop",
-	"cogs.cog_sugg",
-	"cogs.cog_misc"
+	"cogs.cog_misc",
 ]
 
 
@@ -51,24 +49,12 @@ class DevCommands(commands.Cog):
 			await interaction.response.send_message("Reloading cog...", ephemeral=True)
 			await self.bot.unload_extension(cog)
 			await self.bot.load_extension(cog)
-
-			self.bot.tree.clear_commands(guild=discord.Object(id=self.bot.configs["server_id"]))
-			guild = await self.bot.tree.sync()
-			for synced in guild: 
-				command = self.bot.tree.get_command(synced.name, type=synced.type)
-				if command is None:
-					continue
-				command.extras['mention'] = synced.mention
-				if isinstance(command, app_commands.Group):
-					for child in command.walk_commands():
-						child.extras['mention'] = f'</{child.qualified_name}:{synced.id}>'
-			
+			self.bot.tree.clear_commands(guild=self.bot.get_guild(self.bot.configs["server_id"]))
+			await self.bot.tree.sync()
 			await interaction.followup.send(f"`{cog}` successfully reloaded.", ephemeral=True)
 			log_channel = interaction.guild.get_channel(self.bot.configs["moderationlog_channel"])
 			embed = discord.Embed(title="Reloaded Cog", description=f"{interaction.user.mention} reloaded the `{cog}` cog", color=discord.Colour.from_rgb(213, 39, 62))
 			await log_channel.send(embed=embed)
-
-			
 
 
 	@app_commands.command(name="unload_cog")
@@ -89,18 +75,8 @@ class DevCommands(commands.Cog):
 		else:
 			await interaction.response.send_message("Unloading cog...", ephemeral=True)
 			await self.bot.unload_extension(cog)
-
-			self.bot.tree.clear_commands(guild=discord.Object(id=self.bot.configs["server_id"]))
-			guild = await self.bot.tree.sync()
-			for synced in guild: 
-				command = self.bot.tree.get_command(synced.name, type=synced.type)
-				if command is None:
-					continue
-				command.extras['mention'] = synced.mention
-				if isinstance(command, app_commands.Group):
-					for child in command.walk_commands():
-						child.extras['mention'] = f'</{child.qualified_name}:{synced.id}>'
-			
+			self.bot.tree.clear_commands(guild=self.bot.get_guild(self.bot.configs["server_id"]))
+			await self.bot.tree.sync()
 			await interaction.followup.send(f"`{cog}` successfully unloaded.", ephemeral=True)
 			log_channel = interaction.guild.get_channel(self.bot.configs["moderationlog_channel"])
 			embed = discord.Embed(title="Unloaded Cog", description=f"{interaction.user.mention} unloaded the `{cog}` cog", color=discord.Colour.from_rgb(213, 39, 62))
@@ -125,18 +101,8 @@ class DevCommands(commands.Cog):
 		else:
 			await interaction.response.send_message("Loading cog...", ephemeral=True)
 			await self.bot.load_extension(cog)
-
-			self.bot.tree.clear_commands(guild=discord.Object(id=self.bot.configs["server_id"]))
-			guild = await self.bot.tree.sync()
-			for synced in guild: 
-				command = self.bot.tree.get_command(synced.name, type=synced.type)
-				if command is None:
-					continue
-				command.extras['mention'] = synced.mention
-				if isinstance(command, app_commands.Group):
-					for child in command.walk_commands():
-						child.extras['mention'] = f'</{child.qualified_name}:{synced.id}>'
-			
+			self.bot.tree.clear_commands(guild=self.bot.get_guild(self.bot.configs["server_id"]))
+			await self.bot.tree.sync()
 			await interaction.followup.send(f"`{cog}` successfully loaded.", ephemeral=True)
 			log_channel = interaction.guild.get_channel(self.bot.configs["moderationlog_channel"])
 			embed = discord.Embed(title="Loaded Cog", description=f"{interaction.user.mention} loaded the `{cog}` cog", color=discord.Colour.from_rgb(213, 39, 62))
@@ -158,23 +124,12 @@ class DevCommands(commands.Cog):
 		"""Syncs the bot's commands."""
 
 		await interaction.response.send_message("Syncing command tree...", ephemeral=True)
-
-		self.bot.tree.clear_commands(guild=discord.Object(id=self.bot.configs["server_id"]))
-		guild = await self.bot.tree.sync()
-		for synced in guild: 
-			command = self.bot.tree.get_command(synced.name, type=synced.type)
-			if command is None:
-				continue
-			command.extras['mention'] = synced.mention
-			if isinstance(command, app_commands.Group):
-				for child in command.walk_commands():
-					child.extras['mention'] = f'</{child.qualified_name}:{synced.id}>'
-		
+		self.bot.tree.clear_commands(guild=self.bot.get_guild(self.bot.configs["server_id"]))
+		await self.bot.tree.sync()
 		await interaction.followup.send("Command tree synced.", ephemeral=True)
 		log_channel = interaction.guild.get_channel(self.bot.configs["moderationlog_channel"])
 		embed = discord.Embed(title="Synced Commands", description=f"{interaction.user.mention} synced the commands", color=discord.Colour.from_rgb(213, 39, 62))
 		await log_channel.send(embed=embed)
-
 
 
 async def setup(bot: commands.Bot) -> None:

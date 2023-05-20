@@ -1,39 +1,85 @@
 import github
-import os, json
-from .github_file_reader import github_reader
+import json, requests, base64
+
 from .generators import generate_uuid_string
-from .time_utils import push_desc
-
-import pymongo
-from pymongo import MongoClient
-
+from .time_utils import version_date
 
 from pathlib import Path
 
 
-def git_auth():
+def initialize_github(token):
 	"""
- 	Initializes github session
+ 	Initializes the connection with github.
+
+	Args:
+		token (str): The authentication token
+
+	Returns:
+		g (Github): The github instance
+		all_files (list): Empty list
  	"""
 	
-	cluster = MongoClient(os.getenv("mongodb_id"))
-	db = cluster[os.getenv("db_cluster")]
-	config_collection = db["Config"]
-	
-	configs = config_collection.find_one({},{"_id": 0})
-	github_token = configs['github_token']
-	
-	g = github.Github(github_token)
+	g = github.Github(token)
 	all_files = []
 	return g, all_files
 
 
-
-def push_rmskin(type, package_name):
+def github_read_file(username, repository_name, file_path, token=None):
 	"""
- 	Pushes the rmskin package to github
+	Reads online github file and returns it as a json object.
+ 	
+ 	Args:
+  		username (str): Github username
+  		repository_name (str): Github repository name
+  		file_path (str): Path to file on github
+  		token (str): The authentication token
+ 	
+  	Returns:
+ 		file_content (str): JSON object of file contents
+ 	"""
+	
+	headers = {}
+	if token:
+		headers['Authorization'] = f"token {token}"
+	
+	url = f'https://api.github.com/repos/{username}/{repository_name}/contents/{file_path}'
+	r = requests.get(url, headers=headers)
+	r.raise_for_status()
+	data = r.json()
+	file_content = data['content']
+	file_content_encoding = data.get('encoding')
+	if file_content_encoding == 'base64':
+		file_content = base64.b64decode(file_content).decode()
+	
+	return file_content
+
+
+def github_reader(token, path):
+	"""
+ 	Reads a file from github and returns it as a json object.
+	
+  	Args:
+		token (str): The authentication token
+  		path (str): Path to file on github
+ 	 	
+  	Returns:
+  		data: (json): JSON object of file contents
+ 	"""
+
+	username = 'Droptop-Four'
+	repository_name = 'GlobalData'
+	file_path = path
+	file_content = github_read_file(username, repository_name, file_path, token=token)
+	data = json.loads(file_content)
+	return data
+
+
+def push_rmskin(token, type, package_name):
+	"""
+ 	Pushes the rmskin package to github.
 
   	Args:
+		token (str): The authentication token
    		type (str): The type of package [app, theme]
   		package_name (str): The name of the package
 
@@ -41,14 +87,12 @@ def push_rmskin(type, package_name):
  		creation (bool): if the package was created (True) or it was already present and was only updated (False)
  	"""
 
-	g, all_files = git_auth()
+	g, all_files = initialize_github(token)
 	if type == "app":
-		#repo = g.get_repo("Droptop-Four/test")
-		repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
+		repo = g.get_repo("Droptop-Four/GlobalData")
 		git_prefix = 'Apps/'
 	else:
-		#repo = g.get_repo("Droptop-Four/test")
-		repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
+		repo = g.get_repo("Droptop-Four/GlobalData")
 		git_prefix = 'Themes/'
 	
 	contents = repo.get_contents("")
@@ -69,27 +113,27 @@ def push_rmskin(type, package_name):
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
 		else:
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
 		creation = False
 		return creation
 	
 	else:
 		if type == "app":
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{version_date()}", content, branch="main")
 		else:
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{version_date()}", content, branch="main")
 		creation = True
 		return creation
 
 
-
-def push_image(type, image_name):
+def push_image(token, type, image_name):
 	"""
  	Pushes the image to github
 
   	Args:
+		token (str): The authentication token
    		type (str): The type of package [app, theme]
 		image_name (str): The name of the image
   
@@ -97,8 +141,7 @@ def push_image(type, image_name):
  		creation (bool): if the image was created (True) or it was already present and was only updated (False)
  	"""
 
-	g, all_files = git_auth()
-	#repo = g.get_repo("Droptop-Four/test")
+	g, all_files = initialize_github(token)
 	repo = g.get_repo("Droptop-Four/GlobalData")
 	
 	if type == "app":
@@ -124,26 +167,27 @@ def push_image(type, image_name):
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
 		else:
-			repo.update_file(contents.path, f"{push_desc()}", content, contents.sha, branch="main")
+			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
 		creation = False
 		return creation
 	
 	else:
 		if type == "app":
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{version_date()}", content, branch="main")
 		else:
-			repo.create_file(git_file, f"{push_desc()}", content, branch="main")
+			repo.create_file(git_file, f"{version_date()}", content, branch="main")
 		creation = True
 		return creation
 
 
-def json_update(type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None):
+def json_update(token, type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None):
 	"""
 	Updates the json file with the new package information
 
  	Args:
+		token (str): The authentication token
   		type (str): The type of package [app, theme]
 		authorised_members (list): A list of authorised members to edit apps/themes
   		title (str): The title of the package
@@ -159,17 +203,16 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 		creation (bool): if the app inside of the json was created (True) or it was already present and was only updated (False)
  	"""
 
-	g, all_files = git_auth()
+	g, all_files = initialize_github(token)
 
 	repo = g.get_repo("Droptop-Four/GlobalData")
-	#repo = g.get_repo("Droptop-Four/test")
 
 	if type == "app":
 		content = repo.get_contents("data/community_apps/community_apps.json")
-		community_json = github_reader("data/community_apps/community_apps.json")
+		community_json = github_reader(token, "data/community_apps/community_apps.json")
 	elif type == "theme":
 		content = repo.get_contents("data/community_themes/community_themes.json")
-		community_json = github_reader("data/community_themes/community_themes.json")
+		community_json = github_reader(token, "data/community_themes/community_themes.json")
 	else:
 		content = repo.get_contents("data/version.json")
 	
@@ -204,7 +247,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
@@ -232,7 +275,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
@@ -270,7 +313,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 				download_link = theme_tags["direct_download_link"]
 				image_link = theme_tags["image_url"]
 				item_id = theme_tags["id"]
@@ -288,7 +331,7 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 			"miniversion": f"{miniversion}"
 		}
 		json_content = json.dumps(json_content, indent = 4)
-		repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 
 		updated_json = True
 		return updated_json
@@ -304,10 +347,10 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 		
 		if new_item:
 			if type == "app":
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
+				download_link = f"https://github.com/Droptop-Four/GlobalData/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/{image_name}.webp"
 			else:
-				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
+				download_link = f"https://github.com/Droptop-Four/GlobalData/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/{image_name}.webp"
 
 			item_id = max(idlist) + 1
@@ -373,9 +416,9 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 				json_content = f.read()
 			
 			if type == "app":
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 			else:
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 	
 			temp_json.unlink()
 
@@ -383,12 +426,12 @@ def json_update(type, *, authorised_members=None, title=None, author=None, descr
 		return updated_json, download_link, image_link, item_id, uuid
 
 
-
-def json_edit(type, uuid, *, author=None, description=None, author_link=None, github_repo=None, authorised_members=None):
+def json_edit(token, type, uuid, *, author=None, description=None, author_link=None, github_repo=None, authorised_members=None):
 	"""
  	Edits the specified app or theme
 
    	Args:
+		token (str): The authentication token
 		type (str): The type of package [app, theme]
   		uuid (str): The uuid of the app/theme
   		author (str): The author of the package
@@ -404,14 +447,13 @@ def json_edit(type, uuid, *, author=None, description=None, author_link=None, gi
   		item_id: The id of the app/theme
   	"""
 
-	g, all_files = git_auth()
+	g, all_files = initialize_github(token)
 
 	repo = g.get_repo("Droptop-Four/GlobalData")
-	#repo = g.get_repo("Droptop-Four/test")
 
 	if type == "app":
 		content = repo.get_contents("data/community_apps/community_apps.json")
-		community_json = github_reader("data/community_apps/community_apps.json")
+		community_json = github_reader(token, "data/community_apps/community_apps.json")
 
 		for item in community_json["apps"]:
 			app_tags = item["app"]
@@ -444,7 +486,7 @@ def json_edit(type, uuid, *, author=None, description=None, author_link=None, gi
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
@@ -453,7 +495,7 @@ def json_edit(type, uuid, *, author=None, description=None, author_link=None, gi
 	
 	elif type == "theme":
 		content = repo.get_contents("data/community_themes/community_themes.json")
-		community_json = github_reader("data/community_themes/community_themes.json")
+		community_json = github_reader(token, "data/community_themes/community_themes.json")
 
 		for item in community_json["themes"]:
 			theme_tags = item["theme"]
@@ -486,7 +528,7 @@ def json_edit(type, uuid, *, author=None, description=None, author_link=None, gi
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 				download_link = theme_tags["direct_download_link"]
 				image_link = theme_tags["image_url"]
 				item_id = theme_tags["id"]
@@ -496,47 +538,44 @@ def json_edit(type, uuid, *, author=None, description=None, author_link=None, gi
 	edited_json = True
 	return edited_json, download_link, image_link, item_id
 
-	
 
-def rmskin_delete(type, name):
+def rmskin_delete(token, type, name):
 	"""
  	Deletes the specified app or theme rmskin package
 
    	Args:
+		token (str): The authentication token
 		type (str): The type of package [app, theme]
 		name (str): The name of the app/theme
    	"""
 	
-	g, all_files = git_auth()
+	g, all_files = initialize_github(token)
 	
 	if type == "app":
-		#repo = g.get_repo("Droptop-Four/test")
-		repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
+		repo = g.get_repo("Droptop-Four/GlobalData")
 		git_prefix = 'Apps/'
 		package_name = name + " (Droptop App).rmskin"
 	else:
-		#repo = g.get_repo("Droptop-Four/test")
-		repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
+		repo = g.get_repo("Droptop-Four/GlobalData")
 		git_prefix = 'Themes/'
 		package_name = name + " (Droptop Theme).rmskin"
 	git_file = git_prefix + package_name
 	contents = repo.get_contents(git_file, ref="main")
-	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="main")
+	repo.delete_file(contents.path, f"{version_date()}", contents.sha, branch="main")
 
 
-
-def image_delete(type, name):
+def image_delete(token, type, name):
 	"""
  	Deletes the specified app or theme image
 
    	Args:
+		token (str): The authentication token
 		type (str): The type of package [app, theme]
 		name (str): The name of the app/theme
    	"""
 	
-	g, all_files = git_auth()
+	g, all_files = initialize_github(token)
 
-	#repo = g.get_repo("Droptop-Four/test")
 	repo = g.get_repo("Droptop-Four/GlobalData")
 	if type == "app":
 		git_prefix = 'data/community_apps/img/'
@@ -548,26 +587,25 @@ def image_delete(type, name):
 		package_name = package_name.replace(" ", "_") + ".webp"
 	git_file = git_prefix + package_name
 	contents = repo.get_contents(git_file, ref="main")
-	repo.delete_file(contents.path, f"{push_desc()}", contents.sha, branch="main")
+	repo.delete_file(contents.path, f"{version_date()}", contents.sha, branch="main")
 
 
-
-def json_delete(type, uuid):
+def json_delete(token, type, uuid):
 	"""
  	Deletes the specified app or theme from its json file
 
    	Args:
+		token (str): The authentication token
 		type (str): The type of package [app, theme]
 		uuid (str): The uuid of the app/theme
    	"""
 
-	g, all_files = git_auth()
+	g, all_files = initialize_github(token)
 
 	repo = g.get_repo("Droptop-Four/GlobalData")
-	#repo = g.get_repo("Droptop-Four/test")
 	if type == "app":
 		content = repo.get_contents("data/community_apps/community_apps.json")
-		community_json = github_reader("data/community_apps/community_apps.json")
+		community_json = github_reader(token, "data/community_apps/community_apps.json")
 		for i in range(len(community_json["apps"])):
 			if community_json["apps"][i]["app"]["uuid"] == uuid:
 				community_json["apps"].pop(i)
@@ -577,12 +615,12 @@ def json_delete(type, uuid):
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 				temp_json.unlink()
 				break
 	else:
 		content = repo.get_contents("data/community_themes/community_themes.json")
-		community_json = github_reader("data/community_themes/community_themes.json")
+		community_json = github_reader(token, "data/community_themes/community_themes.json")
 		for i in range(len(community_json["themes"])):
 			if community_json["themes"][i]["theme"]["uuid"] == uuid:
 				community_json["themes"].pop(i)
@@ -592,9 +630,6 @@ def json_delete(type, uuid):
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{push_desc()}", json_content, content.sha, branch="main")
+				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 				temp_json.unlink()
 				break
-
-
-

@@ -1,17 +1,16 @@
 import re
 
 
-
 def rmskin_name_check(type, name):
 	"""
-	Checks if the rmskin file has the proper name
+	Checks if the rmskin file has the proper name.
  
 	Args:
 		type (str): The type of package [app, theme]
 		name (str): The name of the package
   
 	Returns:
-		bool
+		bool: If the name is valid
  	"""
 
 	if type == "app":
@@ -27,10 +26,9 @@ def rmskin_name_check(type, name):
 		return False
 
 
-
 def rmskin_rename(type, name):
 	"""
-	Renames the rmskin file to the proper name
+	Renames the rmskin file to the proper name.
  
 	Args:
 		type (str): The type of package [app, theme]
@@ -49,8 +47,18 @@ def rmskin_rename(type, name):
 	return name
 
 
-
 def get_title_author(type, name):
+	"""
+	Separates the title and the author from the name.
+
+	Args:
+		type (str): The type of package [app, theme]
+		name (str): The name of the package
+
+	Returns:
+		title (str): The title of the package
+		author (str): The author of the package
+	"""
 	
 	lista = name.split("_-_")
 	lista2 = []
@@ -76,10 +84,9 @@ def get_title_author(type, name):
 	return title, author
 
 
-
 def img_rename(type, name):
 	"""
-	Renames the image file to the proper name
+	Renames the image file to the proper name.
  
 	Args:
 		title (str): The title of the package
@@ -96,4 +103,3 @@ def img_rename(type, name):
 		name = name.replace("_Droptop_Theme.rmskin", "")
 	
 	return name
-

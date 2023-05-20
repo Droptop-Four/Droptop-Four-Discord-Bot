@@ -1,4 +1,3 @@
-
 def command_mention(name, id):
 	"""
 	Mentions a slash command.

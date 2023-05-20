@@ -1,60 +1,58 @@
-
 import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.tasks import loop
 
 from utils import github_reader, json_update, version_validator, sync_files
-import emoji as ej
-import json, os, time, traceback, requests
-import pymongo
-from pymongo import MongoClient
 
-from pathlib import Path
-
-cluster = MongoClient(os.getenv("mongodb_id"))
-db = cluster[os.getenv("db_cluster")]
-config_collection = db["Config"]
-
-configs = config_collection.find_one({},{"_id": 0})
+import traceback
 
 
 class NewVersion(discord.ui.Modal, title="New Version"):
+	def __init__(self, configs):
+		super().__init__()
+		self.configs = configs
 
-	version = discord.ui.TextInput(
-		label="Version",
-		placeholder="Use only numbers and dots. ex '4.309'",
-	)
+		self.version = discord.ui.TextInput(
+			label="Version",
+			placeholder="Use only numbers and dots. ex '4.309'",
+		)
+	
+		self.miniversion = discord.ui.TextInput(
+			label="Mini Version",
+			placeholder="Use only numbers. ex '58'",
+		)
+	
+		self.features = discord.ui.TextInput(
+			label="New Features",
+			style=discord.TextStyle.paragraph,
+			placeholder="Type new features here...",
+			required=False,
+		)
+	
+		self.modifications = discord.ui.TextInput(
+			label="Modifications",
+			style=discord.TextStyle.paragraph,
+			placeholder="Type modifications here...",
+			required=False,
+		)
+	
+		self.bugfixes = discord.ui.TextInput(
+			label="Bug Fixes",
+			style=discord.TextStyle.paragraph,
+			placeholder="Type bug fixes here...",
+			required=False,
+		)
 
-	miniversion = discord.ui.TextInput(
-		label="Mini Version",
-		placeholder="Use only numbers. ex '58'",
-	)
-
-	features = discord.ui.TextInput(
-		label="New Features",
-		style=discord.TextStyle.paragraph,
-		placeholder="Type new features here...",
-		required=False,
-	)
-
-	modifications = discord.ui.TextInput(
-		label="Modifications",
-		style=discord.TextStyle.paragraph,
-		placeholder="Type modifications here...",
-		required=False,
-	)
-
-	bugfixes = discord.ui.TextInput(
-		label="Bug Fixes",
-		style=discord.TextStyle.paragraph,
-		placeholder="Type bug fixes here...",
-		required=False,
-	)
+		self.add_item(self.version)
+		self.add_item(self.miniversion)
+		self.add_item(self.features)
+		self.add_item(self.modifications)
+		self.add_item(self.bugfixes)
 
 	async def on_submit(self, interaction: discord.Interaction):
-		dtbrping = discord.utils.get(interaction.guild.roles, id=configs["newversion_role"])
-		annchannel = interaction.guild.get_channel(configs["announcements_channel"])
+		dtbrping = discord.utils.get(interaction.guild.roles, id=self.configs["newversion_role"])
+		annchannel = interaction.guild.get_channel(self.configs["announcements_channel"])
 
 		if version_validator(self.version.value):
 			versiontuple = (self.version.value, self.miniversion.value)
@@ -86,10 +84,11 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
 			files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
 			names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
-			url = configs["log_channel_webhook_url"]
+			bucket_url = self.configs["firebase_bucket_url"]
+			webhook_url = self.configs["log_channel_webhook_url"]
 
-			sync_files(files, names, url)
-		
+			sync_files(files, names, bucket_url, webhook_url)
+
 		else:
 			await interaction.response.send_message(f"Version `{self.version.value}` is not accettable", ephemeral=True)
 	
@@ -100,25 +99,29 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
 class NewPoll(discord.ui.Modal, title="New Poll"):
 
-	def __init__(self, emoji_1, emoji_2):
+	def __init__(self, configs, emoji_1, emoji_2):
 		super().__init__()
+		self.configs = configs
 		self.emoji_1 = emoji_1
 		self.emoji_2 = emoji_2
 
-	poll_title = discord.ui.TextInput(
-		label="Title",
-		placeholder="Title here...",
-	)
+		self.poll_title = discord.ui.TextInput(
+			label="Title",
+			placeholder="Title here...",
+		)
+	
+		self.description = discord.ui.TextInput(
+			label="Description",
+			style=discord.TextStyle.paragraph,
+			placeholder="Description here...",
+			required=False
+		)
 
-	description = discord.ui.TextInput(
-		label="Description",
-		style=discord.TextStyle.paragraph,
-		placeholder="Description here...",
-		required=False
-	)
+		self.add_item(self.poll_title)
+		self.add_item(self.description)
 
 	async def on_submit(self, interaction: discord.Interaction):
-		poll_role = discord.utils.get(interaction.guild.roles, id=configs["poll_role"])
+		poll_role = discord.utils.get(interaction.guild.roles, id=self.configs["poll_role"])
 		await interaction.response.send_message("Sending poll...", ephemeral=True)
 		if self.description.value:
 			embed = discord.Embed(title=self.poll_title.value, description=self.description.value, color=discord.Color.from_rgb(75, 215, 100))
@@ -160,7 +163,7 @@ class AdminCommands(commands.Cog):
 	@loop(seconds=600)
 	async def version_stats(self):
 		channel = self.bot.get_channel(self.bot.configs["versionstats_channel"])
-		version = github_reader("data/version.json")
+		version = github_reader(self.bot.configs["github_token"], "data/version.json")
 		await channel.edit(name = "Droptop Version: "+str(version["version"]))
 
 
@@ -168,7 +171,7 @@ class AdminCommands(commands.Cog):
 	async def new_version(self, interaction: discord.Interaction):
 		"""Creates a new version of droptop."""
 
-		await interaction.response.send_modal(NewVersion())
+		await interaction.response.send_modal(NewVersion(self.bot.configs))
 
 
 	@app_commands.command(name="poll")
@@ -180,22 +183,21 @@ class AdminCommands(commands.Cog):
 	async def poll(self, interaction: discord.Interaction, emoji_1: str, emoji_2: str):
 		"""Creates a poll"""
 
-		await interaction.response.send_modal(NewPoll(emoji_1, emoji_2))
+		await interaction.response.send_modal(NewPoll(self.bot.configs, emoji_1, emoji_2))
 
-
+	
 	@app_commands.command(name="sync_firebase")
 	async def sync_firebase(self, interaction: discord.Interaction):
 		"""Syncs firebase with github"""
 
 		await interaction.response.send_message("Syncing files on firebase...", ephemeral=True)
 
-
 		files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
 		names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
-		url = configs["log_channel_webhook_url"]
+		bucket_url = self.bot.configs["firebase_bucket_url"]
+		webhook_url = self.bot.configs["log_channel_webhook_url"]
 
-		sync_files(files, names, url)
-
+		sync_files(files, names, bucket_url, webhook_url)
 
 
 async def setup(bot: commands.Bot) -> None:

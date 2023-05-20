@@ -3,36 +3,27 @@
 	Discord: https://discord.gg/hQGDm4F5Ef
 	Author: Bunz (bunz#3066)
 	Date created: 21/10/2022
-	Bot Version: 3.6
+	Bot Version: 3.21
 	Python Version: 3.10.8
-	Cogs: 6
+	Cogs: 5
 '''
 
 
-
-import discord, os, threading
+import discord
 from discord import app_commands
 from discord.ext import commands
 
-from http import server
-from urllib import request
-import json
-import re
-import pymongo
-from pymongo import MongoClient
+import json, os, re
 
-import logging
-import logging.handlers
+from utils import initialize_mongodb, date_time, command_mention, initialize_firebase, initialize_logger
 
-from utils import date_time, command_mention, initialize_firebase
+from keep_alive import keep_alive
 
-# from keep_alive import keep_alive
 
 from dotenv import load_dotenv
 
-
-
 load_dotenv()
+
 
 main_prefix = ()
 
@@ -45,107 +36,34 @@ bot = commands.Bot(
 	case_insensitive=True
 )
 
+logger_status, logger = initialize_logger()
 
-cluster = MongoClient(os.getenv("mongodb_id"))
-db = cluster[os.getenv("db_cluster")]
-config_collection = db["Config"]
-commands_collection = db["Commands"]
+db_id, db_cluster = os.getenv("mongodb_id"), os.getenv("db_cluster")
+db_status = initialize_mongodb(db_id, db_cluster, logger)
 
-bot.configs = config_collection.find_one({},{"_id": 0})
+if db_status[0]:
+	config_collection = db_status[1]
+	bot.configs = config_collection.find_one({},{"_id": 0})
 
-bot.cari_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/logos/cariboudjan_logo.png"
-bot.droptopfour_logo = "https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/logos/droptopfour_logo.png"
+	firebase_status = initialize_firebase(json.loads(bot.configs["firebase_creds"]), logger)
+else:
+	firebase_status = False, ""
 
-initialize_firebase(json.loads(bot.configs["firebase_creds"]))
-
-
-
-# HTTP request handler
-#class Server(server.BaseHTTPRequestHandler):
-	# Override the log_request function to prevent spammy logging output
-	#def log_request(self, code="", size=""):
-		#pass
-
-	#def do_GET(self):
-		#self.send_response(200)
-		#self.send_header("Content-Type", "text/html")
-		#self.send_header("Cache-Control", "max-age=180")
-		#self.end_headers()
-		# Set the content of the website
-		#self.wfile.write(
-			#f"<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>Discord Bot</title></head>{bot.user} is alive!<br>Latency: {round(bot.latency*1000)}ms<br>Servers: {len(bot.guilds)}</html>".encode()
-		#)
-
-
-@bot.event
-async def on_thread_create(thread):
-	if thread.parent.id == 1019694544876482670:
-		await thread.add_tags(discord.Object(1030636641951420457))
-
-		await thread.starter_message.pin()
-
-		messaggio = await thread.send(f"To close this message use {command_mention('solved', '1078282304876707891')}")
-
-		await messaggio.pin()
+bot.cari_logo = bot.configs["cari_logo"]
+bot.droptopfour_logo = bot.configs["droptopfour_logo"]
 
 
 @bot.event
 async def on_ready():
 	print(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
-	logging.info(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
 	for guild in bot.guilds:
 		print("Connected to server: {}".format(guild))
-		logging.info("Connected to server: {}".format(guild))
 	print("------")
-	logging.info("------")
-
-	# Start the http server at port 80, using the handler class created earlier
-	#threading.Thread(target=server.HTTPServer(("", 80), Server).serve_forever).start()
-	#try:
-		# Add repl to up.repl.link so it can be kept alive
-		#request.urlopen(f"https://ced0775a-02a8-41d5-a6cf-14815ad4a73e.id.repl.co/add?repl={os.environ['REPL_SLUG']}&author={os.environ['REPL_OWNER']}")
-	#except:
-		#pass
-
-
-@bot.event
-async def on_message(msg):
-	if msg.author.bot:
-		return
-	if re.fullmatch(rf"<@!?{bot.user.id}>", msg.content):
-		return await msg.channel.send(f"You can use me with slash commands now!\nType `/` to see a list of possible commands.")
-	#if msg.type is discord.MessageType.pins_add:
-		#if msg.channel.type is discord.ChannelType.public_thread:
-			#if msg.channel.parent.id == 1019694544876482670:
-				#await msg.delete()
-
-	return await bot.process_commands(msg)
-
-
-@bot.event
-async def on_app_command_completion(interaction, command):
-
-	channel = bot.get_channel(1095273572106248262)
-
-	embed = discord.Embed(title="Command")
-	embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
-	embed.add_field(name="Channel", value=f"<#{interaction.channel_id}>", inline=False)
-	embed.add_field(name="Command", value=f"{command.qualified_name}", inline=False)
-	embed.add_field(name="Command mention", value=f"{command.extras['mention']}", inline=False)
-	params = []
-	for parameter in interaction.namespace:
-		params.append(parameter)
-	embed.add_field(name="Params", value=f"{params}", inline=False)
-
-	await channel.send(embed=embed)
-
-
-@bot.event
-async def on_command_error(ctx, error):
-	await ctx.send(f"Error: {error}")
-	channel = bot.get_channel(1095273572106248262)
-	channel.send(f"{ctx.message.author.mention}\nError: {error}""")
-	raise error
+	
+	logger.info(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
+	for guild in bot.guilds:
+		logger.info("Connected to server: {}".format(guild))
+	logger.info("------")
 
 
 @bot.event
@@ -165,11 +83,44 @@ async def setup_hook():
 		command = bot.tree.get_command(synced.name, type=synced.type)
 		if command is None:
 			continue
-		command.extras['mention'] = synced.mention
+		command.extras["mention"] = synced.mention
 		if isinstance(command, app_commands.Group):
 			for child in command.walk_commands():
-				child.extras['mention'] = f'</{child.qualified_name}:{synced.id}>'
+				child.extras["mention"] = command_mention(child.qualified_name, synced.id)
+		if command.name == "solved":
+			bot.solved_command = command_mention(child.qualified_name, synced.id)
 
+
+@bot.event
+async def on_message(msg):
+	if msg.author.bot:
+		return
+	if re.fullmatch(rf"<@!?{bot.user.id}>", msg.content):
+		return await msg.channel.send("You can use me with slash commands now!\nType `/` to see a list of possible commands.")
+	return await bot.process_commands(msg)
+
+
+@bot.event
+async def on_app_command_completion(interaction, command):
+	channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+	embed = discord.Embed(title="Command")
+	embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+	embed.add_field(name="Channel", value=f"<#{interaction.channel_id}>", inline=False)
+	embed.add_field(name="Command", value=f"{command.qualified_name}", inline=False)
+	embed.add_field(name="Command mention", value=f"{command.extras['mention']}", inline=False)
+	params = []
+	for parameter in interaction.namespace:
+		params.append(parameter)
+	embed.add_field(name="Params", value=f"{params}", inline=False)
+	
+	await channel.send(embed=embed)
+
+
+@bot.event
+async def on_command_error(ctx, error):
+	await ctx.send(f"Error: {error}")
+	raise error
 
 
 @bot.tree.error
@@ -181,30 +132,13 @@ async def on_tree_error(interaction, error):
 	raise error
 
 
-
-logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
-logging.getLogger('discord.http').setLevel(logging.INFO)
-
-handler = logging.handlers.RotatingFileHandler(
-	filename='discord.log',
-	encoding='utf-8',
-	maxBytes=8 * 1024 * 1024,  # 8 MiB
-	backupCount=5,  # Rotate through 5 files
-)
-dt_fmt = '%Y-%m-%d %H:%M:%S'
-formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-
-
-try:
-	# keep_alive()
-	bot.run(bot.configs["discord_token"])
-except discord.HTTPException as err:
-	if err.status == 429:
-		print("Rate limit detected🙄Restarting repl.")
-		# Kill the init process with signal 1, potentially causing the repl to restart and switch to an IP that isn"t rate limited
-		os.kill(1, 1)
-	print(err)
+if db_status[0] and firebase_status[0] and logger_status:
+	try:
+		keep_alive()
+		bot.run(bot.configs["discord_token"])
+	except discord.HTTPException as e:
+		if e.status == 429:
+			print("Rate limit detected. Restarting...")
+			logger.warning("Rate limit detected. Restarting...")
+			os.kill(1, 1)
+		logger.warning(e)

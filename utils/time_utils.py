@@ -1,4 +1,3 @@
-
 from datetime import date, datetime
 import time
 
@@ -8,10 +7,12 @@ def date_time():
 	datetimestr = nowstr.strftime("%d/%m/%Y %H:%M:%S")  # Day/Month/Year Hours:Minutes:Seconds
 	return datetimestr
 
+
 def today_date():
 	today = date.today()
 	return today
 
-def push_desc():
+
+def version_date():
 	string = time.strftime('%y.%m%d')
 	return string

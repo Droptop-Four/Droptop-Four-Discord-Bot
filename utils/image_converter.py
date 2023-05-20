@@ -6,12 +6,11 @@ def to_webp(source):
  	Convert image to Webp.
 
 	Args:
-		source (pathlib.Path): path to source image
+		source (pathlib.Path): Path to source image
 
 	Returns:
-		destination (pathlib.Path): path to new image
+		destination (pathlib.Path): Path to new image
 	"""
-
 
 	destination = source.with_suffix(".webp")
 	image = Image.open(source)
