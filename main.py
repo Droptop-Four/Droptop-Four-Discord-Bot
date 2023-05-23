@@ -101,6 +101,15 @@ async def on_message(msg):
 
 
 @bot.event
+async def on_thread_create(thread):
+	if thread.parent.id == bot.configs["help_bug_report_channel"]:
+		await thread.add_tags(discord.Object(bot.configs["unsolved_forum_tag"]))
+		await thread.starter_message.pin()
+		msg = await thread.send(f"To close this message use {command_mention('solved', 1078282304876707891)}")
+		await msg.pin()
+
+
+@bot.event
 async def on_app_command_completion(interaction, command):
 	channel = bot.get_channel(bot.configs["commandlog_channel"])
 
