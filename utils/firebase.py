@@ -40,7 +40,7 @@ def post_webhook(url, title, message):
 	"""
 	
 	data = {
-		"username": "Droptop Alpha",
+		"username": "Droptop Four",
 		"embeds": [
 			{
 				"title": title,
