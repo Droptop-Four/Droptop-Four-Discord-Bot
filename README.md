@@ -29,7 +29,7 @@
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot/network"><img
             src="https://img.shields.io/github/forks/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Forks"></a>
     ·
-    <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10.4-blue.svg"
+    <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10.8-blue.svg"
             alt="Python Version"></a>
     ·
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot/blob/master/LICENSE"><img
