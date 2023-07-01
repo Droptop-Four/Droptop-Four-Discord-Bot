@@ -89,10 +89,10 @@ def push_rmskin(token, type, package_name):
 
 	g, all_files = initialize_github(token)
 	if type == "app":
-		repo = g.get_repo("Droptop-Four/GlobalData")
+		repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
 		git_prefix = 'Apps/'
 	else:
-		repo = g.get_repo("Droptop-Four/GlobalData")
+		repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
 		git_prefix = 'Themes/'
 	
 	contents = repo.get_contents("")
@@ -347,10 +347,10 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 		
 		if new_item:
 			if type == "app":
-				download_link = f"https://github.com/Droptop-Four/GlobalData/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/{image_name}.webp"
 			else:
-				download_link = f"https://github.com/Droptop-Four/GlobalData/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
+				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/{image_name}.webp"
 
 			item_id = max(idlist) + 1
@@ -552,11 +552,11 @@ def rmskin_delete(token, type, name):
 	g, all_files = initialize_github(token)
 	
 	if type == "app":
-		repo = g.get_repo("Droptop-Four/GlobalData")
+		repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
 		git_prefix = 'Apps/'
 		package_name = name + " (Droptop App).rmskin"
 	else:
-		repo = g.get_repo("Droptop-Four/GlobalData")
+		repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
 		git_prefix = 'Themes/'
 		package_name = name + " (Droptop Theme).rmskin"
 	git_file = git_prefix + package_name
