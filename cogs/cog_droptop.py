@@ -6,7 +6,9 @@ from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_nam
 
 from typing import Optional, List
 from pathlib import Path
-import traceback, gspread, json
+import traceback, math
+
+from crowdin_api import CrowdinClient
 
 
 class DroptopCommands(commands.Cog):
@@ -17,47 +19,50 @@ class DroptopCommands(commands.Cog):
 	@app_commands.command(name="translation_status")
 	async def translation_status(self, interaction: discord.Interaction):
 
-		credentials = json.loads(self.bot.configs["google_creds"])
-		file_url = "https://docs.google.com/spreadsheets/d/1CniYzaOCfysxUtDmlwayYr_9Cb1EHdjtI4y4TeOzUPI/edit?usp=sharing"
+		translation_platform_url = "https://translate.droptopfour.com"
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
-		button_b = discord.ui.Button(style=style, label="Translation File", url=file_url)
+		button_b = discord.ui.Button(style=style, label="Translation platform", url=translation_platform_url)
 		view.add_item(item=button_b)
 
 		embed = discord.Embed(title="Translations Status", color=discord.Color.from_rgb(75, 215, 100))
 		embed.add_field(name="Loading...", value="Loading the translation status...")
-		embed.set_author(name="Go to the translation file", url=file_url, icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Google_Sheets_2020_Logo.svg/1024px-Google_Sheets_2020_Logo.svg.png")
+		embed.set_author(name="Go to the translation platform", url=translation_platform_url, icon_url="https://support.crowdin.com/assets/logos/small-scale-logo/png/smallscale-logo-cWhite.png")
 
 		await interaction.response.send_message(embed=embed, view=view)
 
-		gc = gspread.service_account_from_dict(credentials)
-		sh = gc.open_by_url(file_url)
-		wsh = sh.sheet1
-		cell_range = wsh.range('C2:D22')
-
-		values = []
+		client = CrowdinClient(token=self.bot.configs["crowdin_token"])
 		
-		for cell in cell_range:
-			if cell.value.startswith("✔"):
-				cell_value = cell.value.replace("✔", "✅").replace(")", " missing)")
-			elif cell.value.startswith("X"):
-				cell_value = cell.value.replace("X", "❌").replace(")", " missing)")
-			else:
-				cell_value = cell.value.split(" (")[0]
-			values.append(cell_value)
+		result = client.translation_status.get_project_progress(self.bot.configs["crowdin_project"])["data"]
 
-		num_cols = 2
-		results = [values[i:i+num_cols] for i in range(0, len(values), num_cols)]
-		
 		embed.remove_field(0)
-		
-		i = 0
-		for result in results:
-			i = i + 1
-			embed.add_field(name=f"{i}: {result[0]}", value=result[1], inline=True)
-		embed.set_footer(text=f"Droptop currently has partial or complete support for {i} languages.")
 
+		i = 0
+		for language in result:
+			i = i + 1
+			language_id = language["data"]["languageId"]
+			language_name = client.languages.get_language(language_id)["data"]["name"]
+			translation_status = language["data"]["translationProgress"]
+			approval_status = language["data"]["approvalProgress"]
+
+			translation_value = math.trunc(translation_status / 20)
+			approval_value = math.trunc(approval_status / 20)
+
+			if translation_value == 5:
+				global_status = "✅"
+			else:
+				global_status = "❌"
+
+			approvals = approval_value * ":green_square:"
+			translated = (translation_value - approval_value) * ":blue_square:"
+			black = (5 - (approval_value + translation_value)) * "⬛"
+			
+			value=f"{approvals}{translated}{black}"
+			embed.add_field(name=f"{i}: {language_name} {global_status}", value=value, inline=True)
+
+		embed.set_footer(text=f"Droptop currently has partial or complete support for {i} languages.")
+		
 		message = await interaction.original_response()
 		await message.edit(embed=embed)
 
@@ -174,7 +179,7 @@ class DroptopCommands(commands.Cog):
 		"""Adds the solved tag to help-bug report forum channel"""
 
 		if interaction.channel.parent.id == self.bot.configs["help_bug_report_channel"]:
-			await interaction.response.send_message("This thread was set as closed", ephemeral=True)
+			await interaction.response.send_message("This thread was set as closed")
 			await interaction.channel.add_tags(discord.Object(self.bot.configs["solved_forum_tag"]))
 			await interaction.channel.remove_tags(discord.Object(self.bot.configs["unsolved_forum_tag"]))
 			await interaction.channel.edit(archived=True)
@@ -576,7 +581,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		self.image_preview = image_preview
 		self.channel = channel
 
-		data = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+		data = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
 			if self.app_title == app["app"]["name"]:
 				self.uuid = app["app"]["uuid"]
@@ -617,11 +622,11 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 
 	async def on_submit(self, interaction: discord.Interaction):
 
-		community_json = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+		community_json = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
 
 		authorised_members = []
 
-		version = version_date(self.configs["github_token"])
+		version = version_date()
 
 		for item in community_json["apps"]:
 			app_tags = item["app"]
@@ -746,7 +751,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 		self.image_preview = image_preview
 		self.channel = channel
 
-		data = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+		data = github_reader(self.configs["github_token"], "data/community_themes/community_themes.json")
 		for theme in data["themes"]:
 			if self.theme_title == theme["theme"]["name"]:
 				self.uuid = theme["theme"]["uuid"]
@@ -788,11 +793,11 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 
 	async def on_submit(self, interaction: discord.Interaction):
 
-		community_json = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+		community_json = github_reader(self.configs["github_token"], "data/community_themes/community_themes.json")
 
 		authorised_members = []
 
-		version = version_date(self.configs["github_token"])
+		version = version_date()
 
 		for item in community_json["themes"]:
 			theme_tags = item["theme"]
@@ -917,7 +922,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		self.suffix = suffix
 		self.authorised_members = authorised_members
 
-		data = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+		data = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
 			if self.community_app == f'{app["app"]["name"]} - {app["app"]["author"]}':
 				self.uuid = app["app"]["uuid"]
@@ -1048,7 +1053,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 		self.suffix = suffix
 		self.authorised_members = authorised_members
 
-		data = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+		data = github_reader(self.configs["github_token"], "data/community_themes/community_themes.json")
 		for theme in data["themes"]:
 			if self.community_theme == f'{theme["theme"]["name"]} - {theme["theme"]["author"]}':
 				self.uuid = theme["theme"]["uuid"]
