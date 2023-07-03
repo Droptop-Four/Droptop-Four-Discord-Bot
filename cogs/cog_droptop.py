@@ -34,37 +34,64 @@ class DroptopCommands(commands.Cog):
 
 		client = CrowdinClient(token=self.bot.configs["crowdin_token"])
 		
-		result = client.translation_status.get_project_progress(self.bot.configs["crowdin_project"])["data"]
+		result = client.translation_status.get_project_progress(self.bot.configs["crowdin_project"], limit=100)["data"]
+		#print(result)
 
 		embed.remove_field(0)
 
+		embed2 = discord.Embed(color=discord.Color.from_rgb(75, 215, 100))
+
 		i = 0
 		for language in result:
-			i = i + 1
-			language_id = language["data"]["languageId"]
-			language_name = client.languages.get_language(language_id)["data"]["name"]
-			translation_status = language["data"]["translationProgress"]
-			approval_status = language["data"]["approvalProgress"]
-
-			translation_value = math.trunc(translation_status / 20)
-			approval_value = math.trunc(approval_status / 20)
-
-			if translation_value == 5:
-				global_status = "✅"
+			if i < 24:
+				i = i + 1
+				language_id = language["data"]["languageId"]
+				language_name = client.languages.get_language(language_id)["data"]["name"]
+				translation_status = language["data"]["translationProgress"]
+				approval_status = language["data"]["approvalProgress"]
+	
+				translation_value = math.trunc(translation_status / 20)
+				approval_value = math.trunc(approval_status / 20)
+	
+				if translation_value == 5:
+					global_status = "✅"
+				else:
+					global_status = "❌"
+	
+				approvals = approval_value * ":green_square:"
+				translated = (translation_value - approval_value) * ":blue_square:"
+				black = (5 - (approval_value + translation_value)) * "⬛"
+				
+				value=f"{approvals}{translated}{black}"
+				embed.add_field(name=f"{i}: {language_name} {global_status}", value=value, inline=True)
+				
 			else:
-				global_status = "❌"
+				i = i + 1
+				language_id = language["data"]["languageId"]
+				language_name = client.languages.get_language(language_id)["data"]["name"]
+				translation_status = language["data"]["translationProgress"]
+				approval_status = language["data"]["approvalProgress"]
+	
+				translation_value = math.trunc(translation_status / 20)
+				approval_value = math.trunc(approval_status / 20)
+				
+				if translation_value == 5:
+					global_status = "✅"
+				else:
+					global_status = "❌"
+				
+				approvals = approval_value * ":green_square:"
+				translated = (translation_value - approval_value) * ":blue_square:"
+				black = (5 - (approval_value + translation_value)) * "⬛"
+				
+				value=f"{approvals}{translated}{black}"
+				
+				embed2.add_field(name=f"{i}: {language_name} {global_status}", value=value, inline=True)
 
-			approvals = approval_value * ":green_square:"
-			translated = (translation_value - approval_value) * ":blue_square:"
-			black = (5 - (approval_value + translation_value)) * "⬛"
-			
-			value=f"{approvals}{translated}{black}"
-			embed.add_field(name=f"{i}: {language_name} {global_status}", value=value, inline=True)
-
-		embed.set_footer(text=f"Droptop currently has partial or complete support for {i} languages.")
+		embed2.set_footer(text=f"Droptop currently has partial or complete support for {i} languages.")
 		
 		message = await interaction.original_response()
-		await message.edit(embed=embed)
+		await message.edit(embeds=[embed, embed2])
 
 
 	droptop_group = app_commands.Group(name="droptop_four", description="Droptop Four command")
