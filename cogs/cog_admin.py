@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord.ext.tasks import loop
 
 from utils import github_reader, json_update, version_validator, sync_files
+from typing import List
 
 import traceback
 
@@ -138,6 +139,67 @@ class NewPoll(discord.ui.Modal, title="New Poll"):
 		traceback.print_tb(error.__traceback__)
 
 
+class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
+	def __init__(self, configs, type, scope):
+		super().__init__()
+		self.configs = configs
+		self.type = type
+		self.scope = scope
+	
+		self.date = discord.ui.TextInput(
+			label="Date",
+			placeholder="dd/mm/yy",
+			required=True
+		)
+	
+		self.expiration = discord.ui.TextInput(
+			label="Expiration",
+			placeholder="dd/mm/yy",
+			required=False
+		)
+
+		self.announcement = discord.ui.TextInput(
+			label="Announcement",
+			placeholder="Your announcement",
+			required=True
+		)
+
+		self.add_item(self.date)
+		self.add_item(self.expiration)
+		self.add_item(self.announcement)
+
+	async def on_submit(self, interaction: discord.Interaction):
+
+		await interaction.response.send_message("New announcement was created", ephemeral=True)
+
+		date_raw = self.date.value
+		expiration_raw = self.expiration.value
+		announcement_raw = self.announcement.value
+
+		date_day = date_raw[:2]
+		date_month = date_raw[3:5]
+		date_year = date_raw[6:]
+		
+		date = date_year + '.' + date_month + date_day
+		
+		if not expiration_raw:
+			expiration = "None"
+		else:
+			expiration_day = expiration_raw[:2]
+			expiration_month = expiration_raw[3:5]
+			expiration_year = expiration_raw[6:]
+		
+			expiration = expiration_year + '.' + expiration_month + expiration_day
+
+		announcement = announcement_raw
+
+		json_update(self.configs["github_token"], "announcement", date=date, expiration=expiration, announcement=announcement, ann_type=self.type, scope=self.scope)
+
+	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
+		await interaction.followup.send(f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True)
+		traceback.print_tb(error.__traceback__)
+		
+
 class AdminCommands(commands.Cog):
 	def __init__(self, bot: commands.Bot) -> None:
 		self.bot = bot
@@ -198,6 +260,32 @@ class AdminCommands(commands.Cog):
 		webhook_url = self.bot.configs["log_channel_webhook_url"]
 
 		sync_files(files, names, bucket_url, webhook_url)
+
+
+	async def type_autocomplete(self, interaction: discord.Interaction, current: str, ) -> List[app_commands.Choice[str]]:
+		types = ["Important", "Warning", "Info"]
+		return [
+			app_commands.Choice(name=type, value=type)
+			for type in types if current.lower() in type.lower()
+		]
+
+	async def scope_autocomplete(self, interaction: discord.Interaction, current: str, ) -> List[app_commands.Choice[str]]:
+		scopes = ["Website", "App", "Website & App"]
+		return [
+			app_commands.Choice(name=scope, value=scope)
+			for scope in scopes if current.lower() in scope.lower()
+		]
+
+	@app_commands.command(name="new-announcement")
+	@app_commands.describe(
+		type="Types",
+		scope="Scopes"
+	)
+	@app_commands.autocomplete(type=type_autocomplete)
+	@app_commands.autocomplete(scope=scope_autocomplete)
+	async def new_announcement(self, interaction: discord.Interaction, type: str, scope: str):
+
+		await interaction.response.send_modal(NewAnnouncement(self.bot.configs, type, scope))
 
 
 async def setup(bot: commands.Bot) -> None:
