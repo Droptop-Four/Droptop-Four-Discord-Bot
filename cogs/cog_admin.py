@@ -83,7 +83,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
 			await interaction.followup.send("Syncing files on firebase...", ephemeral=True)
 
-			files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
+			files = ["https://github.com/Droptop-Four/Droptop-Four/raw/main/Droptop_Basic_Version.rmskin", "https://github.com/Droptop-Four/Droptop-Four/raw/main/Droptop_Update.rmskin"]
 			names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
 			bucket_url = self.configs["firebase_bucket_url"]
 			webhook_url = self.configs["log_channel_webhook_url"]
@@ -254,7 +254,7 @@ class AdminCommands(commands.Cog):
 
 		await interaction.response.send_message("Syncing files on firebase...", ephemeral=True)
 
-		files = ["https://github.com/Droptop-Four/Basic-Version/raw/main/Droptop%20Basic%20Version.rmskin", "https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin"]
+		files = ["https://github.com/Droptop-Four/Droptop-Four/raw/main/Droptop_Basic_Version.rmskin", "https://github.com/Droptop-Four/Droptop-Four/raw/main/Droptop_Update.rmskin"]
 		names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
 		bucket_url = self.bot.configs["firebase_bucket_url"]
 		webhook_url = self.bot.configs["log_channel_webhook_url"]

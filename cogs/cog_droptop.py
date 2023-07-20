@@ -161,7 +161,7 @@ class DroptopCommands(commands.Cog):
 			if variant == "Basic":
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
-				button_b = discord.ui.Button(style=style, label="Download Basic", url="https://github.com/Droptop-Four/Basic-Version/releases/tag/Current-Stable")
+				button_b = discord.ui.Button(style=style, label="Download Basic", url="https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Basic_Version.rmskin")
 				view.add_item(item=button_b)
 				embed = discord.Embed(title="Droptop Four", color=discord.Color.from_rgb(75, 215, 100))
 				embed.set_author(name="Created by Cariboudjan", url=self.bot.configs["website"], icon_url=self.bot.cari_logo)
@@ -188,7 +188,7 @@ class DroptopCommands(commands.Cog):
 		else:
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
-			button_b = discord.ui.Button(style=style, label="Download Basic", url="https://github.com/Droptop-Four/Basic-Version/releases/tag/Current-Stable")
+			button_b = discord.ui.Button(style=style, label="Download Basic", url="https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Basic_Version.rmskin")
 			button_s = discord.ui.Button(style=style, label="Download Supporter", url="https://gumroad.com/l/droptop")
 			view.add_item(item=button_b)
 			view.add_item(item=button_s)
@@ -223,7 +223,7 @@ class DroptopCommands(commands.Cog):
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
-		button = discord.ui.Button(style=style, label="Download Update", url="https://github.com/Droptop-Four/Update/releases/latest")
+		button = discord.ui.Button(style=style, label="Download Update", url="https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Update.rmskin")
 		view.add_item(item=button)
 
 		embed = discord.Embed(title="Droptop Four Update", color=discord.Color.from_rgb(75, 215, 100))

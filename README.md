@@ -43,7 +43,7 @@
 </p>
 <!-- DROPTOPFOUR DOWNLOAD -->
 <p align="center">
-    <a href="https://github.com/Droptop-Four/Basic-Version/releases/tag/Current-Stable"><img
+    <a href="https://github.com/Droptop-Four/Droptop-Four/releases/latest"><img
             src="https://img.shields.io/static/v1?label=Download&message=Droptop+Four&color=50AE5C&style=for-the-badge" alt="Download Droptop Four"></a>
 </p>  
 
