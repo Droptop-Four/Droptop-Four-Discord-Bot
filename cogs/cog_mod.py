@@ -46,6 +46,7 @@ class ModerationCommands(commands.Cog):
 		member="The member you want to kick",
 		reason="The reason for the kick"
 	)
+	@app_commands.guild_only()
 	@app_commands.default_permissions(manage_channels=True)
 	async def kick(self, interaction: discord.Interaction, member: discord.Member, reason: Optional[str] = None):
 		"""Kicks a member from the server."""
@@ -63,6 +64,7 @@ class ModerationCommands(commands.Cog):
 		member="The member you want to ban",
 		reason="The reason for the ban"
 	)
+	@app_commands.guild_only()
 	@app_commands.default_permissions(manage_channels=True)
 	async def ban(self, interaction: discord.Interaction, member: discord.Member, reason: Optional[str] = None):
 		"""Bans a member from the server."""
@@ -90,6 +92,7 @@ class ModerationCommands(commands.Cog):
 		member="The member you want to unban",
 		reason="The reason for the unban"
 	)
+	@app_commands.guild_only()
 	@app_commands.autocomplete(member=banned_members_autocomplete)
 	@app_commands.default_permissions(manage_channels=True)
 	async def unban(self, interaction: discord.Interaction, member: str, reason: Optional[str] = None):
@@ -114,6 +117,7 @@ class ModerationCommands(commands.Cog):
 		amount="The amount of messages you want to delete",
 		reason="The reason for the purge"
 	)
+	@app_commands.guild_only()
 	@app_commands.default_permissions(manage_channels=True)
 	async def purge(self, interaction: discord.Interaction, amount: Optional[int] = 15, reason: Optional[str] = None):
 		"""Purge messages from the channel. Default is 15 messages."""
@@ -143,6 +147,7 @@ class ModerationCommands(commands.Cog):
 		duration="The duration of the timeout",
 		reason="The reason for the timeout"
 	)
+	@app_commands.guild_only()
 	@app_commands.autocomplete(duration=duration_autocomplete)
 	@app_commands.default_permissions(manage_channels=True)
 	async def timeout(self, interaction: discord.Interaction, member: discord.Member, duration: Optional[str] = "60 secs", reason: Optional[str] = None):
@@ -177,6 +182,7 @@ class ModerationCommands(commands.Cog):
 		member="The member you want to remove the timeout from",
 		reason="The reason for the timeout remove"
 	)
+	@app_commands.guild_only()
 	@app_commands.default_permissions(manage_channels=True)
 	async def timeout_remove(self, interaction: discord.Interaction, member: discord.Member, reason: Optional[str] = None):
 		"""Remove the timeout from the specified member."""

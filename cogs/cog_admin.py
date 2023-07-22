@@ -230,6 +230,7 @@ class AdminCommands(commands.Cog):
 
 
 	@app_commands.command(name="new_version")
+	@app_commands.guild_only()
 	async def new_version(self, interaction: discord.Interaction):
 		"""Creates a new version of droptop."""
 
@@ -242,6 +243,7 @@ class AdminCommands(commands.Cog):
 		emoji_1="The first emoji you want people to react with",
 		emoji_2="The second emoji you want people to react with",
 	)
+	@app_commands.guild_only()
 	async def poll(self, interaction: discord.Interaction, emoji_1: str, emoji_2: str):
 		"""Creates a poll"""
 
@@ -249,6 +251,7 @@ class AdminCommands(commands.Cog):
 
 	
 	@app_commands.command(name="sync_firebase")
+	@app_commands.guild_only()
 	async def sync_firebase(self, interaction: discord.Interaction):
 		"""Syncs firebase with github"""
 
@@ -281,6 +284,7 @@ class AdminCommands(commands.Cog):
 		type="Types",
 		scope="Scopes"
 	)
+	@app_commands.guild_only()
 	@app_commands.autocomplete(type=type_autocomplete)
 	@app_commands.autocomplete(scope=scope_autocomplete)
 	async def new_announcement(self, interaction: discord.Interaction, type: str, scope: str):

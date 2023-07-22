@@ -34,6 +34,7 @@ class DevCommands(commands.Cog):
 	@app_commands.describe(
 		cog="The cog you want to reload"
 	)
+	@app_commands.guild_only()
 	@app_commands.autocomplete(cog=cog_autocomplete)
 	async def reload_cog(self, interaction: discord.Interaction, cog: str):
 		"""Reloads a cog."""
@@ -61,6 +62,7 @@ class DevCommands(commands.Cog):
 	@app_commands.describe(
 		cog="The cog you want to unload"
 	)
+	@app_commands.guild_only()
 	@app_commands.autocomplete(cog=cog_autocomplete)
 	async def unload_cog(self, interaction: discord.Interaction, cog: str):
 		"""Unloads a cog."""
@@ -87,6 +89,7 @@ class DevCommands(commands.Cog):
 	@app_commands.describe(
 		cog="The cog you want to load"
 	)
+	@app_commands.guild_only()
 	@app_commands.autocomplete(cog=cog_autocomplete)
 	async def load_cog(self, interaction: discord.Interaction, cog: str):
 		"""Loads a cog."""
@@ -110,6 +113,7 @@ class DevCommands(commands.Cog):
 
 
 	@app_commands.command(name="list_cogs")
+	@app_commands.guild_only()
 	async def list_cogs(self, interaction: discord.Interaction):
 		"""Lists all loaded cogs."""
 
