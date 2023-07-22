@@ -134,3 +134,4 @@ dmypy.json
 .replit
 /.github
 *.nix
+/tmp
