@@ -124,11 +124,27 @@ async def on_app_command_completion(interaction, command):
 	embed.add_field(name="Params", value=f"{params}", inline=False)
 	
 	await channel.send(embed=embed)
-
+	
 
 @bot.event
 async def on_command_error(ctx, error):
 	await ctx.send(f"Error: {error}")
+
+	channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+	embed = discord.Embed(title="Command")
+	embed.add_field(name="User", value=f"<@{ctx.author.id}>", inline=False)
+	embed.add_field(name="Channel", value=f"<#{ctx.channel.id}>", inline=False)
+	embed.add_field(name="Command", value=f"{ctx.command.qualified_name}", inline=False)
+	embed.add_field(name="Command mention", value=f"{ctx.command.extras['mention']}", inline=False)
+	params = []
+	for parameter in ctx.args:
+		params.append(parameter)
+	embed.add_field(name="Params", value=f"{params}", inline=False)
+	embed.add_field(name="Error", value=error, inline=False)
+	
+	await channel.send(embed=embed)
+	
 	raise error
 
 
@@ -138,6 +154,22 @@ async def on_tree_error(interaction, error):
 		await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 	except discord.InteractionResponded:
 		await interaction.followup.send(f"Error: {error}", ephemeral=True)
+	
+	channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+	embed = discord.Embed(title="!!ERROR!!", color=discord.Color.from_rgb(255,0,0))
+	embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+	embed.add_field(name="Channel", value=f"<#{interaction.channel_id}>", inline=False)
+	embed.add_field(name="Command", value=f"{interaction.command.qualified_name}", inline=False)
+	embed.add_field(name="Command mention", value=f"{interaction.command.extras['mention']}", inline=False)
+	params = []
+	for parameter in interaction.namespace:
+		params.append(parameter)
+	embed.add_field(name="Params", value=f"{params}", inline=False)
+	embed.add_field(name="Error", value=error, inline=False)
+	
+	await channel.send(embed=embed)
+	
 	raise error
 
 
