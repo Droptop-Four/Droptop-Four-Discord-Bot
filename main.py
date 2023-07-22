@@ -124,6 +124,8 @@ async def on_app_command_completion(interaction, command):
 	embed.add_field(name="Params", value=f"{params}", inline=False)
 	
 	await channel.send(embed=embed)
+
+	logger.info(f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {command.qualified_name}; Params: {params}")
 	
 
 @bot.event
@@ -145,7 +147,9 @@ async def on_command_error(ctx, error):
 	
 	await channel.send(embed=embed)
 	
-	raise error
+	logger.error(f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}")
+
+	print(f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}")
 
 
 @bot.tree.error
@@ -169,8 +173,9 @@ async def on_tree_error(interaction, error):
 	embed.add_field(name="Error", value=error, inline=False)
 	
 	await channel.send(embed=embed)
-	
-	raise error
+	logger.error(f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Params: {params}; Error: {error}")
+
+	print(f"User: <@{interaction.user.id}>\nChannel: <#{interaction.channel_id}>\nCommand: {interaction.command.qualified_name}\nParams: {params}\nError: {error}")
 
 
 if db_status[0] and firebase_status[0] and logger_status:
