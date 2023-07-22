@@ -360,13 +360,24 @@ class DroptopCommands(commands.Cog):
 		if rmskin_name_check("app", rmskin_package.filename):
 
 			title, author = get_title_author("app", rmskin_package.filename)
-			
-			if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-				await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "jpg", rmskin_package, image_preview, channel))
-			elif image_preview.filename.lower().endswith(".webp"):
-				await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "webp", rmskin_package, image_preview, channel))
+
+			community_json = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+
+			available = True
+			for app in community_json["apps"]:
+				app_tags = app["app"]
+				if app_tags["name"] == title:
+					available = False
+
+			if available:
+				if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
+					await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "jpg", rmskin_package, image_preview, channel))
+				elif image_preview.filename.lower().endswith(".webp"):
+					await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "webp", rmskin_package, image_preview, channel))
+				else:
+					await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 			else:
-				await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
+				await interaction.response.send_message("The name you chose is not available, choose another one for your app")
 		else:
 			await interaction.response.send_message("No rmskin app package was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 
@@ -519,13 +530,24 @@ class DroptopCommands(commands.Cog):
 		if rmskin_name_check("theme", rmskin_package.filename):
 			
 			title, author = get_title_author("theme", rmskin_package.filename)
-			
-			if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-				await interaction.response.send_modal(NewThemeRelease(self.bot.configs, title, author, "jpg", rmskin_package, image_preview, channel))
-			elif image_preview.filename.lower().endswith(".webp"):
-				await interaction.response.send_modal(NewThemeRelease(self.bot.configs, title, author, "webp", rmskin_package, image_preview, channel))
+
+			community_json = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+
+			available = True
+			for theme in community_json["themes"]:
+				theme_tags = theme["theme"]
+				if theme_tags["name"] == title:
+					available = False
+
+			if available:
+				if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
+					await interaction.response.send_modal(NewThemeRelease(self.bot.configs, title, author, "jpg", rmskin_package, image_preview, channel))
+				elif image_preview.filename.lower().endswith(".webp"):
+					await interaction.response.send_modal(NewThemeRelease(self.bot.configs, title, author, "webp", rmskin_package, image_preview, channel))
+				else:
+					await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 			else:
-				await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
+				await interaction.response.send_message("The name you chose is not available, choose another one for your theme")
 		else:
 			await interaction.response.send_message("No rmskin theme package was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 
