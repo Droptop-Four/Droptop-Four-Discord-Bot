@@ -64,17 +64,17 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 	
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
-			download_button = discord.ui.Button(style=style, label="Download", url="https://github.com/Droptop-Four/Update/raw/main/Droptop%20Update.rmskin")
+			download_button = discord.ui.Button(style=style, label="Download", url="https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Update.rmskin")
 			view.add_item(item=download_button)
 	
-			embed = discord.Embed(title=f"📢 Droptop Four {self.version.value}.{self.miniversion.value}", url="https://github.com/Droptop-Four/Update/releases/tag/Update", color=0x2F3136)
+			embed = discord.Embed(title=f"📢 Droptop Four {self.version.value}.{self.miniversion.value}", url="https://github.com/Droptop-Four/Droptop-Four/releases/latest", color=0x2F3136)
 			if self.features.value:
 				embed.add_field(name="New features 🆕", value=self.features.value, inline=False)
 			if self.modifications.value:
 				embed.add_field(name="Modifications ⚠️", value=self.modifications.value, inline=False)
 			if self.bugfixes.value:
 				embed.add_field(name="Bug Fixes 🪲", value=self.bugfixes.value, inline=False)
-			embed.add_field(name="Download", value="⬇️ Download:\nhttps://github.com/Droptop-Four/Update/releases/tag/Update", inline=False)
+			embed.add_field(name="Download", value="⬇️ Download:\nhttps://github.com/Droptop-Four/Droptop-Four/releases/latest", inline=False)
 			embed.set_footer(text="UserID: ( {} ) | sID: ( {} )".format(interaction.user.id, interaction.user.display_name), icon_url=interaction.user.avatar.url)
 			
 			await annchannel.send(f"New Droptop Announcement! {dtbrping.mention}")
