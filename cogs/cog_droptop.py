@@ -45,6 +45,7 @@ class DroptopCommands(commands.Cog):
 	
 	@app_commands.command(name="translation_status")
 	async def translation_status(self, interaction: discord.Interaction):
+		""" Displays infos about the translationsof Droptop """
 
 		translation_platform_url = "https://translate.droptopfour.com"
 

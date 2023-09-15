@@ -193,7 +193,7 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
 
 		announcement = announcement_raw
 
-		json_update(self.configs["github_token"], "announcement", date=date, expiration=expiration, announcement=announcement, ann_type=self.type, scope=self.scope)
+		json_update(self.configs["github_token"], "announcement", ann_date=date, ann_expiration=expiration, announcement=announcement, ann_type=self.type, ann_scope=self.scope)
 
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
 		await interaction.followup.send(f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True)
@@ -288,6 +288,7 @@ class AdminCommands(commands.Cog):
 	@app_commands.autocomplete(type=type_autocomplete)
 	@app_commands.autocomplete(scope=scope_autocomplete)
 	async def new_announcement(self, interaction: discord.Interaction, type: str, scope: str):
+		""" Creates a new announcement for the website/app """
 
 		await interaction.response.send_modal(NewAnnouncement(self.bot.configs, type, scope))
 

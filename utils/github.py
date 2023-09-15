@@ -247,7 +247,7 @@ def push_image(token, type, image_name):
 		return creation
 
 
-def json_update(token, type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None, date=None, expiration=None, announcement=None, ann_type=None, scope=None):
+def json_update(token, type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None):
 	"""
 	Updates the json file with the new package information
 
@@ -280,6 +280,7 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 		community_json = github_reader(token, "data/community_themes/community_themes.json")
 	elif type == "announcement":
 		content = repo.get_contents("data/announcements.json")
+		announcements_json = github_reader(token, "data/announcements.json")
 	else:
 		content = repo.get_contents("data/version.json")
 	
@@ -390,24 +391,70 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 				pass
 	
 	elif type == "announcement":
-		if expiration == "None":
-			json_content = {
-				"date": float(date),
-				"expiration": f"{expiration}",
-				"announcement": f"{announcement}",
-				"type": f"{ann_type}",
-				"scope": f"{scope}"
-			}
-		else:
-			json_content = {
-				"date": float(date),
-				"expiration": float(expiration),
-				"announcement": f"{announcement}",
-				"type": f"{ann_type}",
-				"scope": f"{scope}"
-			}
 		
-		json_content = json.dumps(json_content, indent = 4)
+		if scope == "Website":
+			if expiration == "None":
+				announcements_json["website"] = {
+					"date": float(date),
+					"expiration": f"{expiration}",
+					"announcement": f"{announcement}",
+					"type": f"{ann_type}"
+				}
+			else:
+				announcements_json["website"] = {
+					"date": float(date),
+					"expiration": float(expiration),
+					"announcement": f"{announcement}",
+					"type": f"{ann_type}"
+				}
+		elif scope == "App":
+			if expiration == "None":
+				announcements_json["app"] = {
+					"date": float(date),
+					"expiration": f"{expiration}",
+					"announcement": f"{announcement}",
+					"type": f"{ann_type}"
+				}
+			else:
+				announcements_json["app"] = {
+					"date": float(date),
+					"expiration": float(expiration),
+					"announcement": f"{announcement}",
+					"type": f"{ann_type}"
+				}
+		else:
+			if expiration == "None":
+				announcements_json = {
+					"app": {
+						"date": float(date),
+						"expiration": f"{expiration}",
+						"announcement": f"{announcement}",
+						"type": f"{ann_type}"
+					},
+					"website": {
+						"date": float(date),
+						"expiration": f"{expiration}",
+						"announcement": f"{announcement}",
+						"type": f"{ann_type}"
+					}
+				}
+			else:
+				announcements_json = {
+					"app": {
+						"date": float(date),
+						"expiration": float(expiration),
+						"announcement": f"{announcement}",
+						"type": f"{ann_type}"
+					},
+					"website": {
+						"date": float(date),
+						"expiration": float(expiration),
+						"announcement": f"{announcement}",
+						"type": f"{ann_type}"
+					}
+				}
+		
+		json_content = json.dumps(announcements_json, indent = 4)
 		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 
 	else:
