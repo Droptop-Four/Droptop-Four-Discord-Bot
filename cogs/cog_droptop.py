@@ -2,11 +2,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_name_check, rmskin_rename, to_webp, json_update, get_title_author, json_edit, json_delete, rmskin_delete, image_delete, version_date
+from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_name_check, rmskin_rename, to_webp, json_update, get_title_author, json_edit, json_delete, rmskin_delete, image_delete, version_date, get_releases_downloads, get_all_sales, get_metadata, get_stars, get_followers
 
 from typing import Optional, List
 from pathlib import Path
-import traceback, math
+import traceback, math, json
 
 from crowdin_api import CrowdinClient
 
@@ -16,6 +16,41 @@ class DroptopCommands(commands.Cog):
 		self.bot = bot
 
 
+	@app_commands.command(name="stats")
+	async def stats(self, interaction: discord.Interaction) -> None:
+		""" Displays stats about Droptop Four """
+
+		embed = discord.Embed(color=discord.Color.from_rgb(75, 215, 100))
+		embed.add_field(name="Loading...", value="Loading all the stats...")
+		embed.set_author(name="Stats", icon_url="https://cdn-icons-png.flaticon.com/512/2881/2881355.png")
+
+		await interaction.response.send_message(embed=embed)
+
+		message = await interaction.original_response()
+
+
+		gumroad_sales = await get_all_sales(json.loads(self.bot.configs["gumroad_token"]), self.bot.config_collection)
+
+		github_basic_downloads, github_update_downloads = get_releases_downloads(self.bot.configs["github_token"])
+	
+		deviantart_views, deviantart_favourites, deviantart_downloads = get_metadata(self.bot.configs["deviantart_auth_url"])
+
+		github_followers = get_followers(self.bot.configs["github_token"])
+		
+		github_stars = get_stars(self.bot.configs["github_token"])
+	
+	
+		embed.add_field(name="<:Download:1041649764929916938> Downloads", value=f"```css\nBasic Variant     {github_basic_downloads+deviantart_downloads}\nUpdate            {github_update_downloads}\nSupporter         {gumroad_sales}```", inline=False)
+	
+		embed.add_field(name="<:deviantart:1151924474548068482> DeviantArt", value=f"```css\nViews             {deviantart_views}\nFavourites        {deviantart_favourites}```", inline=False)
+	
+		embed.add_field(name="<:github:1152028987523076266> Github", value=f"```css\nFollowers         {github_followers}\nStars             {github_stars}```", inline=False)
+	
+		embed.remove_field(0)
+	
+		await message.edit(embeds=[embed])
+	
+	
 	@app_commands.command(name="translation_status")
 	async def translation_status(self, interaction: discord.Interaction):
 

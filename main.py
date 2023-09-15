@@ -3,7 +3,7 @@
 	Discord: https://discord.gg/hQGDm4F5Ef
 	Author: Bunz (bunz#3066)
 	Date created: 21/10/2022
-	Bot Version: 3.21
+	Bot Version: 3.22
 	Python Version: 3.10.8
 	Cogs: 5
 '''
@@ -42,8 +42,8 @@ db_id, db_cluster = os.getenv("mongodb_id"), os.getenv("db_cluster")
 db_status = initialize_mongodb(db_id, db_cluster, logger)
 
 if db_status[0]:
-	config_collection = db_status[1]
-	bot.configs = config_collection.find_one({},{"_id": 0})
+	bot.config_collection = db_status[1]
+	bot.configs = bot.config_collection.find_one({},{"_id": 0})
 
 	firebase_status = initialize_firebase(json.loads(bot.configs["firebase_creds"]), logger)
 else:

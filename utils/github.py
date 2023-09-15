@@ -74,6 +74,71 @@ def github_reader(token, path):
 	return data
 
 
+def get_releases_downloads(token):
+	"""
+ 	Gets the number of downloads across all releases.
+
+	Args:
+		token (str): The authentication token
+
+	Returns:
+		basic_downloads (int): The number of downloads of the Basic variant
+  		update_downloads (int): The number of downloads of the Update variant
+ 	"""
+	
+	g, all_files = initialize_github(token)
+	repo = g.get_repo("Droptop-Four/Droptop-Four")
+	basic_downloads = 0
+	update_downloads = 0
+	releases = repo.get_releases()
+	for release in releases:
+		assets = release.get_assets()
+	
+		basic_downloads += assets[0].download_count
+		update_downloads += assets[1].download_count
+
+	return basic_downloads, update_downloads
+
+
+def get_stars(token):
+	"""
+ 	Gets the number of stars across all repos.
+
+	Args:
+		token (str): The authentication token
+
+	Returns:
+		stars (int): The number of stars
+	"""
+	
+	g, all_files = initialize_github(token)
+	org = g.get_organization("Droptop-Four")
+	repos = org.get_repos()
+	stars = 0
+	for repo in repos:	
+		stars += repo.stargazers_count
+
+	return stars
+
+
+def get_followers(token):
+	"""
+ 	Gets the number of followers of the organization.
+
+	Args:
+		token (str): The authentication token
+
+	Returns:
+		stars (int): The number of followers
+	"""
+	
+	g, all_files = initialize_github(token)
+	org = g.get_organization("Droptop-Four")
+	followers = org.followers
+
+	return followers
+
+
 def push_rmskin(token, type, package_name):
 	"""
  	Pushes the rmskin package to github.
