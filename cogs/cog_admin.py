@@ -209,6 +209,7 @@ class AdminCommands(commands.Cog):
 	async def on_ready(self):
 		self.member_stats.start()
 		self.version_stats.start()
+		self.supporter_stats.start()
 
 
 	@loop(seconds=600)
@@ -219,14 +220,23 @@ class AdminCommands(commands.Cog):
 		if str(members) in channel.name:
 			pass
 		else:
-			await channel.edit(name = "Members: "+str(members))
+			await channel.edit(name = "👥╏Members: "+str(members))
 
 	
 	@loop(seconds=600)
 	async def version_stats(self):
 		channel = self.bot.get_channel(self.bot.configs["versionstats_channel"])
 		version = github_reader(self.bot.configs["github_token"], "data/version.json")
-		await channel.edit(name = "Droptop Version: "+str(version["version"]))
+		await channel.edit(name = "🆕╏Version: "+str(version["version"]))
+
+
+	@loop(seconds=600)
+	async def supporter_stats(self):
+		channel = self.bot.get_channel(self.bot.configs["supporterstats_channel"])
+		guild = self.bot.get_guild(self.bot.configs["server_id"])
+		role = guild.get_role(self.bot.configs["supporter_role"])
+		members = len(role.members)
+		await channel.edit(name = "💚╏Supporters: "+str(members))
 
 
 	@app_commands.command(name="new_version")
