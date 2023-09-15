@@ -63,7 +63,6 @@ class DroptopCommands(commands.Cog):
 		client = CrowdinClient(token=self.bot.configs["crowdin_token"])
 		
 		result = client.translation_status.get_project_progress(self.bot.configs["crowdin_project"], limit=100)["data"]
-		#print(result)
 
 		embed.remove_field(0)
 

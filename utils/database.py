@@ -6,7 +6,7 @@ def initialize_mongodb(id, cluster, logger):
 	"""
 	Initializes the connection to the MongoDB database.
 
- 	Args:
+	Args:
 		id (str): The id of the database
 		cluster (str): The cluster of the database
 		logger (logger): The logger

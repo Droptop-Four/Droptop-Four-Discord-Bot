@@ -11,7 +11,7 @@ def rmskin_name_check(type, name):
   
 	Returns:
 		bool: If the name is valid
- 	"""
+	"""
 
 	if type == "app":
 		pattern = r"(\w+)_-_(\w+)_Droptop_App.rmskin"
@@ -36,7 +36,7 @@ def rmskin_rename(type, name):
   
 	Returns:
 		name (str): The new name of the package
- 	"""
+	"""
 	
 	name = name.replace("_", " ")
 	if type == "app":
@@ -94,7 +94,7 @@ def img_rename(type, name):
   
 	Returns:
 		name (str): The new name of the image
- 	"""
+	"""
 	
 	name = name.replace("_-_", "-")
 	if type == "app":

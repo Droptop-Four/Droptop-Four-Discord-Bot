@@ -9,7 +9,7 @@ from pathlib import Path
 
 def initialize_github(token):
 	"""
- 	Initializes the connection with github.
+	Initializes the connection with github.
 
 	Args:
 		token (str): The authentication token
@@ -17,7 +17,7 @@ def initialize_github(token):
 	Returns:
 		g (Github): The github instance
 		all_files (list): Empty list
- 	"""
+	"""
 	
 	g = github.Github(token)
 	all_files = []
@@ -27,16 +27,16 @@ def initialize_github(token):
 def github_read_file(username, repository_name, file_path, token=None):
 	"""
 	Reads online github file and returns it as a json object.
- 	
- 	Args:
-  		username (str): Github username
-  		repository_name (str): Github repository name
-  		file_path (str): Path to file on github
-  		token (str): The authentication token
- 	
-  	Returns:
- 		file_content (str): JSON object of file contents
- 	"""
+	
+	Args:
+		username (str): Github username
+		repository_name (str): Github repository name
+		file_path (str): Path to file on github
+		token (str): The authentication token
+	
+	Returns:
+		file_content (str): JSON object of file contents
+	"""
 	
 	headers = {}
 	if token:
@@ -56,15 +56,15 @@ def github_read_file(username, repository_name, file_path, token=None):
 
 def github_reader(token, path):
 	"""
- 	Reads a file from github and returns it as a json object.
+	Reads a file from github and returns it as a json object.
 	
-  	Args:
+	Args:
 		token (str): The authentication token
-  		path (str): Path to file on github
- 	 	
-  	Returns:
-  		data: (json): JSON object of file contents
- 	"""
+		path (str): Path to file on github
+		
+	Returns:
+		data: (json): JSON object of file contents
+	"""
 
 	username = 'Droptop-Four'
 	repository_name = 'GlobalData'
@@ -76,15 +76,15 @@ def github_reader(token, path):
 
 def get_releases_downloads(token):
 	"""
- 	Gets the number of downloads across all releases.
+	Gets the number of downloads across all releases.
 
 	Args:
 		token (str): The authentication token
 
 	Returns:
 		basic_downloads (int): The number of downloads of the Basic variant
-  		update_downloads (int): The number of downloads of the Update variant
- 	"""
+		update_downloads (int): The number of downloads of the Update variant
+	"""
 	
 	g, all_files = initialize_github(token)
 	repo = g.get_repo("Droptop-Four/Droptop-Four")
@@ -102,7 +102,7 @@ def get_releases_downloads(token):
 
 def get_stars(token):
 	"""
- 	Gets the number of stars across all repos.
+	Gets the number of stars across all repos.
 
 	Args:
 		token (str): The authentication token
@@ -115,7 +115,7 @@ def get_stars(token):
 	org = g.get_organization("Droptop-Four")
 	repos = org.get_repos()
 	stars = 0
-	for repo in repos:	
+	for repo in repos:
 		stars += repo.stargazers_count
 
 	return stars
@@ -123,13 +123,13 @@ def get_stars(token):
 
 def get_followers(token):
 	"""
- 	Gets the number of followers of the organization.
+	Gets the number of followers of the organization.
 
 	Args:
 		token (str): The authentication token
 
 	Returns:
-		stars (int): The number of followers
+		followers (int): The number of followers
 	"""
 	
 	g, all_files = initialize_github(token)
@@ -141,16 +141,16 @@ def get_followers(token):
 
 def push_rmskin(token, type, package_name):
 	"""
- 	Pushes the rmskin package to github.
+	Pushes the rmskin package to github.
 
-  	Args:
+	Args:
 		token (str): The authentication token
-   		type (str): The type of package [app, theme]
-  		package_name (str): The name of the package
+		type (str): The type of package [app, theme]
+		package_name (str): The name of the package
 
- 	Returns:
- 		creation (bool): if the package was created (True) or it was already present and was only updated (False)
- 	"""
+	Returns:
+		creation (bool): if the package was created (True) or it was already present and was only updated (False)
+	"""
 
 	g, all_files = initialize_github(token)
 	if type == "app":
@@ -195,16 +195,16 @@ def push_rmskin(token, type, package_name):
 
 def push_image(token, type, image_name):
 	"""
- 	Pushes the image to github
+	Pushes the image to github
 
-  	Args:
+	Args:
 		token (str): The authentication token
-   		type (str): The type of package [app, theme]
+		type (str): The type of package [app, theme]
 		image_name (str): The name of the image
-  
- 	Returns:
- 		creation (bool): if the image was created (True) or it was already present and was only updated (False)
- 	"""
+
+	Returns:
+		creation (bool): if the image was created (True) or it was already present and was only updated (False)
+	"""
 
 	g, all_files = initialize_github(token)
 	repo = g.get_repo("Droptop-Four/GlobalData")
@@ -251,22 +251,27 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 	"""
 	Updates the json file with the new package information
 
- 	Args:
+	Args:
 		token (str): The authentication token
-  		type (str): The type of package [app, theme]
+		type (str): The type of package [app, theme]
 		authorised_members (list): A list of authorised members to edit apps/themes
-  		title (str): The title of the package
-  		author (str): The author of the package
-  		description (str): The description of the package
+		title (str): The title of the package
+		author (str): The author of the package
+		description (str): The description of the package
 		rmskin_name (str): The name of the rmskin package
 		image_name (str): The name of the image
-  		version (str): The version of the package
+		version (str): The version of the package
 		author_link (str): The link of the author
-  		github_repo (str): The link of the repo
-  	
+		github_repo (str): The link of the repo
+		ann_date (float): The date of the announcement
+		ann_expiration (float): The expiration date of the announcement
+		announcement (str): The announcement
+		ann_type (str): The type of announcement [Important, Warning, Info]
+		ann_scope (str): The scope of the announcement [App, Website, Website & App]
+	
 	Returns:
 		creation (bool): if the app inside of the json was created (True) or it was already present and was only updated (False)
- 	"""
+	"""
 
 	g, all_files = initialize_github(token)
 
@@ -392,48 +397,48 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 	
 	elif type == "announcement":
 		
-		if scope == "Website":
-			if expiration == "None":
+		if ann_scope == "Website":
+			if ann_expiration == "None":
 				announcements_json["website"] = {
-					"date": float(date),
-					"expiration": f"{expiration}",
+					"date": float(ann_date),
+					"expiration": f"{ann_expiration}",
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
 			else:
 				announcements_json["website"] = {
-					"date": float(date),
-					"expiration": float(expiration),
+					"date": float(ann_date),
+					"expiration": float(ann_expiration),
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
-		elif scope == "App":
-			if expiration == "None":
+		elif ann_scope == "App":
+			if ann_expiration == "None":
 				announcements_json["app"] = {
-					"date": float(date),
-					"expiration": f"{expiration}",
+					"date": float(ann_date),
+					"expiration": f"{ann_expiration}",
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
 			else:
 				announcements_json["app"] = {
-					"date": float(date),
-					"expiration": float(expiration),
+					"date": float(ann_date),
+					"expiration": float(ann_expiration),
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
 		else:
-			if expiration == "None":
+			if ann_expiration == "None":
 				announcements_json = {
 					"app": {
-						"date": float(date),
-						"expiration": f"{expiration}",
+						"date": float(ann_date),
+						"expiration": f"{ann_expiration}",
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					},
 					"website": {
-						"date": float(date),
-						"expiration": f"{expiration}",
+						"date": float(ann_date),
+						"expiration": f"{ann_expiration}",
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					}
@@ -441,14 +446,14 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 			else:
 				announcements_json = {
 					"app": {
-						"date": float(date),
-						"expiration": float(expiration),
+						"date": float(ann_date),
+						"expiration": float(ann_expiration),
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					},
 					"website": {
-						"date": float(date),
-						"expiration": float(expiration),
+						"date": float(ann_date),
+						"expiration": float(ann_expiration),
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					}
@@ -562,24 +567,24 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 
 def json_edit(token, type, uuid, *, author=None, description=None, author_link=None, github_repo=None, authorised_members=None):
 	"""
- 	Edits the specified app or theme
+	Edits the specified app or theme
 
-   	Args:
+	Args:
 		token (str): The authentication token
 		type (str): The type of package [app, theme]
-  		uuid (str): The uuid of the app/theme
-  		author (str): The author of the package
-  		description (str): The description of the package
+		uuid (str): The uuid of the app/theme
+		author (str): The author of the package
+		description (str): The description of the package
 		author_link (str): The link of the author
-  		github_repo (str): The link of the repo
+		github_repo (str): The link of the repo
 		authorised_members (list): A list of authorised members to edit apps/themes
 
-   	Returns:
+	Returns:
 		edited_json (bool): If the json was edited
-  		download_link: The download link of the app/theme
+		download_link: The download link of the app/theme
 		image_link: The image link of the app/theme
-  		item_id: The id of the app/theme
-  	"""
+		item_id: The id of the app/theme
+	"""
 
 	g, all_files = initialize_github(token)
 
@@ -675,13 +680,13 @@ def json_edit(token, type, uuid, *, author=None, description=None, author_link=N
 
 def rmskin_delete(token, type, name):
 	"""
- 	Deletes the specified app or theme rmskin package
+	Deletes the specified app or theme rmskin package
 
-   	Args:
+	Args:
 		token (str): The authentication token
 		type (str): The type of package [app, theme]
 		name (str): The name of the app/theme
-   	"""
+	"""
 	
 	g, all_files = initialize_github(token)
 	
@@ -700,13 +705,13 @@ def rmskin_delete(token, type, name):
 
 def image_delete(token, type, name):
 	"""
- 	Deletes the specified app or theme image
+	Deletes the specified app or theme image
 
-   	Args:
+	Args:
 		token (str): The authentication token
 		type (str): The type of package [app, theme]
 		name (str): The name of the app/theme
-   	"""
+	"""
 	
 	g, all_files = initialize_github(token)
 
@@ -726,13 +731,13 @@ def image_delete(token, type, name):
 
 def json_delete(token, type, uuid):
 	"""
- 	Deletes the specified app or theme from its json file
+	Deletes the specified app or theme from its json file
 
-   	Args:
+	Args:
 		token (str): The authentication token
 		type (str): The type of package [app, theme]
 		uuid (str): The uuid of the app/theme
-   	"""
+	"""
 
 	g, all_files = initialize_github(token)
 

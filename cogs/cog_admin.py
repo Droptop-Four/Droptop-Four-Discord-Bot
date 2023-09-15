@@ -143,7 +143,7 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
 	def __init__(self, configs, type, scope):
 		super().__init__()
 		self.configs = configs
-		self.type = type
+		self.type = type.lower
 		self.scope = scope
 	
 		self.date = discord.ui.TextInput(

@@ -2,12 +2,12 @@ def version_validator(version):
 	"""
 	Checks if the version is written in a proper way.
 
- 	Args:
+	Args:
 		version (str): The version to check
-  	
+	
 	Returns:
 		is_valid (bool): True if the version is valid, False if not
- 	"""
+	"""
 
 	version_numbers = version.split(".")
 	for element in version_numbers:
