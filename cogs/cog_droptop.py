@@ -28,22 +28,14 @@ class DroptopCommands(commands.Cog):
 
 		message = await interaction.original_response()
 
-
-		gumroad_sales = await get_all_sales(json.loads(self.bot.configs["gumroad_token"]), self.bot.config_collection)
-
+		gumroad_sales = get_all_sales(json.loads(self.bot.configs["gumroad_token"]))
 		github_basic_downloads, github_update_downloads = get_releases_downloads(self.bot.configs["github_token"])
-	
 		deviantart_views, deviantart_favourites, deviantart_downloads = get_metadata(self.bot.configs["deviantart_auth_url"])
-
 		github_followers = get_followers(self.bot.configs["github_token"])
-		
 		github_stars = get_stars(self.bot.configs["github_token"])
 	
-	
 		embed.add_field(name="<:Download:1041649764929916938> Downloads", value=f"```css\nBasic Variant     {github_basic_downloads+deviantart_downloads}\nUpdate            {github_update_downloads}\nSupporter         {gumroad_sales}```", inline=False)
-	
 		embed.add_field(name="<:deviantart:1151924474548068482> DeviantArt", value=f"```css\nViews             {deviantart_views}\nFavourites        {deviantart_favourites}```", inline=False)
-	
 		embed.add_field(name="<:github:1152028987523076266> Github", value=f"```css\nFollowers         {github_followers}\nStars             {github_stars}```", inline=False)
 	
 		embed.remove_field(0)
