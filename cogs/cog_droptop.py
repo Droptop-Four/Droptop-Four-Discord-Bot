@@ -394,7 +394,10 @@ class DroptopCommands(commands.Cog):
 			for app in community_json["apps"]:
 				app_tags = app["app"]
 				if app_tags["name"] == title:
-					available = False
+					if interaction.user.id in app_tags["authorised_members"]:
+						available = True
+					else:
+						available = False
 
 			if available:
 				if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
@@ -404,7 +407,7 @@ class DroptopCommands(commands.Cog):
 				else:
 					await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 			else:
-				await interaction.response.send_message("The name you chose is not available, choose another one for your app")
+				await interaction.response.send_message("The name you chose is not available, choose another one for your app", ephemeral=True)
 		else:
 			await interaction.response.send_message("No rmskin app package was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 
@@ -564,7 +567,10 @@ class DroptopCommands(commands.Cog):
 			for theme in community_json["themes"]:
 				theme_tags = theme["theme"]
 				if theme_tags["name"] == title:
-					available = False
+					if interaction.user.id in theme_tags["authorised_members"]:
+						available = True
+					else:
+						available = False
 
 			if available:
 				if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
@@ -574,7 +580,7 @@ class DroptopCommands(commands.Cog):
 				else:
 					await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 			else:
-				await interaction.response.send_message("The name you chose is not available, choose another one for your theme")
+				await interaction.response.send_message("The name you chose is not available, choose another one for your theme", ephemeral=True)
 		else:
 			await interaction.response.send_message("No rmskin theme package was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 
