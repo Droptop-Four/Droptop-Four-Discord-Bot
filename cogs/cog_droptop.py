@@ -79,7 +79,12 @@ class DroptopCommands(commands.Cog):
 	
 				translation_value = math.trunc(translation_status / 20)
 				approval_value = math.trunc(approval_status / 20)
-	
+				
+				if translation_value >= approval_value:
+					remaining_value = (5 - translation_value)
+				else:
+					remaining_value = (5 - approval_value)
+				
 				if translation_value == 5:
 					global_status = "✅"
 				else:
@@ -87,13 +92,14 @@ class DroptopCommands(commands.Cog):
 	
 				approvals = approval_value * ":green_square:"
 				translated = (translation_value - approval_value) * ":blue_square:"
-				black = (5 - (approval_value + translation_value)) * "⬛"
-				
+				black = remaining_value * "⬛"
+
 				value=f"{approvals}{translated}{black}"
 				embed.add_field(name=f"{i}: {language_name} {global_status}", value=value, inline=True)
 				
 			else:
 				i = i + 1
+				
 				language_id = language["data"]["languageId"]
 				language_name = client.languages.get_language(language_id)["data"]["name"]
 				translation_status = language["data"]["translationProgress"]
@@ -101,6 +107,11 @@ class DroptopCommands(commands.Cog):
 	
 				translation_value = math.trunc(translation_status / 20)
 				approval_value = math.trunc(approval_status / 20)
+
+				if translation_value >= approval_value:
+					remaining_value = (5 - translation_value)
+				else:
+					remaining_value = (5 - approval_value)
 				
 				if translation_value == 5:
 					global_status = "✅"
@@ -109,10 +120,9 @@ class DroptopCommands(commands.Cog):
 				
 				approvals = approval_value * ":green_square:"
 				translated = (translation_value - approval_value) * ":blue_square:"
-				black = (5 - (approval_value + translation_value)) * "⬛"
+				black = remaining_value * "⬛"
 				
 				value=f"{approvals}{translated}{black}"
-				
 				embed2.add_field(name=f"{i}: {language_name} {global_status}", value=value, inline=True)
 
 		embed2.set_footer(text=f"Droptop currently has partial or complete support for {i} languages.")
