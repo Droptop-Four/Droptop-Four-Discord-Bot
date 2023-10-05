@@ -476,8 +476,12 @@ class DroptopCommands(commands.Cog):
 			if delete_release_channel == "True":
 				channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
 				threads = []
-				for thread in channel.threads:
-					threads.append(thread.name)
+				for thread in self.channel.threads:
+					threads.append(thread)
+		
+				async for thread in self.channel.archived_threads():
+					threads.append(thread)
+				
 				if community_app in threads:
 					await thread.delete()
 					await interaction.followup.send(f"The {community_app} app was succesfully deleted.\nAlso the post in <#{channel.id}> was deleted", ephemeral=True)
@@ -649,8 +653,12 @@ class DroptopCommands(commands.Cog):
 			if delete_release_channel == "True":
 				channel = self.bot.get_channel(self.bot.configs["themereleases_channel"])
 				threads = []
-				for thread in channel.threads:
-					threads.append(thread.name)
+				for thread in self.channel.threads:
+					threads.append(thread)
+		
+				async for thread in self.channel.archived_threads():
+					threads.append(thread)
+				
 				if community_theme in threads:
 					await thread.delete()
 					await interaction.followup.send(f"The {community_theme} theme was succesfully deleted.\nAlso the post in <#{channel.id}> was deleted", ephemeral=True)
@@ -762,17 +770,15 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				all_threads = []
+				threads = []
 
 				for thread in self.channel.threads:
-					#print(thread.name)
-					all_threads.append(thread)
+					threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					#print(thread.name)
-					all_threads.append(thread)
+					threads.append(thread)
 		
-				for thread in all_threads:
+				for thread in threads:
 					if thread.name == f"{self.app_title} - {self.author}":
 						await thread.send(embed=embed, file=image_file, view=view)
 						break
@@ -807,15 +813,15 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				embed.set_footer(text=f"author_id: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				all_threads = []
+				threads = []
 
 				for thread in self.channel.threads:
-					all_threads.append(thread)
+					threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					all_threads.append(thread)
+					threads.append(thread)
 		
-				for thread in all_threads:
+				for thread in threads:
 					if thread.name == f"{self.app_title} - {self.author}":
 						await thread.send(embed=embed, file=image_file, view=view)
 						break
@@ -934,15 +940,15 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				all_threads = []
+				threads = []
 
 				for thread in self.channel.threads:
-					all_threads.append(thread)
+					threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					all_threads.append(thread)
+					threads.append(thread)
 		
-				for thread in all_threads:
+				for thread in threads:
 					if thread.name == f"{self.theme_title} - {self.author}":
 						await thread.send(embed=embed, file=image_file, view=view)
 						break
@@ -979,15 +985,15 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
-				all_threads = []
+				threads = []
 
 				for thread in self.channel.threads:
-					all_threads.append(thread)
+					threads.append(thread)
 		
 				async for thread in self.channel.archived_threads():
-					all_threads.append(thread)
+					threads.append(thread)
 		
-				for thread in all_threads:
+				for thread in threads:
 					if thread.name == f"{self.theme_title} - {self.author}":
 						await thread.send(embed=embed, file=image_file, view=view)
 						break
@@ -1098,7 +1104,11 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 			embed.set_image(url=self.image_url)
 		threads = []
 		for thread in self.channel.threads:
-			threads.append(thread.name)
+			threads.append(thread)
+
+		async for thread in self.channel.archived_threads():
+			threads.append(thread)
+		
 		if f"{self.community_app}" in threads:
 			if self.image_preview:
 				await thread.send(embed=embed, file=image_file, view=view)
@@ -1227,7 +1237,11 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 			embed.set_image(url=self.image_url)
 		threads = []
 		for thread in self.channel.threads:
-			threads.append(thread.name)
+			threads.append(thread)
+
+		async for thread in self.channel.archived_threads():
+			threads.append(thread)
+		
 		if f"{self.community_theme}" in threads:
 			if self.image_preview:
 				await thread.send(embed=embed, file=image_file, view=view)
