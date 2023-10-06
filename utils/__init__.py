@@ -1,6 +1,7 @@
-__all__ = ["command_mention", "database", "deviantart", "firebase", "generators", "github", "gumroad", "image_converter", "logger", "name_validator", "time_utils", "version_validator"]
+__all__ = ["command_mention", "crowdin", "database", "deviantart", "firebase", "generators", "github", "gumroad", "image_converter", "logger", "name_validator", "time_utils", "version_validator"]
 
 from .command_mention import command_mention
+from .crowdin import initialize_crowdin
 from .database import initialize_mongodb
 from .deviantart import get_metadata
 from .firebase import initialize_firebase, sync_files

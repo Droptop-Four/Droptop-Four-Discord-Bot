@@ -2,13 +2,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_name_check, rmskin_rename, to_webp, json_update, get_title_author, json_edit, json_delete, rmskin_delete, image_delete, version_date, get_releases_downloads, get_all_sales, get_metadata, get_stars, get_followers
+from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_name_check, rmskin_rename, to_webp, json_update, get_title_author, json_edit, json_delete, rmskin_delete, image_delete, version_date, get_releases_downloads, get_all_sales, get_metadata, get_stars, get_followers, initialize_crowdin
 
 from typing import Optional, List
 from pathlib import Path
 import traceback, math, json
-
-from crowdin_api import CrowdinClient
 
 
 class DroptopCommands(commands.Cog):
@@ -60,7 +58,7 @@ class DroptopCommands(commands.Cog):
 
 		await interaction.response.send_message(embed=embed, view=view)
 
-		client = CrowdinClient(token=self.bot.configs["crowdin_token"])
+		client = initialize_crowdin(self.bot.configs["crowdin_token"])
 		
 		result = client.translation_status.get_project_progress(self.bot.configs["crowdin_project"], limit=100)["data"]
 
