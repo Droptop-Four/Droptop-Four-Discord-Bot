@@ -6,7 +6,7 @@ from utils import github_reader, push_rmskin, push_image, img_rename, rmskin_nam
 
 from typing import Optional, List
 from pathlib import Path
-import traceback, math, json
+import traceback, math, json, zipfile, configparser, os
 
 
 class DroptopCommands(commands.Cog):
@@ -384,38 +384,20 @@ class DroptopCommands(commands.Cog):
 
 	@community_app_group.command(name="new_release")
 	@app_commands.describe(
-		rmskin_package="The package of your Community App",
-		image_preview="The image of your Community App"
+		rmskin_package="The package of your Community App"
 	)
-	async def community_app_new_release(self, interaction: discord.Interaction, rmskin_package: discord.Attachment, image_preview: discord.Attachment):
+	async def community_app_new_release(self, interaction: discord.Interaction, rmskin_package: discord.Attachment):
 		"""Creates a new Community App Release to Github, the website and the discord server."""
 		
 		channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
 
 		if rmskin_name_check("app", rmskin_package.filename):
+			rmskin_name = rmskin_rename("app", rmskin_package.filename)
+			rmskin_path = Path(f"tmp/{rmskin_name}")
+			await rmskin_package.save(rmskin_path)
 
-			title, author = get_title_author("app", rmskin_package.filename)
+			await interaction.response.send_modal(NewAppRelease(self.bot.configs, rmskin_path, rmskin_name, channel))
 
-			community_json = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
-
-			available = True
-			for app in community_json["apps"]:
-				app_tags = app["app"]
-				if app_tags["name"] == title:
-					if interaction.user.id in app_tags["authorised_members"]:
-						available = True
-					else:
-						available = False
-
-			if available:
-				if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-					await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "jpg", rmskin_package, image_preview, channel))
-				elif image_preview.filename.lower().endswith(".webp"):
-					await interaction.response.send_modal(NewAppRelease(self.bot.configs, title, author, "webp", rmskin_package, image_preview, channel))
-				else:
-					await interaction.response.send_message("No image was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
-			else:
-				await interaction.response.send_message("The name you chose is not available, choose another one for your app", ephemeral=True)
 		else:
 			await interaction.response.send_message("No rmskin app package was found, be sure to put it in the right hitbox the next time.", ephemeral=True)
 
@@ -669,16 +651,24 @@ class DroptopCommands(commands.Cog):
 
 
 class NewAppRelease(discord.ui.Modal, title="New App Release"):
-	def __init__(self, configs, app_title, author, image_mode, rmskin_package, image_preview, channel):
+	def __init__(self, configs, rmskin_path, rmskin_name, channel):
 		super().__init__()
-		self.app_title = app_title
-		self.author = author
 		self.configs = configs
-		self.image_mode = image_mode
-		self.rmskin_package = rmskin_package
-		self.image_preview = image_preview
+		self.rmskin_path = rmskin_path
+		self.rmskin_name = rmskin_name
 		self.channel = channel
 
+		with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
+			ini_path = Path("tmp/RMSKIN.ini")
+			rmskin_archive.extract("RMSKIN.ini", "tmp")
+			config = configparser.ConfigParser()
+			config.read(ini_path)
+			self.app_title = config['rmskin']['Name']
+			self.author = config['rmskin']['Author']
+			self.version = config['rmskin']['Version']
+	
+		ini_path.unlink()
+	
 		data = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
 			if self.app_title == app["app"]["name"]:
@@ -721,113 +711,66 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 	async def on_submit(self, interaction: discord.Interaction):
 
 		community_json = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
-
 		authorised_members = []
+		await interaction.response.send_message("Your app is being released... Please wait...", ephemeral=True)
 
-		version = version_date()
+		with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
+
+			preview_image = "Skins\Droptop Community Apps\Apps\Feeder-Cariboudjan\Images\PreviewImage.png"
+			if preview_image in rmskin_archive.namelist():
+				image_name = f"{self.app_title}-{self.author}"
+				image_path = Path(f"tmp/{image_name}.png")
+				rmskin_archive.extract(preview_image, "tmp")
+				os.rename(f"tmp/{preview_image}", image_path)
+				webp_path = to_webp(image_path)
+			else:
+				await interaction.followup.send("No image preview was found inside your rmskin package!\nBe sure to update droptop and repackage your app.", ephemeral=True)
+				return
 
 		for item in community_json["apps"]:
 			app_tags = item["app"]
 			if app_tags["name"] == self.app_title:
+				new = False
 				for member in app_tags["authorised_members"]:
 					authorised_members.append(member)
-				new = False
 			else:
 				new = True
+
 		if new:
 			authorised_members = [self.configs["author_id"], self.configs["cari_id"], interaction.user.id]
 		
 		if interaction.user.id in authorised_members:
+			rmskin_creation = push_rmskin(self.configs["github_token"], "app", self.rmskin_name)
+			image_creation = push_image(self.configs["github_token"], "app", image_name)
+			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_token"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 
-			if self.image_mode == "jpg":
-				await interaction.response.send_message("Your app is being released... Please wait...", ephemeral=True)
-				
-				rmskin_name = rmskin_rename("app", self.rmskin_package.filename)
-				package_path = Path(f"tmp/{rmskin_name}")
-				await self.rmskin_package.save(package_path)
-				rmskin_creation = push_rmskin(self.configs["github_token"], "app", rmskin_name)
-				
-				image_extension = Path(self.image_preview.filename).suffix
-				image_name = img_rename("app", self.rmskin_package.filename)
-				image_path = Path(f"tmp/{image_name}{image_extension}")
-				await self.image_preview.save(image_path)
-				webp_path = to_webp(image_path)
-				image_creation = push_image(self.configs["github_token"], "app", image_name)
-				
-				updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_token"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
-				
-				view = discord.ui.View()
-				style = discord.ButtonStyle.url
-				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps?id={app_id}")
-				view.add_item(item=download_button)
-				view.add_item(item=site_button)
-				embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
-				embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
-				embed.add_field(name="Version: ", value=version, inline=False)
-				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
-				image_file = await self.image_preview.to_file(filename="image.png")
-				embed.set_image(url="attachment://image.png")
-				threads = []
+			view = discord.ui.View()
+			style = discord.ButtonStyle.url
+			download_button = discord.ui.Button(style=style, label="Download", url=download_link)
+			site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps?id={app_id}")
+			view.add_item(item=download_button)
+			view.add_item(item=site_button)
+			embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
+			embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
+			embed.add_field(name="Version: ", value=self.version, inline=False)
+			embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
+			embed.set_image(url=image_link)
+			all_threads = []
+			for thread in self.channel.threads:
+				all_threads.append(thread)
 
-				for thread in self.channel.threads:
-					threads.append(thread)
-		
-				async for thread in self.channel.archived_threads():
-					threads.append(thread)
-		
-				for thread in threads:
-					if thread.name == f"{self.app_title} - {self.author}":
-						await thread.send(embed=embed, file=image_file, view=view)
-						break
-				else:
-					await self.channel.create_thread(name=f"{self.app_title} - {self.author}", embed=embed, file=image_file, view=view)
-				webp_path.unlink()
-				await interaction.followup.send(f"You successfully published **{self.app_title}** in <#{self.channel.id}>", ephemeral=True)
+			async for thread in self.channel.archived_threads():
+				all_threads.append(thread)
+
+			for thread in all_threads:
+				if thread.name == f"{self.app_title} - {self.author}":
+					await thread.send(embed=embed, view=view)
+					break
 			else:
-				await interaction.response.send_message("Your app is being released... Please wait...", ephemeral=True)
-				
-				rmskin_name = rmskin_rename("app", self.rmskin_package.filename)
-				package_path = Path(f"tmp/{rmskin_name}")
-				await self.rmskin_package.save(package_path)
-				rmskin_creation = push_rmskin(self.configs["github_token"], "app", image_name)
-				
-				image_name = img_rename("app", self.rmskin_package.filename)
-				webp_path = Path(f"tmp/{image_name}.webp")
-				await self.image_preview.save(webp_path)
-				image_creation = push_image(self.configs["github_token"], "app", image_name)
-				
-				updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_token"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
-				
-				view = discord.ui.View()
-				style = discord.ButtonStyle.url
-				download_button = discord.ui.Button(style=style, label="Download", url=download_link)
-				site_button = discord.ui.Button(style=style, label="See on Website", url=f"https://droptopfour.com/community-apps?id={app_id}")
-				view.add_item(item=download_button)
-				view.add_item(item=site_button)
-				embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
-				embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
-				embed.add_field(name="Version: ", value=version, inline=False)
-				embed.set_footer(text=f"author_id: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
-				image_file = await self.image_preview.to_file(filename="image.png")
-				embed.set_image(url="attachment://image.png")
-				threads = []
-
-				for thread in self.channel.threads:
-					threads.append(thread)
-		
-				async for thread in self.channel.archived_threads():
-					threads.append(thread)
-		
-				for thread in threads:
-					if thread.name == f"{self.app_title} - {self.author}":
-						await thread.send(embed=embed, file=image_file, view=view)
-						break
-				else:
-					await self.channel.create_thread(name=f"{self.app_title} - {self.author}", embed=embed, file=image_file, view=view)		
-				webp_path.unlink()
-				await interaction.followup.send(f"You successfully published **{self.app_title}** in <#{self.channel.id}>", ephemeral=True)
-			package_path.unlink()
+				await self.channel.create_thread(name=f"{self.app_title} - {self.author}", embed=embed, view=view)
+			webp_path.unlink()
+			await interaction.followup.send(f"You successfully published **{self.app_title}** in <#{self.channel.id}>", ephemeral=True)
+			self.rmskin_path.unlink()
 		else:
 			await interaction.response.send_message(f"You aren't authorised to publish updates, modify or delete {self.app_title}.\nAsk {self.app_author} to add you as an authorised user.", ephemeral=True)
 			
