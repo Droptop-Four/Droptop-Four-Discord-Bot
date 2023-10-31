@@ -6,7 +6,7 @@ from .database import initialize_mongodb
 from .deviantart import get_metadata
 from .firebase import initialize_firebase, sync_files
 from .generators import generate_uuid_string
-from .github import get_releases_downloads, get_stars, get_followers, push_rmskin, push_image, json_update, json_edit, rmskin_delete, image_delete, json_delete, github_reader
+from .github import get_releases_downloads, get_stars, get_followers, push_rmskin, push_image, json_update, json_edit, rmskin_delete, image_delete, json_delete, github_reader, edit_release
 from .gumroad import get_all_sales
 from .image_converter import to_webp
 from .logger import initialize_logger

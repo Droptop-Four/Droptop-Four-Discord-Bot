@@ -121,6 +121,59 @@ def get_stars(token):
 	return stars
 
 
+def edit_release(token, version, cl_features, cl_modifications, cl_bugfixes):
+	"""
+	Edits the specific release on Github
+	
+	Args:
+		token (str): The authentication token
+		version (str): The version of the package
+		cl_features (list): A list of features of a droptop new version
+		cl_modifications (list): A list of modifications of a droptop new version
+		cl_bugfixes (list): A list of bug fixes of a droptop new version
+	
+	Returns:
+		edited (bool): If the release was edited
+	"""
+	
+	g, all_files = initialize_github(token)
+	repo = g.get_repo("Droptop-Four/test")
+	
+	mainversion, miniversion = version
+	
+	try:
+		release = repo.get_release(f"v{mainversion}.{miniversion}")
+		message = ""
+	
+		if (len(cl_features) >= 1) and (cl_features[0] != ""):
+			message += "## New features 🆕\n"
+			for feature in cl_features:
+				message += f"- {feature}\n"
+	
+		if (len(cl_modifications) >= 1) and (cl_modifications[0] != ""):
+			message += "## Modifications ⚠️\n"
+			for modification in cl_modifications:
+				message += f"- {modification}\n"
+	
+		if (len(cl_bugfixes) >= 1) and (cl_bugfixes[0] != ""):
+			message += "## Bug fixes 🪲\n"
+			for bugfix in cl_bugfixes:
+				message += f"- {bugfix}\n"
+	
+		message += f"\n\n# [Download Droptop](https://github.com/Droptop-Four/Droptop-Four/releases/download/v{mainversion}.{miniversion}/Droptop_Basic_Version.rmskin) - [Update Droptop](https://github.com/Droptop-Four/Droptop-Four/releases/download/v{mainversion}.{miniversion}/Droptop_Update.rmskin)\n"
+	
+		release.update_release(
+			name=f"Droptop Four v{mainversion}.{miniversion}",
+			message=message
+		)
+		edited = True
+	
+	except:
+		edited = False
+	
+	return edited
+
+
 def get_followers(token):
 	"""
 	Gets the number of followers of the organization.

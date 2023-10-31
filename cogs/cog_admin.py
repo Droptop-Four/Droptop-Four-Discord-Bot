@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ext.tasks import loop
 
-from utils import github_reader, json_update, version_validator, sync_files
+from utils import github_reader, json_update, version_validator, sync_files, edit_release
 from typing import List
 
 import traceback
@@ -91,6 +91,12 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 			await annchannel.send(f"New Droptop Announcement! {dtbrping.mention}")
 			await annchannel.send(embed=embed, view=view)
 			await interaction.edit_original_response(content=f"Version {self.version.value}.{self.miniversion.value} of droptop was released")
+
+			edited = edit_release(self.configs["github_token"], versiontuple, features, modifications, bugfixes)
+
+			if not edited:
+				await interaction.followup.send(f"The release with the v{versiontuple[0]}.{versiontuple[1]} tag doesn't exists!!\nMake sure to publish the release first or to use a valid version!", ephemeral=True)
+				return
 
 			await interaction.followup.send("Syncing files on firebase...", ephemeral=True)
 
