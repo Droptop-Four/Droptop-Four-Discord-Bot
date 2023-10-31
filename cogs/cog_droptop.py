@@ -725,7 +725,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 				os.rename(f"tmp/{preview_image}", image_path)
 				webp_path = to_webp(image_path)
 			else:
-				await interaction.followup.send("No image preview was found inside your rmskin package!\nBe sure to update droptop and repackage your app.", ephemeral=True)
+				await interaction.followup.send("No image preview was found inside your rmskin package!\nBe sure to update droptop (>v4.330.38) and repackage your app.", ephemeral=True)
 				return
 
 		for item in community_json["apps"]:
