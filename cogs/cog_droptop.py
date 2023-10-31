@@ -716,7 +716,11 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 
 		with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
 
-			preview_image = f"Skins\Droptop Community Apps\Apps\{self.app_title}-{self.author}\Images\PreviewImage.png"
+			preview_image = f"Skins\Droptop Community Apps\Apps\{self.app_title.replace(' ', '_')}-{self.author.replace(' ', '_')}\Images\PreviewImage.png"
+
+			print(f"{self.app_title}-{self.author}")
+			for item in rmskin_archive.namelist():
+				print(item)
 				
 			if preview_image in rmskin_archive.namelist():
 				image_name = f"{self.app_title}-{self.author}"
