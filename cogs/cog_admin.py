@@ -60,7 +60,18 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
 			await interaction.response.send_message(f"Version {self.version.value} of droptop is being released", ephemeral=True)
 			
-			updated_json = json_update(self.configs["github_token"], "version", version = versiontuple)
+			features = []
+			for r in self.features.value.split("\n"):
+				features.append(r.replace("- ", ""))
+			modifications = []
+			for r in self.modifications.value.split("\n"):
+				modifications.append(r.replace("- ", ""))
+			bugfixes = []
+			for r in self.bugfixes.value.split("\n"):
+				bugfixes.append(r.replace("- ", ""))
+
+			updated_version_json = json_update(self.configs["github_token"], "version", version = versiontuple)
+			updated_changelog_json = json_update(self.configs["github_token"], "changelog", version = versiontuple, cl_features = features, cl_modifications = modifications, cl_bugfixes = bugfixes)
 	
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url

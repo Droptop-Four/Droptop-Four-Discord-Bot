@@ -247,7 +247,7 @@ def push_image(token, type, image_name):
 		return creation
 
 
-def json_update(token, type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None):
+def json_update(token, type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None, cl_features=None, cl_modifications=None, cl_bugfixes=None):
 	"""
 	Updates the json file with the new package information
 
@@ -268,6 +268,9 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 		announcement (str): The announcement
 		ann_type (str): The type of announcement [Important, Warning, Info]
 		ann_scope (str): The scope of the announcement [App, Website, Website & App]
+  		cl_features (list): A list of features of a droptop new version
+		cl_modifications (list): A list of modifications of a droptop new version
+  		cl_bugfixes (list): A list of bug fixes of a droptop new version
 	
 	Returns:
 		creation (bool): if the app inside of the json was created (True) or it was already present and was only updated (False)
@@ -286,6 +289,9 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 	elif type == "announcement":
 		content = repo.get_contents("data/announcements.json")
 		announcements_json = github_reader(token, "data/announcements.json")
+	elif type == "changelog":
+		content = repo.get_contents("data/changelog.json")
+		changelog_json = github_reader(token, "data/changelog.json")
 	else:
 		content = repo.get_contents("data/version.json")
 	
@@ -461,6 +467,32 @@ def json_update(token, type, *, authorised_members=None, title=None, author=None
 		
 		json_content = json.dumps(announcements_json, indent = 4)
 		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+
+	elif type == "changelog":
+		mainversion, miniversion = version
+
+		item_json = {
+			"version": f"{mainversion}.{miniversion}",
+			"new_features": cl_features,
+			"modifications": cl_modifications,
+			"bug_fixes": cl_bugfixes
+		}
+		changelog_json["changelog"].append(item_json)
+		changelog_json["changelog"].sort(key=lambda x: x["version"], reverse=True)
+
+		json.dumps(changelog_json, indent = 4)
+		temp_json = Path("tmp/temp_json.json")
+		with open(temp_json, 'w+', encoding='utf-8') as f:
+			json.dump(changelog_json, f, ensure_ascii=False, indent=4)
+			f.seek(0)
+			json_content = f.read()
+
+		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+
+		temp_json.unlink()
+
+		updated_json = True
+		return updated_json
 
 	else:
 		mainversion, miniversion = version
