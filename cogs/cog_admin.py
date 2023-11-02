@@ -70,8 +70,8 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 			for r in self.bugfixes.value.split("\n"):
 				bugfixes.append(r.replace("- ", ""))
 
-			updated_version_json = json_update(self.configs["github_token"], "version", version = versiontuple)
-			updated_changelog_json = json_update(self.configs["github_token"], "changelog", version = versiontuple, cl_features = features, cl_modifications = modifications, cl_bugfixes = bugfixes)
+			updated_version_json = json_update(self.configs["github_private_key"], "version", version = versiontuple)
+			updated_changelog_json = json_update(self.configs["github_private_key"], "changelog", version = versiontuple, cl_features = features, cl_modifications = modifications, cl_bugfixes = bugfixes)
 	
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
@@ -92,7 +92,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 			await annchannel.send(embed=embed, view=view)
 			await interaction.edit_original_response(content=f"Version {self.version.value}.{self.miniversion.value} of droptop was released")
 
-			edited = edit_release(self.configs["github_token"], versiontuple, features, modifications, bugfixes)
+			edited = edit_release(self.configs["github_private_key"], versiontuple, features, modifications, bugfixes)
 
 			if not edited:
 				await interaction.followup.send(f"The release with the v{versiontuple[0]}.{versiontuple[1]} tag doesn't exists!!\nMake sure to publish the release first or to use a valid version!", ephemeral=True)
@@ -210,7 +210,7 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
 
 		announcement = announcement_raw
 
-		json_update(self.configs["github_token"], "announcement", ann_date=date, ann_expiration=expiration, announcement=announcement, ann_type=self.type, ann_scope=self.scope)
+		json_update(self.configs["github_private_key"], "announcement", ann_date=date, ann_expiration=expiration, announcement=announcement, ann_type=self.type, ann_scope=self.scope)
 
 	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
 		await interaction.followup.send(f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True)
@@ -244,7 +244,7 @@ class AdminCommands(commands.Cog):
 	@loop(seconds=600)
 	async def version_stats(self):
 		channel = self.bot.get_channel(self.bot.configs["versionstats_channel"])
-		version = github_reader(self.bot.configs["github_token"], "data/version.json")
+		version = github_reader(self.bot.configs["github_private_key"], "data/version.json")
 		await channel.edit(name = "🆕╏Version: "+str(version["version"]))
 
 

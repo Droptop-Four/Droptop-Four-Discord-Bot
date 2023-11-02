@@ -27,10 +27,10 @@ class DroptopCommands(commands.Cog):
 		message = await interaction.original_response()
 
 		gumroad_sales = get_all_sales(json.loads(self.bot.configs["gumroad_token"]))
-		github_basic_downloads, github_update_downloads = get_releases_downloads(self.bot.configs["github_token"])
+		github_basic_downloads, github_update_downloads = get_releases_downloads(self.bot.configs["github_private_key"])
 		deviantart_views, deviantart_favourites, deviantart_downloads = get_metadata(self.bot.configs["deviantart_auth_url"])
-		github_followers = get_followers(self.bot.configs["github_token"])
-		github_stars = get_stars(self.bot.configs["github_token"])
+		github_followers = get_followers(self.bot.configs["github_private_key"])
+		github_stars = get_stars(self.bot.configs["github_private_key"])
 	
 		embed.add_field(name="<:Download:1041649764929916938> Downloads", value=f"```css\nBasic Variant     {github_basic_downloads+deviantart_downloads}\nUpdate            {github_update_downloads}\nSupporter         {gumroad_sales}```", inline=False)
 		embed.add_field(name="<:deviantart:1151924474548068482> DeviantArt", value=f"```css\nViews             {deviantart_views}\nFavourites        {deviantart_favourites}```", inline=False)
@@ -148,8 +148,8 @@ class DroptopCommands(commands.Cog):
 	async def droptop_four_info(self, interaction: discord.Interaction, variant: Optional[str] = None) -> None:
 		""" Displays info about Droptop Four """
 		
-		data = github_reader(self.bot.configs["github_token"], "data/droptop_info.json")
-		version = github_reader(self.bot.configs["github_token"], "data/version.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/droptop_info.json")
+		version = github_reader(self.bot.configs["github_private_key"], "data/version.json")
 
 		if variant:
 			if variant == "Basic":
@@ -190,7 +190,7 @@ class DroptopCommands(commands.Cog):
 	async def download(self, interaction: discord.Interaction, variant: Optional[str] = None):
 		"""Displays downloads info about Droptop Four"""
 
-		data = github_reader(self.bot.configs["github_token"], "data/droptop_info.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/droptop_info.json")
 
 		if variant:
 			if variant == "Basic":
@@ -254,7 +254,7 @@ class DroptopCommands(commands.Cog):
 	async def update(self, interaction: discord.Interaction):
 		"""Displays update info about Droptop Four"""
 
-		data = github_reader(self.bot.configs["github_token"], "data/droptop_info.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/droptop_info.json")
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
@@ -274,7 +274,7 @@ class DroptopCommands(commands.Cog):
 	async def faq(self, interaction: discord.Interaction):
 		"""Displays the F.A.Q. link"""
 
-		data = github_reader(self.bot.configs["github_token"], "data/droptop_info.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/droptop_info.json")
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
@@ -291,7 +291,7 @@ class DroptopCommands(commands.Cog):
 	async def website(self, interaction: discord.Interaction):
 		"""Displays the website link"""
 
-		data = github_reader(self.bot.configs["github_token"], "data/droptop_info.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/droptop_info.json")
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
@@ -317,7 +317,7 @@ class DroptopCommands(commands.Cog):
 	
 	async def community_apps_autocomplete(self, interaction: discord.Interaction, current: str, ) -> List[app_commands.Choice[str]]:
 		community_apps_names = []
-		data = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
 			community_apps_names.append(app["app"]["name"])
 		return [
@@ -328,7 +328,7 @@ class DroptopCommands(commands.Cog):
 	
 	async def authorised_community_app_autocomplete(self, interaction: discord.Interaction, current: str, ) -> List[app_commands.Choice[str]]:
 		community_apps_editable = []
-		data = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
 			if interaction.user.id in app["app"]["authorised_members"]:
 				community_apps_editable.append(f'{app["app"]["name"]} - {app["app"]["author"]}')
@@ -346,7 +346,7 @@ class DroptopCommands(commands.Cog):
 	async def community_apps_info(self, interaction: discord.Interaction, name: str) -> None:
 		""" Displays info about Droptop Four Community Apps  """
 
-		data = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/community_apps/community_apps.json")
 
 		community_apps_names = []
 		for app in data["apps"]:
@@ -446,13 +446,13 @@ class DroptopCommands(commands.Cog):
 		if view.value is None:
 			await interaction.followup.send("You took to long to reply, and the command expired.", ephemeral=True)
 		elif view.value:
-			data = github_reader(self.bot.configs["github_token"], "data/community_apps/community_apps.json")
+			data = github_reader(self.bot.configs["github_private_key"], "data/community_apps/community_apps.json")
 			for app in data["apps"]:
 				if community_app == f'{app["app"]["name"]} - {app["app"]["author"]}':
 					uuid = app["app"]["uuid"]
-			json_delete(self.configs["github_token"], "app", uuid)
-			rmskin_delete(self.configs["github_token"], "app", community_app)
-			image_delete(self.configs["github_token"], "app", community_app)
+			json_delete(self.configs["github_private_key"], "app", uuid)
+			rmskin_delete(self.configs["github_private_key"], "app", community_app)
+			image_delete(self.configs["github_private_key"], "app", community_app)
 			if delete_release_channel == "True":
 				channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
 				threads = []
@@ -478,7 +478,7 @@ class DroptopCommands(commands.Cog):
 
 	async def community_themes_autocomplete(self, interaction: discord.Interaction, current: str, ) -> List[app_commands.Choice[str]]:
 		community_themes_names = []
-		data = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/community_themes/community_themes.json")
 		for theme in data["themes"]:
 			community_themes_names.append(theme["theme"]["name"])
 		return [
@@ -489,7 +489,7 @@ class DroptopCommands(commands.Cog):
 
 	async def authorised_community_theme_autocomplete(self, interaction: discord.Interaction, current: str, ) -> List[app_commands.Choice[str]]:
 		community_themes_editable = []
-		data = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/community_themes/community_themes.json")
 		for theme in data["themes"]:
 			if interaction.user.id in theme["theme"]["authorised_members"]:
 				community_themes_editable.append(f'{theme["theme"]["name"]} - {theme["theme"]["author"]}')
@@ -507,7 +507,7 @@ class DroptopCommands(commands.Cog):
 	async def community_theme_info(self, interaction: discord.Interaction, name: str) -> None:
 		"""Displays info about Droptop Four Community Themes"""
 
-		data = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+		data = github_reader(self.bot.configs["github_private_key"], "data/community_themes/community_themes.json")
 
 		community_themes_names = []
 		for theme in data["themes"]:
@@ -555,7 +555,7 @@ class DroptopCommands(commands.Cog):
 			
 			title, author = get_title_author("theme", rmskin_package.filename)
 
-			community_json = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+			community_json = github_reader(self.bot.configs["github_private_key"], "data/community_themes/community_themes.json")
 
 			available = True
 			for theme in community_json["themes"]:
@@ -623,13 +623,13 @@ class DroptopCommands(commands.Cog):
 		if view.value is None:
 			await interaction.followup.send("You took to long to reply, and the command expired.", ephemeral=True)
 		elif view.value:
-			data = github_reader(self.bot.configs["github_token"], "data/community_themes/community_themes.json")
+			data = github_reader(self.bot.configs["github_private_key"], "data/community_themes/community_themes.json")
 			for theme in data["themes"]:
 				if community_theme == f'{theme["theme"]["name"]} - {theme["theme"]["author"]}':
 					uuid = theme["theme"]["uuid"]
-			json_delete(self.configs["github_token"], "theme", uuid)
-			rmskin_delete(self.configs["github_token"], "theme", community_theme)
-			image_delete(self.configs["github_token"], "theme", community_theme)
+			json_delete(self.configs["github_private_key"], "theme", uuid)
+			rmskin_delete(self.configs["github_private_key"], "theme", community_theme)
+			image_delete(self.configs["github_private_key"], "theme", community_theme)
 			if delete_release_channel == "True":
 				channel = self.bot.get_channel(self.bot.configs["themereleases_channel"])
 				threads = []
@@ -669,7 +669,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 	
 		ini_path.unlink()
 	
-		data = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
+		data = github_reader(self.configs["github_private_key"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
 			if self.app_title == app["app"]["name"]:
 				self.uuid = app["app"]["uuid"]
@@ -710,7 +710,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 
 	async def on_submit(self, interaction: discord.Interaction):
 
-		community_json = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
+		community_json = github_reader(self.configs["github_private_key"], "data/community_apps/community_apps.json")
 		authorised_members = []
 		await interaction.response.send_message("Your app is being released... Please wait...", ephemeral=True)
 
@@ -745,9 +745,9 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			authorised_members = [self.configs["author_id"], self.configs["cari_id"], interaction.user.id]
 		
 		if interaction.user.id in authorised_members:
-			rmskin_creation = push_rmskin(self.configs["github_token"], "app", self.rmskin_name)
-			image_creation = push_image(self.configs["github_token"], "app", image_name)
-			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_token"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+			rmskin_creation = push_rmskin(self.configs["github_private_key"], "app", self.rmskin_name)
+			image_creation = push_image(self.configs["github_private_key"], "app", image_name)
+			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_private_key"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
@@ -795,7 +795,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 		self.image_preview = image_preview
 		self.channel = channel
 
-		data = github_reader(self.configs["github_token"], "data/community_themes/community_themes.json")
+		data = github_reader(self.configs["github_private_key"], "data/community_themes/community_themes.json")
 		for theme in data["themes"]:
 			if self.theme_title == theme["theme"]["name"]:
 				self.uuid = theme["theme"]["uuid"]
@@ -837,7 +837,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 
 	async def on_submit(self, interaction: discord.Interaction):
 
-		community_json = github_reader(self.configs["github_token"], "data/community_themes/community_themes.json")
+		community_json = github_reader(self.configs["github_private_key"], "data/community_themes/community_themes.json")
 
 		authorised_members = []
 
@@ -861,16 +861,16 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
 				await self.rmskin_package.save(package_path)
-				rmskin_creation = push_rmskin(self.configs["github_token"], "theme", rmskin_name)
+				rmskin_creation = push_rmskin(self.configs["github_private_key"], "theme", rmskin_name)
 				
 				image_extension = Path(self.image_preview.filename).suffix
 				image_name = img_rename("theme", self.rmskin_package.filename)
 				image_path = Path(f"tmp/{image_name}{image_extension}")
 				await self.image_preview.save(image_path)
 				webp_path = to_webp(image_path)
-				image_creation = push_image(self.configs["github_token"], "theme", image_name)
+				image_creation = push_image(self.configs["github_private_key"], "theme", image_name)
 				
-				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_token"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
@@ -908,14 +908,14 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
 				await self.rmskin_package.save(package_path)
-				rmskin_creation = push_rmskin(self.configs["github_token"], "theme", image_name)
+				rmskin_creation = push_rmskin(self.configs["github_private_key"], "theme", image_name)
 				
 				image_name = img_rename("theme", self.rmskin_package.filename)
 				webp_path = Path(f"tmp/{image_name}.webp")
 				await self.image_preview.save(webp_path)
-				image_creation = push_image(self.configs["github_token"], "theme", image_name)
+				image_creation = push_image(self.configs["github_private_key"], "theme", image_name)
 				
-				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_token"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
@@ -966,7 +966,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 		self.suffix = suffix
 		self.authorised_members = authorised_members
 
-		data = github_reader(self.configs["github_token"], "data/community_apps/community_apps.json")
+		data = github_reader(self.configs["github_private_key"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
 			if self.community_app == f'{app["app"]["name"]} - {app["app"]["author"]}':
 				self.uuid = app["app"]["uuid"]
@@ -1029,9 +1029,9 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 				webp_path = Path(f"tmp/{image_name}.webp")
 				await self.image_preview.save(webp_path)
 			
-			image_creation = push_image(self.configs["github_token"], "app", image_name)
+			image_creation = push_image(self.configs["github_private_key"], "app", image_name)
 
-		updated_json, download_link, image_link, app_id = json_edit(self.configs["github_token"], "app", self.uuid, author=self.author.value, description=self.description.value, author_link=self.github_profile.value, github_repo=self.github_repo.value, authorised_members=self.authorised_members)
+		updated_json, download_link, image_link, app_id = json_edit(self.configs["github_private_key"], "app", self.uuid, author=self.author.value, description=self.description.value, author_link=self.github_profile.value, github_repo=self.github_repo.value, authorised_members=self.authorised_members)
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
@@ -1101,7 +1101,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 		self.suffix = suffix
 		self.authorised_members = authorised_members
 
-		data = github_reader(self.configs["github_token"], "data/community_themes/community_themes.json")
+		data = github_reader(self.configs["github_private_key"], "data/community_themes/community_themes.json")
 		for theme in data["themes"]:
 			if self.community_theme == f'{theme["theme"]["name"]} - {theme["theme"]["author"]}':
 				self.uuid = theme["theme"]["uuid"]
@@ -1163,9 +1163,9 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
 				webp_path = Path(f"tmp/{image_name}.webp")
 				await self.image_preview.save(webp_path)
 				
-			image_creation = push_image(self.configs["github_token"], "theme", image_name)
+			image_creation = push_image(self.configs["github_private_key"], "theme", image_name)
 
-		updated_json, download_link, image_link, theme_id = json_edit(self.configs["github_token"], "theme", self.uuid, author=self.author.value, description=self.description.value, author_link=self.github_profile.value, github_repo=self.github_repo.value, authorised_members=self.authorised_members)
+		updated_json, download_link, image_link, theme_id = json_edit(self.configs["github_private_key"], "theme", self.uuid, author=self.author.value, description=self.description.value, author_link=self.github_profile.value, github_repo=self.github_repo.value, authorised_members=self.authorised_members)
 
 		view = discord.ui.View()
 		style = discord.ButtonStyle.url
