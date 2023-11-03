@@ -42,7 +42,7 @@ def github_reader(private_key, path):
 
 
 	g, all_files = initialize_github(private_key)
-	repo = g.get_repo("Droptop-Four/test")
+	repo = g.get_repo("Droptop-Four/GlobalData")
 	
 	contents = repo.get_contents(path)
 	encoding = contents.encoding
@@ -115,7 +115,7 @@ def edit_release(private_key, version, cl_features, cl_modifications, cl_bugfixe
 	"""
 	
 	g, all_files = initialize_github(private_key)
-	repo = g.get_repo("Droptop-Four/test")
+	repo = g.get_repo("Droptop-Four/GlobalData")
 	
 	mainversion, miniversion = version
 	
@@ -591,6 +591,8 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				author_link = ""
 			if not github_repo:
 				github_repo = ""
+
+			
 	
 			if type == "app":
 				item_json = {
@@ -608,9 +610,22 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 						"secondary_link": "",
 						"image_url": image_link,
 						"authorised_members": authorised_members,
-						"hidden": 0
+						"hidden": 0,
+						"changelog": []
 					}
 				}
+
+				app_tags = item_json["app"]
+				if changenotes:
+					app_tags["changelog"].append({
+						"version": version,
+						"changenotes": changenotes
+					})
+
+					app_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
+				else:
+					app_tags["changelog"] = []
+				
 				community_json["apps"].append(item_json)
 				community_json["apps"].sort(key=lambda x: x["app"]["id"], reverse=True)
 			
@@ -630,9 +645,22 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 						"secondary_link": "",
 						"image_url": image_link,
 						"authorised_members": authorised_members,
-						"hidden": 0
+						"hidden": 0,
+						"changelog": []
 					}
 				}
+
+				theme_tags = item_json["theme"]
+				if changenotes:
+					theme_tags["changelog"].append({
+						"version": version,
+						"changenotes": changenotes
+					})
+
+					theme_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
+				else:
+					theme_tags["changelog"] = []
+				
 				community_json["themes"].append(item_json)
 				community_json["themes"].sort(key=lambda x: x["theme"]["id"], reverse=True)
 
