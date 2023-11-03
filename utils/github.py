@@ -278,7 +278,7 @@ def push_image(private_key, type, image_name):
 		return creation
 
 
-def json_update(private_key, type, *, authorised_members=None, title=None, author=None, description=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None, cl_features=None, cl_modifications=None, cl_bugfixes=None):
+def json_update(private_key, type, *, authorised_members=None, title=None, author=None, description=None, changenotes=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None, cl_features=None, cl_modifications=None, cl_bugfixes=None):
 	"""
 	Updates the json file with the new package information
 
@@ -289,6 +289,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 		title (str): The title of the package
 		author (str): The author of the package
 		description (str): The description of the package
+		changenotes (str): The changenotes of the version
 		rmskin_name (str): The name of the rmskin package
 		image_name (str): The name of the image
 		version (str): The version of the package
@@ -351,6 +352,14 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				app_tags["author_link"] = author_link
 				app_tags["official_link"] = github_repo
 				
+				if changenotes:
+					app_tags["changelog"].append({
+						"version": version,
+						"changenotes": changenotes
+					})
+
+					app_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
+
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_apps.json")
 				with open(temp_json, 'w+', encoding='utf-8') as f:
@@ -378,6 +387,15 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				app_tags["version"] = version
 				app_tags["author_link"] = author_link
 				app_tags["official_link"] = github_repo
+				
+				if changenotes:
+					app_tags["changelog"].append({
+						"version": version,
+						"changenotes": changenotes
+					})
+
+					app_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
+
 				
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_apps.json")
@@ -417,6 +435,14 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				theme_tags["author_link"] = author_link
 				theme_tags["official_link"] = github_repo
 				
+				if changenotes:
+					theme_tags["changelog"].append({
+						"version": version,
+						"changenotes": changenotes
+					})
+
+					theme_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
+
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_themes.json")
 				with open(temp_json, 'w+', encoding='utf-8') as f:

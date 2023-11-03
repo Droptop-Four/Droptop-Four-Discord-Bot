@@ -689,7 +689,13 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			placeholder="Description here...",
 			default=self.default_description
 		)
-		
+
+		self.changenotes = discord.ui.TextInput(
+			label="Changenotes",
+			style=discord.TextStyle.paragraph,
+			placeholder="Changenotes here..."
+		)
+
 		self.github_profile = discord.ui.TextInput(
 			label="Github Profile",
 			placeholder="https://github.com/your-nickname",
@@ -705,6 +711,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		)
 
 		self.add_item(self.description)
+		self.add_item(self.changenotes)
 		self.add_item(self.github_profile)
 		self.add_item(self.github_repo)
 
@@ -747,7 +754,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		if interaction.user.id in authorised_members:
 			rmskin_creation = push_rmskin(self.configs["github_private_key"], "app", self.rmskin_name)
 			image_creation = push_image(self.configs["github_private_key"], "app", image_name)
-			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_private_key"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_private_key"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, changenotes= self.changenotes.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
@@ -816,7 +823,14 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 			default=self.default_description,
 			required=False
 		)
-	
+		
+		self.changenotes = discord.ui.TextInput(
+			label="Changenotes",
+			style=discord.TextStyle.paragraph,
+			placeholder="Changenotes here...",
+			required=False
+		)
+		
 		self.github_profile = discord.ui.TextInput(
 			label="Github Profile",
 			placeholder="https://github.com/your-nickname",
@@ -832,6 +846,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 		)
 
 		self.add_item(self.description)
+		self.add_item(self.changenotes)
 		self.add_item(self.github_profile)
 		self.add_item(self.github_repo)
 
@@ -870,7 +885,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				webp_path = to_webp(image_path)
 				image_creation = push_image(self.configs["github_private_key"], "theme", image_name)
 				
-				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, changenotes= self.changenotes.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
