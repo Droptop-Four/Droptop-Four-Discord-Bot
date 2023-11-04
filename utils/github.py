@@ -115,7 +115,7 @@ def edit_release(private_key, version, cl_features, cl_modifications, cl_bugfixe
 	"""
 	
 	g, all_files = initialize_github(private_key)
-	repo = g.get_repo("Droptop-Four/GlobalData")
+	repo = g.get_repo("Droptop-Four/Droptop-Four")
 	
 	mainversion, miniversion = version
 	
