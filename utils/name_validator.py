@@ -96,10 +96,6 @@ def img_rename(type, name):
 		name (str): The new name of the image
 	"""
 	
-	name = name.replace("_-_", "-")
-	if type == "app":
-		name = name.replace("_Droptop_App.rmskin", "")
-	else:
-		name = name.replace("_Droptop_Theme.rmskin", "")
+	name = name.replace(" ", "_")
 	
 	return name
