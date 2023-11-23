@@ -278,7 +278,7 @@ def push_image(private_key, type, image_name):
 		return creation
 
 
-def json_update(private_key, type, *, authorised_members=None, title=None, author=None, description=None, changenotes=None, rmskin_name=None, image_name=None, version=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None, cl_features=None, cl_modifications=None, cl_bugfixes=None):
+def json_update(private_key, type, *, authorised_members=None, title=None, author=None, description=None, changenotes=None, rmskin_name=None, image_name=None, version=None, uuid=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None, cl_features=None, cl_modifications=None, cl_bugfixes=None):
 	"""
 	Updates the json file with the new package information
 
@@ -293,6 +293,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 		rmskin_name (str): The name of the rmskin package
 		image_name (str): The name of the image
 		version (str): The version of the package
+  		uuid (str): The uuid of the package
 		author_link (str): The link of the author
 		github_repo (str): The link of the repo
 		ann_date (float): The date of the announcement
@@ -336,7 +337,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 			app_tags = item["app"]
 			itemlist.append(app_tags["name"])
 			idlist.append(app_tags["id"])
-			if app_tags["name"] == title and version != app_tags["version"]:
+			if app_tags["uuid"] == uuid and version != app_tags["version"]:
 
 				if not description:
 					description = ""
@@ -370,9 +371,9 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
-				uuid = app_tags["uuid"]
+				#uuid = app_tags["uuid"]
 				temp_json.unlink()
-			elif app_tags["name"] == title and version == app_tags["version"]:
+			elif app_tags["uuid"] == uuid and version == app_tags["version"]:
 				
 				if not description:
 					description = ""
@@ -407,7 +408,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
-				uuid = app_tags["uuid"]
+				#uuid = app_tags["uuid"]
 				temp_json.unlink()
 			else:
 				pass
@@ -566,7 +567,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 	
 	if type in ["app", "theme"]:
 
-		uuid = generate_uuid_string()
+		#uuid = generate_uuid_string()
 	
 		if title in itemlist:
 			new_item = False
@@ -630,6 +631,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				community_json["apps"].sort(key=lambda x: x["app"]["id"], reverse=True)
 			
 			else:
+				uuid = generate_uuid_string()
 				item_json = {
 					"theme": {
 						"id": item_id,

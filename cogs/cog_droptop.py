@@ -434,7 +434,7 @@ class DroptopCommands(commands.Cog):
 	@community_app_group.command(name="delete")
 	@app_commands.describe(
 		community_app = "The name of the community app you can delete",
-		delete_release_channel = "If to delete the release channel"
+		delete_release_channel = "If to delete the release channel (default yes)"
 	)
 	@app_commands.autocomplete(community_app=authorised_community_app_autocomplete, delete_release_channel=delete_channel_autocomplete)
 	async def community_app_delete(self, interaction: discord.Interaction, community_app: str, delete_release_channel: Optional[str] = "True"):
@@ -450,16 +450,16 @@ class DroptopCommands(commands.Cog):
 			for app in data["apps"]:
 				if community_app == f'{app["app"]["name"]} - {app["app"]["author"]}':
 					uuid = app["app"]["uuid"]
-			json_delete(self.configs["github_private_key"], "app", uuid)
-			rmskin_delete(self.configs["github_private_key"], "app", community_app)
-			image_delete(self.configs["github_private_key"], "app", community_app)
+			json_delete(self.bot.configs["github_private_key"], "app", uuid)
+			rmskin_delete(self.bot.configs["github_private_key"], "app", community_app)
+			image_delete(self.bot.configs["github_private_key"], "app", community_app)
 			if delete_release_channel == "True":
 				channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
 				threads = []
-				for thread in self.channel.threads:
+				for thread in channel.threads:
 					threads.append(thread)
 		
-				async for thread in self.channel.archived_threads():
+				async for thread in channel.archived_threads():
 					threads.append(thread)
 				
 				if community_app in threads:
@@ -627,16 +627,16 @@ class DroptopCommands(commands.Cog):
 			for theme in data["themes"]:
 				if community_theme == f'{theme["theme"]["name"]} - {theme["theme"]["author"]}':
 					uuid = theme["theme"]["uuid"]
-			json_delete(self.configs["github_private_key"], "theme", uuid)
-			rmskin_delete(self.configs["github_private_key"], "theme", community_theme)
-			image_delete(self.configs["github_private_key"], "theme", community_theme)
+			json_delete(self.bot.configs["github_private_key"], "theme", uuid)
+			rmskin_delete(self.bot.configs["github_private_key"], "theme", community_theme)
+			image_delete(self.bot.configs["github_private_key"], "theme", community_theme)
 			if delete_release_channel == "True":
 				channel = self.bot.get_channel(self.bot.configs["themereleases_channel"])
 				threads = []
-				for thread in self.channel.threads:
+				for thread in channel.threads:
 					threads.append(thread)
 		
-				async for thread in self.channel.archived_threads():
+				async for thread in channel.archived_threads():
 					threads.append(thread)
 				
 				if community_theme in threads:
@@ -666,19 +666,20 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			self.app_title = config['rmskin']['Name']
 			self.author = config['rmskin']['Author']
 			self.version = config['rmskin']['Version']
+			self.UUID = config['rmskin']['GUID']
 	
 		ini_path.unlink()
 	
 		data = github_reader(self.configs["github_private_key"], "data/community_apps/community_apps.json")
 		for app in data["apps"]:
-			if self.app_title == app["app"]["name"]:
-				self.uuid = app["app"]["uuid"]
+			if self.UUID == app["app"]["uuid"]:
+				#self.uuid = app["app"]["uuid"]
 				self.default_description = app["app"]["desc"]
 				self.default_github_profile = app["app"]["author_link"]
 				self.default_github_repo = app["app"]["official_link"]
 				break
 			else:
-				self.uuid = ""
+				#self.uuid = ""
 				self.default_description = ""
 				self.default_github_profile = ""
 				self.default_github_repo = ""
@@ -751,7 +752,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		if interaction.user.id in authorised_members:
 			rmskin_creation = push_rmskin(self.configs["github_private_key"], "app", self.rmskin_name)
 			image_creation = push_image(self.configs["github_private_key"], "app", image_name)
-			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_private_key"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, changenotes= self.changenotes.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_private_key"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, changenotes= self.changenotes.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, uuid=self.UUID, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
@@ -762,7 +763,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			embed = discord.Embed(title=f"{self.app_title} - {self.author}", description=f"{self.description.value}", color=discord.Color.from_rgb(75, 215, 100))
 			embed.set_author(name="New Community App Release", url=self.configs["website"]+"/community-apps")
 			embed.add_field(name="Version: ", value=self.version, inline=False)
-			embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
+			embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.UUID} )", icon_url=interaction.user.avatar.url)
 			embed.set_image(url=image_link)
 			all_threads = []
 			for thread in self.channel.threads:
