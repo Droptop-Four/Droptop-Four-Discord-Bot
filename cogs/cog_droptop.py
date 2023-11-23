@@ -919,7 +919,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				webp_path = to_webp(image_path)
 				image_creation = push_image(self.configs["github_private_key"], "theme", image_name)
 				
-				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, changenotes= self.changenotes.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, changenotes=self.changenotes.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
@@ -932,6 +932,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				else:
 					embed = discord.Embed(title=f"{self.theme_title} - {self.author}", description="", color=discord.Color.from_rgb(75, 215, 100))
 				embed.set_author(name="New Community Theme Release", url=self.configs["website"]+"/community-themes")
+				embed.add_field(name="Changenotes:", value=self.changenotes.value, inline=False)
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
@@ -964,7 +965,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				await self.image_preview.save(webp_path)
 				image_creation = push_image(self.configs["github_private_key"], "theme", image_name)
 				
-				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, rmskin_name=rmskin_name, image_name=image_name, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+				updated_json, download_link, image_link, theme_id, uuid = json_update(self.configs["github_private_key"], "theme", authorised_members=authorised_members, title=self.theme_title, author=self.author, description=self.description.value, changenotes=self.changenotes.value, rmskin_name=rmskin_name, image_name=image_name, version=version, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 				
 				view = discord.ui.View()
 				style = discord.ButtonStyle.url
@@ -977,6 +978,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				else:
 					embed = discord.Embed(title=f"{self.theme_title} - {self.author}", description="", color=discord.Color.from_rgb(75, 215, 100))
 				embed.set_author(name="New Community Theme Release", url=self.configs["website"]+"/community-themes")
+				embed.add_field(name="Changenotes:", value=self.changenotes.value, inline=False)
 				embed.set_footer(text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )", icon_url=interaction.user.avatar.url)
 				image_file = await self.image_preview.to_file(filename="image.png")
 				embed.set_image(url="attachment://image.png")
