@@ -536,8 +536,8 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 			"bug_fixes": cl_bugfixes
 		}
 		changelog_json["changelog"].append(item_json)
-		changelog_json["changelog"].sort(key=lambda x: x["version"], reverse=True)
-
+		changelog_json["changelog"].sort(key=lambda x: tuple(map(int, x["version"].split('.'))), reverse=True)
+		
 		json.dumps(changelog_json, indent = 4)
 		temp_json = Path("tmp/temp_json.json")
 		with open(temp_json, 'w+', encoding='utf-8') as f:
