@@ -767,7 +767,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 			ini_path.unlink()
 				
 			preview_image = f"Skins\Droptop Community Apps\Apps\{app_title.replace(' ', '_')}-{author.replace(' ', '_')}\Images\PreviewImage.png"
-			image_name = f"{app_title}-{author}"
+			image_name = f"{app_title.replace(' ', '_')}-{author.replace(' ', '_')}"
 			image_path = Path(f"tmp/{image_name}.png")
 			rmskin_archive.extract(preview_image, "tmp")
 			os.rename(f"tmp/{preview_image}", image_path)
@@ -785,7 +785,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 		if interaction.user.id in authorised_members:
 			rmskin_creation = push_rmskin(self.configs["github_private_key"], "app", self.rmskin_name)
 			image_creation = push_image(self.configs["github_private_key"], "app", image_name)
-			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_private_key"], "app", authorised_members=authorised_members, title=self.app_title, author=self.author, description=self.description.value, changenotes= self.changenotes.value, rmskin_name=self.rmskin_name, image_name=image_name, version=self.version, uuid=UUID, author_link=self.github_profile.value, github_repo=self.github_repo.value)
+			updated_json, download_link, image_link, app_id, uuid = json_update(self.configs["github_private_key"], "app", authorised_members=authorised_members, title=app_title, author=author, description=self.description.value, changenotes= self.changenotes.value, rmskin_name=self.rmskin_name, image_name=image_name, version=version, uuid=UUID, author_link=self.github_profile.value, github_repo=self.github_repo.value)
 
 			view = discord.ui.View()
 			style = discord.ButtonStyle.url
