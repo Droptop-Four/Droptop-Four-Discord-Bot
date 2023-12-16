@@ -461,8 +461,13 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 	
 	elif type == "announcement":
 
+		if ann_date is not None:
+			ann_date = float(ann_date)
+		if ann_expiration is not None:
+			ann_expiration = float(ann_expiration)
+
 		if ann_scope == "Website":
-			if ann_expiration == "None":
+			if not ann_expiration:
 				announcements_json["website"] = {
 					"date": float(ann_date),
 					"expiration": f"{ann_expiration}",
@@ -471,37 +476,37 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				}
 			else:
 				announcements_json["website"] = {
-					"date": float(ann_date),
-					"expiration": float(ann_expiration),
+					"date": ann_date,
+					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
 		elif ann_scope == "App":
-			if ann_expiration == "None":
+			if not ann_expiration:
 				announcements_json["app"] = {
-					"date": float(ann_date),
-					"expiration": f"{ann_expiration}",
+					"date": ann_date,
+					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
 			else:
 				announcements_json["app"] = {
-					"date": float(ann_date),
-					"expiration": float(ann_expiration),
+					"date": ann_date,
+					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
 		else:
-			if ann_expiration == "None":
+			if not ann_expiration:
 				announcements_json = {
 					"app": {
-						"date": float(ann_date),
-						"expiration": f"{ann_expiration}",
+						"date": ann_date,
+						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					},
 					"website": {
-						"date": float(ann_date),
+						"date": ann_date,
 						"expiration": f"{ann_expiration}",
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
@@ -510,14 +515,14 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 			else:
 				announcements_json = {
 					"app": {
-						"date": float(ann_date),
-						"expiration": float(ann_expiration),
+						"date": ann_date,
+						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					},
 					"website": {
-						"date": float(ann_date),
-						"expiration": float(ann_expiration),
+						"date": ann_date,
+						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					}

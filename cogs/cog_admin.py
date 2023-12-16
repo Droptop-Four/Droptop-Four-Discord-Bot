@@ -357,5 +357,20 @@ class AdminCommands(commands.Cog):
 		await interaction.response.send_modal(NewAnnouncement(self.bot.configs, type, scope))
 
 
+	@app_commands.command(name="remove-announcement")
+	@app_commands.describe(
+		scope="Scopes"
+	)
+	@app_commands.guild_only()
+	@app_commands.autocomplete(scope=scope_autocomplete)
+	async def remove_announcement(self, interaction: discord.Interaction, scope: str):
+		""" Removes an announcement on the website/app """
+	
+		await interaction.response.send_message("Removing the announcement...", ephemeral=True)
+		json_update(self.bot.configs["github_private_key"], "announcement", ann_date=None, ann_expiration=None, announcement="", ann_type="", ann_scope=scope)
+	
+		await interaction.edit_original_response(content=f"The announcement was removed for the {scope} scope!")
+
+
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(AdminCommands(bot))
