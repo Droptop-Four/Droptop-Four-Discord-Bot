@@ -469,8 +469,8 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 		if ann_scope == "Website":
 			if not ann_expiration:
 				announcements_json["website"] = {
-					"date": float(ann_date),
-					"expiration": f"{ann_expiration}",
+					"date": ann_date,
+					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
 					"type": f"{ann_type}"
 				}
@@ -507,7 +507,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 					},
 					"website": {
 						"date": ann_date,
-						"expiration": f"{ann_expiration}",
+						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
 						"type": f"{ann_type}"
 					}
