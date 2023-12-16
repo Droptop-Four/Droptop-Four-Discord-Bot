@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ext.tasks import loop
 
-from utils import github_reader, json_update, version_validator, sync_files, edit_release
+from utils import github_reader, json_update, version_validator, sync_files, edit_release, validate_date
 from typing import List
 
 import traceback
@@ -163,7 +163,7 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
 	def __init__(self, configs, type, scope):
 		super().__init__()
 		self.configs = configs
-		self.type = type.lower
+		self.type = type.lower()
 		self.scope = scope
 	
 		self.date = discord.ui.TextInput(
@@ -188,36 +188,44 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
 		self.add_item(self.expiration)
 		self.add_item(self.announcement)
 
-	async def on_submit(self, interaction: discord.Interaction):
+		async def on_submit(self, interaction: discord.Interaction):
 
-		await interaction.response.send_message("New announcement was created", ephemeral=True)
+			await interaction.response.send_message("Creating new announcement", ephemeral=True)
 
-		date_raw = self.date.value
-		expiration_raw = self.expiration.value
-		announcement_raw = self.announcement.value
+			date_raw = self.date.value
+			expiration_raw = self.expiration.value
+			announcement_raw = self.announcement.value
 
-		date_day = date_raw[:2]
-		date_month = date_raw[3:5]
-		date_year = date_raw[6:]
-		
-		date = date_year + '.' + date_month + date_day
-		
-		if not expiration_raw:
-			expiration = "None"
-		else:
-			expiration_day = expiration_raw[:2]
-			expiration_month = expiration_raw[3:5]
-			expiration_year = expiration_raw[6:]
-		
-			expiration = expiration_year + '.' + expiration_month + expiration_day
+			if validate_date(date_raw) and validate_date(expiration_raw):
 
-		announcement = announcement_raw
+				date_day = date_raw[:2]
+				date_month = date_raw[3:5]
+				date_year = date_raw[6:]
 
-		json_update(self.configs["github_private_key"], "announcement", ann_date=date, ann_expiration=expiration, announcement=announcement, ann_type=self.type, ann_scope=self.scope)
+				date = date_year + '.' + date_month + date_day
 
-	async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
-		await interaction.followup.send(f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True)
-		traceback.print_tb(error.__traceback__)
+				if not expiration_raw:
+					expiration = "None"
+				else:
+					expiration_day = expiration_raw[:2]
+					expiration_month = expiration_raw[3:5]
+					expiration_year = expiration_raw[6:]
+
+					expiration = expiration_year + '.' + expiration_month + expiration_day
+
+				announcement = announcement_raw
+
+				json_update(self.configs["github_private_key"], "announcement", ann_date=date, ann_expiration=expiration, announcement=announcement, ann_type=self.type, ann_scope=self.scope)
+
+				await interaction.edit_original_response(content="New announcement created")
+
+			else:
+				await interaction.followup.send("Invalid dates\nThe dates you entered are not formatted correctly: they should be in the `dd/mm/yy` format!", ephemeral=True)
+
+
+		async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
+			await interaction.followup.send(f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True)
+			traceback.print_tb(error.__traceback__)
 		
 
 class AdminCommands(commands.Cog):

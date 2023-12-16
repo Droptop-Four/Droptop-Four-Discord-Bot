@@ -460,7 +460,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				pass
 	
 	elif type == "announcement":
-		
+
 		if ann_scope == "Website":
 			if ann_expiration == "None":
 				announcements_json["website"] = {
@@ -522,7 +522,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 						"type": f"{ann_type}"
 					}
 				}
-		
+
 		json_content = json.dumps(announcements_json, indent = 4)
 		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
 
