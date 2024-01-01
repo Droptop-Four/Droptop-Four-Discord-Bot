@@ -439,7 +439,7 @@ class DroptopCommands(commands.Cog):
 				await interaction.response.send_modal(NewAppRelease(self.bot.configs, rmskin_path, rmskin_name, channel, new, default_description, default_github_profile, default_github_repo))
 
 			async def cancel_callback(interaction):
-				await interaction.response.send_message("Action cancelled...")
+				await interaction.response.send_message("Action cancelled...", ephemeral=True)
 
 			confirm_button = discord.ui.Button(label="Confirm" , style=discord.ButtonStyle.green)
 			cancel_button = discord.ui.Button(label="Cancel", style=discord.ButtonStyle.red)
@@ -958,7 +958,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 				rmskin_name = rmskin_rename("theme", self.rmskin_package.filename)
 				package_path = Path(f"tmp/{rmskin_name}")
 				await self.rmskin_package.save(package_path)
-				rmskin_creation = push_rmskin(self.configs["github_private_key"], "theme", image_name)
+				rmskin_creation = push_rmskin(self.configs["github_private_key"], "theme", rmskin_name)
 				
 				image_name = img_rename("theme", self.rmskin_package.filename)
 				webp_path = Path(f"tmp/{image_name}.webp")
