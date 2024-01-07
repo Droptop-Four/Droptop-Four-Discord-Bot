@@ -35,6 +35,9 @@
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot/blob/master/LICENSE"><img
             src="https://img.shields.io/github/license/66Bunz/Droptop-Four-Discord-Bot.svg" alt="License"></a>
     ·
+    <a href="#"><img 
+            src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/66Bunz/0082c3b7bfd24146abe41c5ff336164f/raw/Droptop-Four-Discord-Bot.json"></a>
+    ·
     <a href="https://GitHub.com/66Bunz/Droptop-Four-Discord-Bot/issues/"><img
             src="https://img.shields.io/github/issues/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Issues"></a>
     ·
