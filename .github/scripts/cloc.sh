@@ -13,7 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 # for the specified languages. You will need to change this accordingly.
 # For C++, you could use "C++,C/C++ Header" for example.
 # We are only interested in the summary, therefore the tail -1
-SUMMARY="$(cloc "${SCRIPT_DIR}" --include-lang="JavaScript" --md | tail -1)"
+SUMMARY="$(cloc "${SCRIPT_DIR}" --md | tail -1)"
 
 # The $SUMMARY is one line of a markdown table and looks like this:
 # SUM:|101|3123|2238|10783
