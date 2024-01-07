@@ -23,4 +23,4 @@ jobs:
           filename: ${{ secrets.REPO_NAME }}.json
           label: Lines of Code
           message: ${{ env.CODE_LINES }}
-          color: green
+          color: "#43be15"
