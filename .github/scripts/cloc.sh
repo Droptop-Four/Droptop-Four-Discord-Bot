@@ -7,7 +7,7 @@
 # Some parts below need to be adapted to your project!
 
 # Get the location of this script.
-SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+SCRIPT_DIR="$(pwd)"
 
 # Run cloc - this counts code lines, blank lines and comment lines
 # for the specified languages. You will need to change this accordingly.
