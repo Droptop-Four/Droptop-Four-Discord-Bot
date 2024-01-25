@@ -3,8 +3,8 @@
 	Discord: https://discord.gg/hQGDm4F5Ef
 	Author: Bunz (bunz#3066)
 	Date created: 21/10/2022
-	Bot Version: 3.22
-	Python Version: 3.10.8
+	Bot Version: 4.0-alpha.1
+	Python Version: 3.11.4
 	Cogs: 5
 '''
 
@@ -16,9 +16,6 @@ from discord.ext import commands
 import json, os, re
 
 from utils import initialize_mongodb, date_time, command_mention, initialize_firebase, initialize_logger
-
-from keep_alive import keep_alive
-
 
 from dotenv import load_dotenv
 
@@ -180,7 +177,6 @@ async def on_tree_error(interaction, error):
 
 if db_status[0] and firebase_status[0] and logger_status:
 	try:
-		keep_alive()
 		bot.run(bot.configs["discord_token"])
 	except discord.HTTPException as e:
 		if e.status == 429:
