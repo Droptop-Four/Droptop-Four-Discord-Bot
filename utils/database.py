@@ -24,5 +24,5 @@ def initialize_mongodb(id, cluster, logger):
 		return True, config_collection
 		
 	except Exception as e:
-		logger.critical(f"Connection to the database failed!\n{e}")
+		logger.critical(f"Connection to the database failed! -> {e}")
 		return False, e

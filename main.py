@@ -43,11 +43,11 @@ if db_status[0]:
 	bot.configs = bot.config_collection.find_one({},{"_id": 0})
 
 	firebase_status = initialize_firebase(json.loads(bot.configs["firebase_creds"]), logger)
+
+	bot.cari_logo = bot.configs["cari_logo"]
+	bot.droptopfour_logo = bot.configs["droptopfour_logo"]
 else:
 	firebase_status = False, ""
-
-bot.cari_logo = bot.configs["cari_logo"]
-bot.droptopfour_logo = bot.configs["droptopfour_logo"]
 
 
 @bot.event
@@ -176,6 +176,8 @@ async def on_tree_error(interaction, error):
 
 
 if db_status[0] and firebase_status[0] and logger_status:
+	print("Bot is ready")
+	logger.info("Bot is ready")
 	try:
 		bot.run(bot.configs["discord_token"])
 	except discord.HTTPException as e:
@@ -184,3 +186,15 @@ if db_status[0] and firebase_status[0] and logger_status:
 			logger.warning("Rate limit detected. Restarting...")
 			os.kill(1, 1)
 		logger.warning(e)
+else:
+	print("Bot is not ready")
+	logger.warning("Bot is not ready")
+	if not db_status[0]:
+		print("MongoDB is not ready")
+		logger.warning("MongoDB is not ready")
+	if not firebase_status[0]:
+		print("Firebase is not ready")
+		logger.warning("Firebase is not ready")
+	if not logger_status:
+		print("Logger is not ready")
+		logger.warning("Logger is not ready")

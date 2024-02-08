@@ -26,6 +26,7 @@ def initialize_logger():
 	handler.setFormatter(formatter)
 	logger.addHandler(handler)
 	
+	logger.info("------------------------------")
 	logger.info("Logger succesfully initialized")
-	
+
 	return True, logger
