@@ -138,3 +138,5 @@ dmypy.json
 *.log
 *.log.*
 !*.log.*[^0-9]*
+
+.idea/
