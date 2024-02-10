@@ -140,3 +140,4 @@ dmypy.json
 !*.log.*[^0-9]*
 
 .idea/
+.vscode/
