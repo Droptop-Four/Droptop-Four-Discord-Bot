@@ -19,7 +19,7 @@ def initialize_github(private_key):
 		all_files (list): Empty list
 	"""
 
-	auth = github.Auth.AppAuth(417792, private_key)
+	auth = github.Auth.AppAuth(417685, private_key)
 	gi = github.GithubIntegration(auth=auth)
 	installation = gi.get_installations()[0]
 	g = installation.get_github_for_installation()
@@ -31,22 +31,21 @@ def initialize_github(private_key):
 def github_reader(private_key, path):
 	"""
 	Reads a file from github and returns it as a json object.
-	
+
 	Args:
 		private_key (str): The authentication private_key
 		path (str): Path to file on github
-	
+
 	Returns:
 		data: (json): JSON object of file contents
 	"""
 
-
 	g, all_files = initialize_github(private_key)
 	repo = g.get_repo("Droptop-Four/GlobalData")
-	
+
 	contents = repo.get_contents(path)
 	encoding = contents.encoding
-	if encoding == 'base64':
+	if encoding == "base64":
 		file_content = base64.b64decode(contents.content).decode()
 	data = json.loads(file_content)
 	return data
@@ -63,7 +62,7 @@ def get_releases_downloads(private_key):
 		basic_downloads (int): The number of downloads of the Basic variant
 		update_downloads (int): The number of downloads of the Update variant
 	"""
-	
+
 	g, all_files = initialize_github(private_key)
 	repo = g.get_repo("Droptop-Four/Droptop-Four")
 	basic_downloads = 0
@@ -71,7 +70,7 @@ def get_releases_downloads(private_key):
 	releases = repo.get_releases()
 	for release in releases:
 		assets = release.get_assets()
-	
+
 		basic_downloads += assets[0].download_count
 		update_downloads += assets[1].download_count
 
@@ -88,7 +87,7 @@ def get_stars(private_key):
 	Returns:
 		stars (int): The number of stars
 	"""
-	
+
 	g, all_files = initialize_github(private_key)
 	org = g.get_organization("Droptop-Four")
 	repos = org.get_repos()
@@ -102,53 +101,52 @@ def get_stars(private_key):
 def edit_release(private_key, version, cl_features, cl_modifications, cl_bugfixes):
 	"""
 	Edits the specific release on Github
-	
+
 	Args:
 		private_key (str): The authentication private_key
 		version (str): The version of the package
 		cl_features (list): A list of features of a droptop new version
 		cl_modifications (list): A list of modifications of a droptop new version
 		cl_bugfixes (list): A list of bug fixes of a droptop new version
-	
+
 	Returns:
 		edited (bool): If the release was edited
 	"""
-	
+
 	g, all_files = initialize_github(private_key)
 	repo = g.get_repo("Droptop-Four/Droptop-Four")
-	
+
 	mainversion, miniversion = version
-	
+
 	try:
 		release = repo.get_release(f"v{mainversion}.{miniversion}")
 		message = ""
-	
+
 		if (len(cl_features) >= 1) and (cl_features[0] != ""):
 			message += "## New features 🆕\n"
 			for feature in cl_features:
 				message += f"- {feature}\n"
-	
+
 		if (len(cl_modifications) >= 1) and (cl_modifications[0] != ""):
 			message += "## Modifications ⚠️\n"
 			for modification in cl_modifications:
 				message += f"- {modification}\n"
-	
+
 		if (len(cl_bugfixes) >= 1) and (cl_bugfixes[0] != ""):
 			message += "## Bug fixes 🪲\n"
 			for bugfix in cl_bugfixes:
 				message += f"- {bugfix}\n"
-	
+
 		message += f"\n\n# >>> :arrow_down: [Update Droptop](https://github.com/Droptop-Four/Droptop-Four/releases/download/v{mainversion}.{miniversion}/Droptop_Update.rmskin) :arrow_down: <<<\n"
-	
+
 		release.update_release(
-			name=f"Droptop Four v{mainversion}.{miniversion}",
-			message=message
+			name=f"Droptop Four v{mainversion}.{miniversion}", message=message
 		)
 		edited = True
-	
+
 	except:
 		edited = False
-	
+
 	return edited
 
 
@@ -162,7 +160,7 @@ def get_followers(private_key):
 	Returns:
 		followers (int): The number of followers
 	"""
-	
+
 	g, all_files = initialize_github(private_key)
 	org = g.get_organization("Droptop-Four")
 	followers = org.followers
@@ -186,11 +184,11 @@ def push_rmskin(private_key, type, package_name):
 	g, all_files = initialize_github(private_key)
 	if type == "app":
 		repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
-		git_prefix = 'Apps/'
+		git_prefix = "Apps/"
 	else:
 		repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
-		git_prefix = 'Themes/'
-	
+		git_prefix = "Themes/"
+
 	contents = repo.get_contents("")
 
 	while contents:
@@ -199,22 +197,28 @@ def push_rmskin(private_key, type, package_name):
 			contents.extend(repo.get_contents(file_content.path))
 		else:
 			file = file_content
-			all_files.append(str(file).replace('ContentFile(path="','').replace('")',''))
+			all_files.append(
+				str(file).replace('ContentFile(path="', "").replace('")', "")
+			)
 
-	with open(f'tmp/{package_name}', 'rb') as file:
+	with open(f"tmp/{package_name}", "rb") as file:
 		content = file.read()
 
 	git_file = git_prefix + package_name
-	
+
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
+			repo.update_file(
+				contents.path, f"{version_date()}", content, contents.sha, branch="main"
+			)
 		else:
-			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
+			repo.update_file(
+				contents.path, f"{version_date()}", content, contents.sha, branch="main"
+			)
 		creation = False
 		return creation
-	
+
 	else:
 		if type == "app":
 			repo.create_file(git_file, f"{version_date()}", content, branch="main")
@@ -239,12 +243,12 @@ def push_image(private_key, type, image_name):
 
 	g, all_files = initialize_github(private_key)
 	repo = g.get_repo("Droptop-Four/GlobalData")
-	
+
 	if type == "app":
-		git_prefix = 'data/community_apps/img/'
+		git_prefix = "data/community_apps/img/"
 	else:
-		git_prefix = 'data/community_themes/img/'
-	
+		git_prefix = "data/community_themes/img/"
+
 	contents = repo.get_contents("")
 
 	while contents:
@@ -253,22 +257,28 @@ def push_image(private_key, type, image_name):
 			contents.extend(repo.get_contents(file_content.path))
 		else:
 			file = file_content
-			all_files.append(str(file).replace('ContentFile(path="','').replace('")',''))
+			all_files.append(
+				str(file).replace('ContentFile(path="', "").replace('")', "")
+			)
 
-	with open(f'tmp/{image_name}.webp', 'rb') as file:
+	with open(f"tmp/{image_name}.webp", "rb") as file:
 		content = file.read()
-	
+
 	git_file = git_prefix + image_name + ".webp"
-	
+
 	if git_file in all_files:
 		contents = repo.get_contents(git_file)
 		if type == "app":
-			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
+			repo.update_file(
+				contents.path, f"{version_date()}", content, contents.sha, branch="main"
+			)
 		else:
-			repo.update_file(contents.path, f"{version_date()}", content, contents.sha, branch="main")
+			repo.update_file(
+				contents.path, f"{version_date()}", content, contents.sha, branch="main"
+			)
 		creation = False
 		return creation
-	
+
 	else:
 		if type == "app":
 			repo.create_file(git_file, f"{version_date()}", content, branch="main")
@@ -278,7 +288,30 @@ def push_image(private_key, type, image_name):
 		return creation
 
 
-def json_update(private_key, type, *, authorised_members=None, title=None, author=None, description=None, changenotes=None, rmskin_name=None, image_name=None, version=None, uuid=None, author_link=None, github_repo=None, ann_date=None, ann_expiration=None, announcement=None, ann_type=None, ann_scope=None, cl_features=None, cl_modifications=None, cl_bugfixes=None):
+def json_update(
+	private_key,
+	type,
+	*,
+	authorised_members=None,
+	title=None,
+	author=None,
+	description=None,
+	changenotes=None,
+	rmskin_name=None,
+	image_name=None,
+	version=None,
+	uuid=None,
+	author_link=None,
+	github_repo=None,
+	ann_date=None,
+	ann_expiration=None,
+	announcement=None,
+	ann_type=None,
+	ann_scope=None,
+	cl_features=None,
+	cl_modifications=None,
+	cl_bugfixes=None,
+):
 	"""
 	Updates the json file with the new package information
 
@@ -293,7 +326,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 		rmskin_name (str): The name of the rmskin package
 		image_name (str): The name of the image
 		version (str): The version of the package
-  		uuid (str): The uuid of the package
+		uuid (str): The uuid of the package
 		author_link (str): The link of the author
 		github_repo (str): The link of the repo
 		ann_date (float): The date of the announcement
@@ -301,10 +334,10 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 		announcement (str): The announcement
 		ann_type (str): The type of announcement [Important, Warning, Info]
 		ann_scope (str): The scope of the announcement [App, Website, Website & App]
-  		cl_features (list): A list of features of a droptop new version
+		cl_features (list): A list of features of a droptop new version
 		cl_modifications (list): A list of modifications of a droptop new version
-  		cl_bugfixes (list): A list of bug fixes of a droptop new version
-	
+		cl_bugfixes (list): A list of bug fixes of a droptop new version
+
 	Returns:
 		creation (bool): if the app inside of the json was created (True) or it was already present and was only updated (False)
 	"""
@@ -315,10 +348,14 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 
 	if type == "app":
 		content = repo.get_contents("data/community_apps/community_apps.json")
-		community_json = github_reader(private_key, "data/community_apps/community_apps.json")
+		community_json = github_reader(
+			private_key, "data/community_apps/community_apps.json"
+		)
 	elif type == "theme":
 		content = repo.get_contents("data/community_themes/community_themes.json")
-		community_json = github_reader(private_key, "data/community_themes/community_themes.json")
+		community_json = github_reader(
+			private_key, "data/community_themes/community_themes.json"
+		)
 	elif type == "announcement":
 		content = repo.get_contents("data/announcements.json")
 		announcements_json = github_reader(private_key, "data/announcements.json")
@@ -327,7 +364,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 		changelog_json = github_reader(private_key, "data/changelog.json")
 	else:
 		content = repo.get_contents("data/version.json")
-	
+
 	itemlist = []
 	idlist = []
 	new_item = False
@@ -347,34 +384,39 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 					author_link = ""
 				if not github_repo:
 					github_repo = ""
-				
+
 				app_tags["desc"] = description
 				app_tags["version"] = version
 				app_tags["author_link"] = author_link
 				app_tags["official_link"] = github_repo
-				
+
 				if changenotes:
-					app_tags["changelog"].append({
-						"version": version,
-						"changenotes": changenotes
-					})
+					app_tags["changelog"].append(
+						{"version": version, "changenotes": changenotes}
+					)
 
 					app_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
 
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_apps.json")
-				with open(temp_json, 'w+', encoding='utf-8') as f:
+				with open(temp_json, "w+", encoding="utf-8") as f:
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
-				#uuid = app_tags["uuid"]
+				# uuid = app_tags["uuid"]
 				temp_json.unlink()
 			elif app_tags["uuid"] == uuid and version == app_tags["version"]:
-				
+
 				if not description:
 					description = ""
 				if not version:
@@ -383,32 +425,36 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 					author_link = ""
 				if not github_repo:
 					github_repo = ""
-				
+
 				app_tags["desc"] = description
 				app_tags["version"] = version
 				app_tags["author_link"] = author_link
 				app_tags["official_link"] = github_repo
-				
+
 				if changenotes:
-					app_tags["changelog"].append({
-						"version": version,
-						"changenotes": changenotes
-					})
+					app_tags["changelog"].append(
+						{"version": version, "changenotes": changenotes}
+					)
 
 					app_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
 
-				
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_apps.json")
-				with open(temp_json, 'w+', encoding='utf-8') as f:
+				with open(temp_json, "w+", encoding="utf-8") as f:
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
-				#uuid = app_tags["uuid"]
+				# uuid = app_tags["uuid"]
 				temp_json.unlink()
 			else:
 				pass
@@ -419,7 +465,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 			theme_tags = item["theme"]
 			itemlist.append(theme_tags["name"])
 			idlist.append(theme_tags["id"])
-			
+
 			if theme_tags["name"] == title:
 
 				if not description:
@@ -435,22 +481,29 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				theme_tags["version"] = version
 				theme_tags["author_link"] = author_link
 				theme_tags["official_link"] = github_repo
-				
-				if changenotes:
-					theme_tags["changelog"].append({
-						"version": version,
-						"changenotes": changenotes
-					})
 
-					theme_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
+				if changenotes:
+					theme_tags["changelog"].append(
+						{"version": version, "changenotes": changenotes}
+					)
+
+					theme_tags["changelog"].sort(
+						key=lambda x: x["version"], reverse=True
+					)
 
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_themes.json")
-				with open(temp_json, 'w+', encoding='utf-8') as f:
+				with open(temp_json, "w+", encoding="utf-8") as f:
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 				download_link = theme_tags["direct_download_link"]
 				image_link = theme_tags["image_url"]
 				item_id = theme_tags["id"]
@@ -458,7 +511,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				temp_json.unlink()
 			else:
 				pass
-	
+
 	elif type == "announcement":
 
 		if ann_date is not None:
@@ -472,14 +525,14 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 					"date": ann_date,
 					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
-					"type": f"{ann_type}"
+					"type": f"{ann_type}",
 				}
 			else:
 				announcements_json["website"] = {
 					"date": ann_date,
 					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
-					"type": f"{ann_type}"
+					"type": f"{ann_type}",
 				}
 		elif ann_scope == "App":
 			if not ann_expiration:
@@ -487,14 +540,14 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 					"date": ann_date,
 					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
-					"type": f"{ann_type}"
+					"type": f"{ann_type}",
 				}
 			else:
 				announcements_json["app"] = {
 					"date": ann_date,
 					"expiration": ann_expiration,
 					"announcement": f"{announcement}",
-					"type": f"{ann_type}"
+					"type": f"{ann_type}",
 				}
 		else:
 			if not ann_expiration:
@@ -503,14 +556,14 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 						"date": ann_date,
 						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
-						"type": f"{ann_type}"
+						"type": f"{ann_type}",
 					},
 					"website": {
 						"date": ann_date,
 						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
-						"type": f"{ann_type}"
-					}
+						"type": f"{ann_type}",
+					},
 				}
 			else:
 				announcements_json = {
@@ -518,18 +571,20 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 						"date": ann_date,
 						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
-						"type": f"{ann_type}"
+						"type": f"{ann_type}",
 					},
 					"website": {
 						"date": ann_date,
 						"expiration": ann_expiration,
 						"announcement": f"{announcement}",
-						"type": f"{ann_type}"
-					}
+						"type": f"{ann_type}",
+					},
 				}
 
-		json_content = json.dumps(announcements_json, indent = 4)
-		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+		json_content = json.dumps(announcements_json, indent=4)
+		repo.update_file(
+			content.path, f"{version_date()}", json_content, content.sha, branch="main"
+		)
 
 	elif type == "changelog":
 		mainversion, miniversion = version
@@ -538,19 +593,23 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 			"version": f"{mainversion}.{miniversion}",
 			"new_features": cl_features,
 			"modifications": cl_modifications,
-			"bug_fixes": cl_bugfixes
+			"bug_fixes": cl_bugfixes,
 		}
 		changelog_json["changelog"].append(item_json)
-		changelog_json["changelog"].sort(key=lambda x: tuple(map(int, x["version"].split('.'))), reverse=True)
-		
-		json.dumps(changelog_json, indent = 4)
+		changelog_json["changelog"].sort(
+			key=lambda x: tuple(map(int, x["version"].split("."))), reverse=True
+		)
+
+		json.dumps(changelog_json, indent=4)
 		temp_json = Path("tmp/temp_json.json")
-		with open(temp_json, 'w+', encoding='utf-8') as f:
+		with open(temp_json, "w+", encoding="utf-8") as f:
 			json.dump(changelog_json, f, ensure_ascii=False, indent=4)
 			f.seek(0)
 			json_content = f.read()
 
-		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+		repo.update_file(
+			content.path, f"{version_date()}", json_content, content.sha, branch="main"
+		)
 
 		temp_json.unlink()
 
@@ -559,26 +618,25 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 
 	else:
 		mainversion, miniversion = version
-		
-		json_content = {
-			"version": f"{mainversion}",
-			"miniversion": f"{miniversion}"
-		}
-		json_content = json.dumps(json_content, indent = 4)
-		repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+
+		json_content = {"version": f"{mainversion}", "miniversion": f"{miniversion}"}
+		json_content = json.dumps(json_content, indent=4)
+		repo.update_file(
+			content.path, f"{version_date()}", json_content, content.sha, branch="main"
+		)
 
 		updated_json = True
 		return updated_json
-	
+
 	if type in ["app", "theme"]:
 
-		#uuid = generate_uuid_string()
-	
+		# uuid = generate_uuid_string()
+
 		if title in itemlist:
 			new_item = False
 		else:
 			new_item = True
-		
+
 		if new_item:
 			if type == "app":
 				download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
@@ -588,7 +646,7 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 				image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/{image_name}.webp"
 
 			item_id = max(idlist) + 1
-			
+
 			if not description:
 				description = ""
 			if not version:
@@ -598,8 +656,6 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 			if not github_repo:
 				github_repo = ""
 
-			
-	
 			if type == "app":
 				item_json = {
 					"app": {
@@ -617,24 +673,23 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 						"image_url": image_link,
 						"authorised_members": authorised_members,
 						"hidden": 0,
-						"changelog": []
+						"changelog": [],
 					}
 				}
 
 				app_tags = item_json["app"]
 				if changenotes:
-					app_tags["changelog"].append({
-						"version": version,
-						"changenotes": changenotes
-					})
+					app_tags["changelog"].append(
+						{"version": version, "changenotes": changenotes}
+					)
 
 					app_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
 				else:
 					app_tags["changelog"] = []
-				
+
 				community_json["apps"].append(item_json)
 				community_json["apps"].sort(key=lambda x: x["app"]["id"], reverse=True)
-			
+
 			else:
 				uuid = generate_uuid_string()
 				item_json = {
@@ -653,43 +708,68 @@ def json_update(private_key, type, *, authorised_members=None, title=None, autho
 						"image_url": image_link,
 						"authorised_members": authorised_members,
 						"hidden": 0,
-						"changelog": []
+						"changelog": [],
 					}
 				}
 
 				theme_tags = item_json["theme"]
 				if changenotes:
-					theme_tags["changelog"].append({
-						"version": version,
-						"changenotes": changenotes
-					})
+					theme_tags["changelog"].append(
+						{"version": version, "changenotes": changenotes}
+					)
 
-					theme_tags["changelog"].sort(key=lambda x: x["version"], reverse=True)
+					theme_tags["changelog"].sort(
+						key=lambda x: x["version"], reverse=True
+					)
 				else:
 					theme_tags["changelog"] = []
-				
-				community_json["themes"].append(item_json)
-				community_json["themes"].sort(key=lambda x: x["theme"]["id"], reverse=True)
 
-			json.dumps(community_json, indent = 4)
+				community_json["themes"].append(item_json)
+				community_json["themes"].sort(
+					key=lambda x: x["theme"]["id"], reverse=True
+				)
+
+			json.dumps(community_json, indent=4)
 			temp_json = Path("tmp/temp_json.json")
-			with open(temp_json, 'w+', encoding='utf-8') as f:
+			with open(temp_json, "w+", encoding="utf-8") as f:
 				json.dump(community_json, f, ensure_ascii=False, indent=4)
 				f.seek(0)
 				json_content = f.read()
-			
+
 			if type == "app":
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 			else:
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
-	
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
+
 			temp_json.unlink()
 
 		updated_json = True
 		return updated_json, download_link, image_link, item_id, uuid
 
 
-def json_edit(private_key, type, uuid, *, author=None, description=None, author_link=None, github_repo=None, authorised_members=None):
+def json_edit(
+	private_key,
+	type,
+	uuid,
+	*,
+	author=None,
+	description=None,
+	author_link=None,
+	github_repo=None,
+	authorised_members=None,
+):
 	"""
 	Edits the specified app or theme
 
@@ -716,11 +796,13 @@ def json_edit(private_key, type, uuid, *, author=None, description=None, author_
 
 	if type == "app":
 		content = repo.get_contents("data/community_apps/community_apps.json")
-		community_json = github_reader(private_key, "data/community_apps/community_apps.json")
+		community_json = github_reader(
+			private_key, "data/community_apps/community_apps.json"
+		)
 
 		for item in community_json["apps"]:
 			app_tags = item["app"]
-			
+
 			if app_tags["uuid"] == uuid:
 				if not author:
 					author = app_tags["author"]
@@ -730,12 +812,12 @@ def json_edit(private_key, type, uuid, *, author=None, description=None, author_
 					author_link = app_tags["author_link"]
 				if not github_repo:
 					github_repo = app_tags["official_link"]
-				
+
 				app_tags["author"] = author
 				app_tags["desc"] = description
 				app_tags["author_link"] = author_link
 				app_tags["official_link"] = github_repo
-				
+
 				if authorised_members:
 					for member in authorised_members:
 						if member not in app_tags["authorised_members"]:
@@ -745,24 +827,32 @@ def json_edit(private_key, type, uuid, *, author=None, description=None, author_
 
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_apps.json")
-				with open(temp_json, 'w+', encoding='utf-8') as f:
+				with open(temp_json, "w+", encoding="utf-8") as f:
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 				download_link = app_tags["direct_download_link"]
 				image_link = app_tags["image_url"]
 				item_id = app_tags["id"]
 				temp_json.unlink()
 				break
-	
+
 	elif type == "theme":
 		content = repo.get_contents("data/community_themes/community_themes.json")
-		community_json = github_reader(private_key, "data/community_themes/community_themes.json")
+		community_json = github_reader(
+			private_key, "data/community_themes/community_themes.json"
+		)
 
 		for item in community_json["themes"]:
 			theme_tags = item["theme"]
-			
+
 			if theme_tags["uuid"] == uuid:
 				if not author:
 					author = theme_tags["author"]
@@ -772,12 +862,12 @@ def json_edit(private_key, type, uuid, *, author=None, description=None, author_
 					author_link = theme_tags["author_link"]
 				if not github_repo:
 					github_repo = theme_tags["official_link"]
-				
+
 				theme_tags["author"] = author
 				theme_tags["desc"] = description
 				theme_tags["author_link"] = author_link
 				theme_tags["official_link"] = github_repo
-				
+
 				if authorised_members:
 					for member in authorised_members:
 						if member not in theme_tags["authorised_members"]:
@@ -787,11 +877,17 @@ def json_edit(private_key, type, uuid, *, author=None, description=None, author_
 
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_themes.json")
-				with open(temp_json, 'w+', encoding='utf-8') as f:
+				with open(temp_json, "w+", encoding="utf-8") as f:
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 				download_link = theme_tags["direct_download_link"]
 				image_link = theme_tags["image_url"]
 				item_id = theme_tags["id"]
@@ -811,16 +907,16 @@ def rmskin_delete(private_key, type, name):
 		type (str): The type of package [app, theme]
 		name (str): The name of the app/theme
 	"""
-	
+
 	g, all_files = initialize_github(private_key)
-	
+
 	if type == "app":
 		repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
-		git_prefix = 'Apps/'
+		git_prefix = "Apps/"
 		package_name = name + " (Droptop App).rmskin"
 	else:
 		repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
-		git_prefix = 'Themes/'
+		git_prefix = "Themes/"
 		package_name = name + " (Droptop Theme).rmskin"
 	git_file = git_prefix + package_name
 	contents = repo.get_contents(git_file, ref="main")
@@ -836,16 +932,16 @@ def image_delete(private_key, type, name):
 		type (str): The type of package [app, theme]
 		name (str): The name of the app/theme
 	"""
-	
+
 	g, all_files = initialize_github(private_key)
 
 	repo = g.get_repo("Droptop-Four/GlobalData")
 	if type == "app":
-		git_prefix = 'data/community_apps/img/'
+		git_prefix = "data/community_apps/img/"
 		package_name = name.replace(" - ", "-")
 		package_name = package_name.replace(" ", "_") + ".webp"
 	else:
-		git_prefix = 'data/community_themes/img/'
+		git_prefix = "data/community_themes/img/"
 		package_name = name.replace(" - ", "-")
 		package_name = package_name.replace(" ", "_") + ".webp"
 	git_file = git_prefix + package_name
@@ -868,31 +964,47 @@ def json_delete(private_key, type, uuid):
 	repo = g.get_repo("Droptop-Four/GlobalData")
 	if type == "app":
 		content = repo.get_contents("data/community_apps/community_apps.json")
-		community_json = github_reader(private_key, "data/community_apps/community_apps.json")
+		community_json = github_reader(
+			private_key, "data/community_apps/community_apps.json"
+		)
 		for i in range(len(community_json["apps"])):
 			if community_json["apps"][i]["app"]["uuid"] == uuid:
 				community_json["apps"].pop(i)
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_apps.json")
-				with open(temp_json, 'w+', encoding='utf-8') as f:
+				with open(temp_json, "w+", encoding="utf-8") as f:
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 				temp_json.unlink()
 				break
 	else:
 		content = repo.get_contents("data/community_themes/community_themes.json")
-		community_json = github_reader(private_key, "data/community_themes/community_themes.json")
+		community_json = github_reader(
+			private_key, "data/community_themes/community_themes.json"
+		)
 		for i in range(len(community_json["themes"])):
 			if community_json["themes"][i]["theme"]["uuid"] == uuid:
 				community_json["themes"].pop(i)
 				json.dumps(community_json, indent=4)
 				temp_json = Path("tmp/community_themes.json")
-				with open(temp_json, 'w+', encoding='utf-8') as f:
+				with open(temp_json, "w+", encoding="utf-8") as f:
 					json.dump(community_json, f, ensure_ascii=False, indent=4)
 					f.seek(0)
 					json_content = f.read()
-				repo.update_file(content.path, f"{version_date()}", json_content, content.sha, branch="main")
+				repo.update_file(
+					content.path,
+					f"{version_date()}",
+					json_content,
+					content.sha,
+					branch="main",
+				)
 				temp_json.unlink()
 				break

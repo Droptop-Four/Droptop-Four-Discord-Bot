@@ -33,14 +33,16 @@ bot = commands.Bot(
 	case_insensitive=True
 )
 
+
 logger_status, logger = initialize_logger()
 
 db_id, db_cluster = os.getenv("mongodb_id"), os.getenv("db_cluster")
+
 db_status = initialize_mongodb(db_id, db_cluster, logger)
 
 if db_status[0]:
-	bot.config_collection = db_status[1]
-	bot.configs = bot.config_collection.find_one({},{"_id": 0})
+	config_collection = db_status[1]
+	bot.configs = config_collection.find_one({},{"_id": 0})
 
 	firebase_status = initialize_firebase(json.loads(bot.configs["firebase_creds"]), logger)
 
@@ -56,7 +58,7 @@ async def on_ready():
 	for guild in bot.guilds:
 		print("Connected to server: {}".format(guild))
 	print("------")
-	
+
 	logger.info(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
 	for guild in bot.guilds:
 		logger.info("Connected to server: {}".format(guild))
@@ -76,7 +78,7 @@ async def setup_hook():
 		await bot.load_extension(extension)
 	bot.tree.clear_commands(guild=discord.Object(id=bot.configs["server_id"]))
 	guild = await bot.tree.sync()
-	for synced in guild: 
+	for synced in guild:
 		command = bot.tree.get_command(synced.name, type=synced.type)
 		if command is None:
 			continue
@@ -119,11 +121,11 @@ async def on_app_command_completion(interaction, command):
 	for parameter in interaction.namespace:
 		params.append(parameter)
 	embed.add_field(name="Params", value=f"{params}", inline=False)
-	
+
 	await channel.send(embed=embed)
 
 	logger.info(f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {command.qualified_name}; Params: {params}")
-	
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -141,9 +143,9 @@ async def on_command_error(ctx, error):
 		params.append(parameter)
 	embed.add_field(name="Params", value=f"{params}", inline=False)
 	embed.add_field(name="Error", value=error, inline=False)
-	
+
 	await channel.send(embed=embed)
-	
+
 	logger.error(f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}")
 
 	print(f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}")
@@ -155,7 +157,7 @@ async def on_tree_error(interaction, error):
 		await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 	except discord.InteractionResponded:
 		await interaction.followup.send(f"Error: {error}", ephemeral=True)
-	
+
 	channel = bot.get_channel(bot.configs["commandlog_channel"])
 
 	embed = discord.Embed(title="!!ERROR!!", color=discord.Color.from_rgb(255,0,0))
@@ -168,7 +170,7 @@ async def on_tree_error(interaction, error):
 		params.append(parameter)
 	embed.add_field(name="Params", value=f"{params}", inline=False)
 	embed.add_field(name="Error", value=error, inline=False)
-	
+
 	await channel.send(embed=embed)
 	logger.error(f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Params: {params}; Error: {error}")
 
@@ -176,8 +178,8 @@ async def on_tree_error(interaction, error):
 
 
 if db_status[0] and firebase_status[0] and logger_status:
-	print("Bot is ready")
-	logger.info("Bot is ready")
+	print("Bot is ready to start")
+	logger.info("Bot is ready to start")
 	try:
 		bot.run(bot.configs["discord_token"])
 	except discord.HTTPException as e:
@@ -198,3 +200,4 @@ else:
 	if not logger_status:
 		print("Logger is not ready")
 		logger.warning("Logger is not ready")
+		
