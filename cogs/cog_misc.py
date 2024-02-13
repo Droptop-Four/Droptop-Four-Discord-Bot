@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from datetime import datetime
 from time import time
 from typing import Optional
 
@@ -35,6 +36,24 @@ class MiscCommands(commands.Cog):
         await interaction.edit_original_response(
             content=f"**Pong!** The latency is: `{round(self.bot.latency * 1000)}`ms. The response time is: `{(pingend-pingstart)*1000:.0f}`ms."
         )
+
+    @app_commands.command(name="uptime")
+    async def uptime(self, interaction: discord.Interaction):
+        """Returns the uptime of the bot"""
+
+        delta_uptime = datetime.utcnow() - self.bot.launch_time
+        hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        days, hours = divmod(hours, 24)
+
+        embed = discord.Embed(
+            title="Uptime", color=discord.Color.from_rgb(75, 215, 100)
+        )
+        embed.description = (
+            f"The bot has been on for:\n```css\n{days}d, {hours}h, {minutes}m, {seconds}s\n```"
+        )
+
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="hello")
     async def hello(self, interaction: discord.Interaction):

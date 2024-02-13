@@ -13,6 +13,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import json, os, re
+from datetime import datetime
 
 from utils import (
     initialize_mongodb,
@@ -40,6 +41,7 @@ bot = commands.Bot(
     case_insensitive=True,
 )
 
+bot.launch_time = datetime.utcnow()
 
 logger_status, logger = initialize_logger(os.getenv("sentry_dsn"))
 
