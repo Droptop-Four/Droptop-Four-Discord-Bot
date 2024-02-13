@@ -41,7 +41,7 @@ bot = commands.Bot(
 )
 
 
-logger_status, logger = initialize_logger()
+logger_status, logger = initialize_logger(os.getenv("sentry_dsn"))
 
 db_id, db_cluster = os.getenv("mongodb_id"), os.getenv("db_cluster")
 
