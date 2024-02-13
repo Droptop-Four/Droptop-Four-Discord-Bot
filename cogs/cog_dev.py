@@ -4,6 +4,8 @@ from discord.ext import commands
 
 from typing import List
 
+from utils import command_mention
+
 
 original_extensions = [
     "cogs.cog_admin",
@@ -56,7 +58,21 @@ class DevCommands(commands.Cog):
             self.bot.tree.clear_commands(
                 guild=self.bot.get_guild(self.bot.configs["server_id"])
             )
-            await self.bot.tree.sync()
+            guild = await self.bot.tree.sync()
+            for synced in guild:
+                command = self.bot.tree.get_command(synced.name, type=synced.type)
+                if command is None:
+                    continue
+                command.extras["mention"] = synced.mention
+                if isinstance(command, app_commands.Group):
+                    for child in command.walk_commands():
+                        child.extras["mention"] = command_mention(
+                            child.qualified_name, synced.id
+                        )
+                if command.name == "solved":
+                    self.bot.solved_command = command_mention(
+                        child.qualified_name, synced.id
+                    )
             await interaction.followup.send(
                 f"`{cog}` successfully reloaded.", ephemeral=True
             )
@@ -162,7 +178,21 @@ class DevCommands(commands.Cog):
         self.bot.tree.clear_commands(
             guild=self.bot.get_guild(self.bot.configs["server_id"])
         )
-        await self.bot.tree.sync()
+        guild = await self.bot.tree.sync()
+        for synced in guild:
+            command = self.bot.tree.get_command(synced.name, type=synced.type)
+            if command is None:
+                continue
+            command.extras["mention"] = synced.mention
+            if isinstance(command, app_commands.Group):
+                for child in command.walk_commands():
+                    child.extras["mention"] = command_mention(
+                        child.qualified_name, synced.id
+                    )
+            if command.name == "solved":
+                self.bot.solved_command = command_mention(
+                    child.qualified_name, synced.id
+                )
         await interaction.followup.send("Command tree synced.", ephemeral=True)
         log_channel = interaction.guild.get_channel(
             self.bot.configs["moderationlog_channel"]
