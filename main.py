@@ -65,12 +65,12 @@ else:
 
 @bot.event
 async def on_ready():
-    print(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
+    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     for guild in bot.guilds:
         print("Connected to server: {}".format(guild))
     print("------")
 
-    logger.info(f"{date_time()} Logged in as {bot.user} (ID: {bot.user.id})")
+    logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
     for guild in bot.guilds:
         logger.info("Connected to server: {}".format(guild))
     logger.info("------")
