@@ -4,7 +4,7 @@ import json
 import datetime as dt
 
 
-class _ColorFormatter(logging.Formatter):
+class ColorFormatter(logging.Formatter):
     LEVEL_COLOURS = [
         (logging.DEBUG, "\x1b[40;1m"),
         (logging.INFO, "\x1b[34;1m"),
@@ -16,7 +16,7 @@ class _ColorFormatter(logging.Formatter):
     FORMATS = {
         level: logging.Formatter(
             f"[\x1b[30;1m%(asctime)s\x1b[0m] [{colour}%(levelname)-8s\x1b[0m] \x1b[35m%(name)s\x1b[0m %(message)s",
-            "%Y-%m-%d %H:%M:%S",
+            "%d-%m-%Y %H:%M:%S",
         )
         for level, colour in LEVEL_COLOURS
     }
@@ -48,11 +48,11 @@ def initialize_logger(sentry_dsn):
         "formatters": {
             "default": {
                 "format": "[{asctime}] [{levelname:<8}] {name}: {message}",
-                "datefmt": "%Y-%m-%d %H:%M:%S",
+                "datefmt": "%d-%m-%Y %H:%M:%S",
                 "style": "{",
             },
             "colored": {
-                "()": _ColorFormatter,
+                "()": ColorFormatter,
             },
         },
         "handlers": {
