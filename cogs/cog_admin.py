@@ -1,19 +1,19 @@
+import traceback
+from typing import List
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.tasks import loop
 
 from utils import (
+    edit_release,
     github_reader,
     json_update,
-    version_validator,
     sync_files,
-    edit_release,
     validate_date,
+    version_validator,
 )
-from typing import List
-
-import traceback
 
 
 class NewVersion(discord.ui.Modal, title="New Version"):

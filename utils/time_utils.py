@@ -1,5 +1,5 @@
-from datetime import date, datetime
 import time
+from datetime import date, datetime
 
 
 def date_time():

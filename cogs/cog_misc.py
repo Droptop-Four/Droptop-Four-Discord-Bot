@@ -1,10 +1,10 @@
-import discord
-from discord import app_commands
-from discord.ext import commands
-
 from datetime import datetime
 from time import time
 from typing import Optional
+
+import discord
+from discord import app_commands
+from discord.ext import commands
 
 
 class MiscCommands(commands.Cog):
@@ -49,9 +49,7 @@ class MiscCommands(commands.Cog):
         embed = discord.Embed(
             title="Uptime", color=discord.Color.from_rgb(75, 215, 100)
         )
-        embed.description = (
-            f"The bot has been on for:\n```css\n{days}d, {hours}h, {minutes}m, {seconds}s\n```"
-        )
+        embed.description = f"The bot has been on for:\n```css\n{days}d, {hours}h, {minutes}m, {seconds}s\n```"
 
         await interaction.response.send_message(embed=embed)
 

@@ -1,11 +1,10 @@
+from typing import List
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-from typing import List
-
 from utils import command_mention
-
 
 original_extensions = [
     "cogs.cog_admin",

@@ -1,8 +1,9 @@
-import firebase_admin
-from firebase_admin import credentials, storage
-import threading, requests
-
+import threading
 from pathlib import Path
+
+import firebase_admin
+import requests
+from firebase_admin import credentials, storage
 
 
 def initialize_firebase(creds, logger):

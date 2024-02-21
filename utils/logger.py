@@ -1,7 +1,8 @@
-import logging.config
-import sentry_sdk
-import json
 import datetime as dt
+import json
+import logging.config
+
+import sentry_sdk
 
 
 class ColorFormatter(logging.Formatter):
