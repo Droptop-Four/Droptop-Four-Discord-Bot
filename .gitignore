@@ -139,5 +139,10 @@ dmypy.json
 *.log.*
 !*.log.*[^0-9]*
 
+# Editor configs
 .idea/
 .vscode/
+
+# Test files
+test_*.*
+
