@@ -1,10 +1,12 @@
+import base64
+import json
+from pathlib import Path
+
 import github
-import json, requests, base64
+import requests
 
 from .generators import generate_uuid_string
 from .time_utils import version_date
-
-from pathlib import Path
 
 
 def initialize_github(private_key):
