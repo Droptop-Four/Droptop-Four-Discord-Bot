@@ -61,17 +61,17 @@ class DroptopCommands(commands.Cog):
 
         embed.add_field(
             name="<:Download:1041649764929916938> Downloads",
-            value=f"```css\nBasic Variant     {github_basic_downloads+deviantart_downloads}\nUpdate            {github_update_downloads}\nSupporter         {gumroad_sales}```",
+            value=f"```css\n{'Basic Variant':<18}{github_basic_downloads+deviantart_downloads}\n{'Update':<18}{github_update_downloads}\n{'Supporter':<18}{gumroad_sales}```",
             inline=False,
         )
         embed.add_field(
             name="<:deviantart:1151924474548068482> DeviantArt",
-            value=f"```css\nViews             {deviantart_views}\nFavourites        {deviantart_favourites}```",
+            value=f"```css\n{'Views':<18}{deviantart_views}\n{'Favourites':<18}{deviantart_favourites}```",
             inline=False,
         )
         embed.add_field(
             name="<:github:1152028987523076266> Github",
-            value=f"```css\nFollowers         {github_followers}\nStars             {github_stars}```",
+            value=f"```css\n{'Followers':<18}{github_followers}\n{'Stars':<18}{github_stars}```",
             inline=False,
         )
 
