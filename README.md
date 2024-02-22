@@ -94,6 +94,7 @@
   sentry_dsn=
   mongodb_id=
   db_cluster=
+  github_auth_app=
   global_data_repo=
   community_apps_repo=
   community_themes_repo=

@@ -9,6 +9,8 @@ import requests
 from .generators import generate_uuid_string
 from .time_utils import version_date
 
+auth_app = os.getenv("github_auth_app")
+
 global_data_repo = os.getenv("global_data_repo")
 community_apps_repo = os.getenv("community_apps_repo")
 community_themes_repo = os.getenv("community_themes_repo")
@@ -26,7 +28,7 @@ def initialize_github(private_key):
             all_files (list): Empty list
     """
 
-    auth = github.Auth.AppAuth(417685, private_key)
+    auth = github.Auth.AppAuth(auth_app, private_key)
     gi = github.GithubIntegration(auth=auth)
     installation = gi.get_installations()[0]
     g = installation.get_github_for_installation()
