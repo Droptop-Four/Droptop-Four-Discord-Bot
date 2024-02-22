@@ -5,9 +5,12 @@ from pathlib import Path
 
 import github
 import requests
+from dotenv import load_dotenv
 
 from .generators import generate_uuid_string
 from .time_utils import version_date
+
+load_dotenv()
 
 auth_app = os.getenv("github_auth_app")
 
