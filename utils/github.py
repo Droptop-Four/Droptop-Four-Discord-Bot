@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 from pathlib import Path
 
 import github
@@ -7,6 +8,10 @@ import requests
 
 from .generators import generate_uuid_string
 from .time_utils import version_date
+
+global_data_repo = os.getenv("global_data_repo")
+community_apps_repo = os.getenv("community_apps_repo")
+community_themes_repo = os.getenv("community_themes_repo")
 
 
 def initialize_github(private_key):
@@ -185,10 +190,10 @@ def push_rmskin(private_key, type, package_name):
 
     g, all_files = initialize_github(private_key)
     if type == "app":
-        repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
+        repo = g.get_repo(f"Droptop-Four/{community_apps_repo}")
         git_prefix = "Apps/"
     else:
-        repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
+        repo = g.get_repo(f"Droptop-Four/{community_themes_repo}")
         git_prefix = "Themes/"
 
     contents = repo.get_contents("")
@@ -244,7 +249,7 @@ def push_image(private_key, type, image_name):
     """
 
     g, all_files = initialize_github(private_key)
-    repo = g.get_repo("Droptop-Four/GlobalData")
+    repo = g.get_repo(f"Droptop-Four/{global_data_repo}")
 
     if type == "app":
         git_prefix = "data/community_apps/img/"
@@ -346,7 +351,7 @@ def json_update(
 
     g, all_files = initialize_github(private_key)
 
-    repo = g.get_repo("Droptop-Four/GlobalData")
+    repo = g.get_repo(f"Droptop-Four/{global_data_repo}")
 
     if type == "app":
         content = repo.get_contents("data/community_apps/community_apps.json")
@@ -641,11 +646,11 @@ def json_update(
 
         if new_item:
             if type == "app":
-                download_link = f"https://github.com/Droptop-Four/Droptop-Community-Apps/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
-                image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/{image_name}.webp"
+                download_link = f"https://github.com/Droptop-Four/{community_apps_repo}/raw/main/Apps/{rmskin_name.replace(' ', '%20')}"
+                image_link = f"https://raw.githubusercontent.com/Droptop-Four/{global_data_repo}/main/data/community_apps/img/{image_name}.webp"
             else:
-                download_link = f"https://github.com/Droptop-Four/Droptop-Community-Themes/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
-                image_link = f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/{image_name}.webp"
+                download_link = f"https://github.com/Droptop-Four/{community_themes_repo}/raw/main/Themes/{rmskin_name.replace(' ', '%20')}"
+                image_link = f"https://raw.githubusercontent.com/Droptop-Four/{global_data_repo}/main/data/community_themes/img/{image_name}.webp"
 
             item_id = max(idlist) + 1
 
@@ -794,7 +799,7 @@ def json_edit(
 
     g, all_files = initialize_github(private_key)
 
-    repo = g.get_repo("Droptop-Four/GlobalData")
+    repo = g.get_repo(f"Droptop-Four/{global_data_repo}")
 
     if type == "app":
         content = repo.get_contents("data/community_apps/community_apps.json")
@@ -913,11 +918,11 @@ def rmskin_delete(private_key, type, name):
     g, all_files = initialize_github(private_key)
 
     if type == "app":
-        repo = g.get_repo("Droptop-Four/Droptop-Community-Apps")
+        repo = g.get_repo(f"Droptop-Four/{community_apps_repo}")
         git_prefix = "Apps/"
         package_name = name + " (Droptop App).rmskin"
     else:
-        repo = g.get_repo("Droptop-Four/Droptop-Community-Themes")
+        repo = g.get_repo(f"Droptop-Four/{community_themes_repo}")
         git_prefix = "Themes/"
         package_name = name + " (Droptop Theme).rmskin"
     git_file = git_prefix + package_name
@@ -937,7 +942,7 @@ def image_delete(private_key, type, name):
 
     g, all_files = initialize_github(private_key)
 
-    repo = g.get_repo("Droptop-Four/GlobalData")
+    repo = g.get_repo(f"Droptop-Four/{global_data_repo}")
     if type == "app":
         git_prefix = "data/community_apps/img/"
         package_name = name.replace(" - ", "-")
@@ -963,7 +968,7 @@ def json_delete(private_key, type, uuid):
 
     g, all_files = initialize_github(private_key)
 
-    repo = g.get_repo("Droptop-Four/GlobalData")
+    repo = g.get_repo(f"Droptop-Four/{global_data_repo}")
     if type == "app":
         content = repo.get_contents("data/community_apps/community_apps.json")
         community_json = github_reader(

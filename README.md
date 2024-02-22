@@ -94,6 +94,9 @@
   sentry_dsn=
   mongodb_id=
   db_cluster=
+  global_data_repo=
+  community_apps_repo=
+  community_themes_repo=
   ```
 
 - Start the bot with `python main.py`
