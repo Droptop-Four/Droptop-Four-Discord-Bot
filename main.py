@@ -66,10 +66,10 @@ else:
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
-    for guild in bot.guilds:
-        print("Connected to server: {}".format(guild))
-    print("------")
+    # print(f"Logged in as {bot.user} (ID: {bot.user.id})")
+    # for guild in bot.guilds:
+    #     print("Connected to server: {}".format(guild))
+    # print("------")
 
     logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
     for guild in bot.guilds:
@@ -175,9 +175,9 @@ async def on_command_error(ctx, error):
         f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}"
     )
 
-    print(
-        f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}"
-    )
+    # print(
+    #     f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}"
+    # )
 
 
 @bot.tree.error
@@ -211,13 +211,13 @@ async def on_tree_error(interaction, error):
         f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Params: {params}; Error: {error}"
     )
 
-    print(
-        f"User: <@{interaction.user.id}>\nChannel: <#{interaction.channel_id}>\nCommand: {interaction.command.qualified_name}\nParams: {params}\nError: {error}"
-    )
+    # print(
+    #     f"User: <@{interaction.user.id}>\nChannel: <#{interaction.channel_id}>\nCommand: {interaction.command.qualified_name}\nParams: {params}\nError: {error}"
+    # )
 
 
 if db_status[0] and firebase_status[0] and logger_status:
-    print("Bot is ready to start")
+    # print("Bot is ready to start")
     logger.info("Bot is ready to start")
 
     if not os.path.exists("tmp"):
@@ -228,19 +228,19 @@ if db_status[0] and firebase_status[0] and logger_status:
         bot.run(bot.configs["discord_token"])
     except discord.HTTPException as e:
         if e.status == 429:
-            print("Rate limit detected. Restarting...")
+            # print("Rate limit detected. Restarting...")
             logger.warning("Rate limit detected. Restarting...")
             os.kill(1, 1)
         logger.warning(e)
 else:
-    print("Bot is not ready")
+    # print("Bot is not ready")
     logger.warning("Bot is not ready")
     if not db_status[0]:
-        print("MongoDB is not ready")
+        # print("MongoDB is not ready")
         logger.warning("MongoDB is not ready")
     if not firebase_status[0]:
-        print("Firebase is not ready")
+        # print("Firebase is not ready")
         logger.warning("Firebase is not ready")
     if not logger_status:
-        print("Logger is not ready")
+        # print("Logger is not ready")
         logger.warning("Logger is not ready")

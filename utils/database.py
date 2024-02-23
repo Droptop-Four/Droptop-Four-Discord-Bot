@@ -19,11 +19,11 @@ def initialize_mongodb(id, cluster, logger):
         client = MongoClient(id)
         db = client[cluster]
         config_collection = db["Config"]
-        print("Connection to the database successfully initialized")
+        # print("Connection to the database successfully initialized")
         logger.info("Connection to the database successfully initialized")
         return True, config_collection
 
     except Exception as e:
-        print(f"Connection to the database failed! -> {e}")
+        # print(f"Connection to the database failed! -> {e}")
         logger.critical(f"Connection to the database failed! -> {e}")
         return False, e
