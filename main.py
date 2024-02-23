@@ -219,6 +219,11 @@ async def on_tree_error(interaction, error):
 if db_status[0] and firebase_status[0] and logger_status:
     print("Bot is ready to start")
     logger.info("Bot is ready to start")
+
+    if not os.path.exists("tmp"):
+        os.makedirs("tmp")
+        logger.info("Created temp folder")
+
     try:
         bot.run(bot.configs["discord_token"])
     except discord.HTTPException as e:
