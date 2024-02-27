@@ -62,7 +62,8 @@ class MiscCommands(commands.Cog):
             ephemeral=True,
         )
         role = discord.utils.get(
-            self.bot.get_guild(interaction.guild_id).roles, id=817106505253388328
+            self.bot.get_guild(interaction.guild_id).roles,
+            id=self.bot.configs["nice_person_role"],
         )
         await interaction.user.add_roles(role)
 
