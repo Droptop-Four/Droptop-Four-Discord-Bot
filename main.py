@@ -223,6 +223,9 @@ if db_status[0] and firebase_status[0] and logger_status:
     if not os.path.exists("tmp"):
         os.makedirs("tmp")
         logger.info("Created temp folder")
+        with open(os.path.join("tmp", "placeholder"), "w") as fp:
+            pass
+        logger.info("Created placeholder file")
 
     try:
         bot.run(bot.configs["discord_token"])
