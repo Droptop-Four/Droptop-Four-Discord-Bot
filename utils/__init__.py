@@ -36,7 +36,7 @@ from .github import (
     push_rmskin,
     rmskin_delete,
 )
-from .gumroad import get_all_sales
+from .gumroad import analyze_invoice, get_all_sales, order_exists
 from .image_converter import to_webp
 from .logger import initialize_logger
 from .name_validator import (

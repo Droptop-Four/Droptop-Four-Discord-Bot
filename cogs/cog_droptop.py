@@ -12,6 +12,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils import (
+    analyze_invoice,
     get_all_sales,
     get_followers,
     get_metadata,
@@ -25,6 +26,7 @@ from utils import (
     json_delete,
     json_edit,
     json_update,
+    order_exists,
     push_image,
     push_rmskin,
     rmskin_delete,
@@ -38,6 +40,115 @@ from utils import (
 class DroptopCommands(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+
+    @app_commands.command(name="get_supporter_role")
+    @app_commands.describe(
+        order_number="The order number",
+        invoice="The PDF of the invoice",
+    )
+    async def get_supporter_role(
+        self,
+        interaction: discord.Interaction,
+        order_number: Optional[int] = None,
+        invoice: Optional[discord.Attachment] = None,
+    ) -> None:
+        """Let's you load the Gumroad invoice or insert the order number to get the Supporter role"""
+
+        if invoice:
+            extension = invoice.filename.split(".")[-1].lower()
+            if extension == "pdf":
+                await interaction.response.send_message(
+                    "Checking if the file is valid...", ephemeral=True
+                )
+
+                invoice_path = Path(f"tmp/{invoice.filename.replace(' ', '_')}")
+                await invoice.save(invoice_path)
+
+                message = await interaction.original_response()
+
+                exists, name = analyze_invoice(
+                    json.loads(self.bot.configs["gumroad_token"]), invoice_path
+                )
+
+                if exists:
+                    role = discord.utils.get(
+                        self.bot.get_guild(interaction.guild_id).roles,
+                        id=self.bot.configs["supporter_role"],
+                    )
+                    await interaction.user.add_roles(role)
+
+                    embed = discord.Embed(
+                        title="You got the supporter role!",
+                        description=f":heart: Hey **{name}**, thanks for purchasing Droptop and contributing to the development! :heart:\nWe have assigned you a role which will give you access to the most exclusive areas of the server! Take a look around :face_with_monocle:",
+                        color=discord.Color.green(),
+                    )
+                    await message.edit(
+                        content=None,
+                        embed=embed,
+                    )
+                else:
+                    embed = discord.Embed(
+                        title="Order not found...",
+                        description="Hey, looks like we couldn't find the order number in the invoice...\nMake sure you used the correct invoice file, if you need help use the command again with no parameter and check the tutorials.",
+                        color=discord.Color.red(),
+                    )
+                    await message.edit(
+                        content=None,
+                        embed=embed,
+                    )
+                invoice_path.unlink()
+            else:
+                await interaction.response.send_message(
+                    "The file you uploaded is not a PDF file.",
+                    ephemeral=True,
+                )
+        elif order_number:
+            exists, name = order_exists(
+                json.loads(self.bot.configs["gumroad_token"]), order_number
+            )
+            if exists:
+                role = discord.utils.get(
+                    self.bot.get_guild(interaction.guild_id).roles,
+                    id=self.bot.configs["supporter_role"],
+                )
+                await interaction.user.add_roles(role)
+
+                await interaction.response.send_message(
+                    f":heart: Hey **{name}**, thanks for purchasing Droptop and contributing to the development! :heart:\nWe have assigned you a role which will give you access to the most exclusive areas of the server! Take a look around :face_with_monocle:",
+                    ephemeral=True,
+                )
+            else:
+                embed = discord.Embed(
+                    title="Order not found...",
+                    description="Hey, looks like we couldn't find your order...\nMake sure you used the correct order number, if you need help use the command again with no parameter and check the tutorials.",
+                    color=discord.Color.red(),
+                )
+                await interaction.response.send_message(
+                    embed=embed,
+                    ephemeral=True,
+                )
+        else:
+            embed = discord.Embed(
+                title="How to get the supporter role?",
+                description="To show you bought the Supporter version and to get the Supporter role, you have to upload the invoice or insert the order number.",
+            )
+            embed.set_thumbnail(
+                url="https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/Media-Kit/Logos/DroptopFourSupporterLogo.png"
+            )
+            embed.add_field(
+                name="You don't know how to get the invoice or the order number?",
+                value="⏬ Chose the tutorial below ⏬",
+            )
+
+            view = GetSupporterDropdownView()
+
+            await interaction.response.send_message(
+                "To show you bought the Supporter version and to get the Supporter role, you have to upload the invoice or insert the order number.",
+                embed=embed,
+                ephemeral=True,
+                view=view,
+            )
+            view.message = await interaction.original_response()
 
     @app_commands.command(name="stats")
     async def stats(self, interaction: discord.Interaction) -> None:
@@ -55,6 +166,7 @@ class DroptopCommands(commands.Cog):
         message = await interaction.original_response()
 
         gumroad_sales = get_all_sales(json.loads(self.bot.configs["gumroad_token"]))
+        # TODO: this blocks heartbeat (iteration through all releases to get all downloads)
         github_basic_downloads, github_update_downloads = get_releases_downloads(
             self.bot.configs["github_private_key"]
         )
@@ -1230,6 +1342,83 @@ class DroptopCommands(commands.Cog):
             pass
 
 
+class GetSupporterDropdownView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(GetSupporterDropdown())
+
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+
+        await self.message.edit(view=self)
+
+
+class GetSupporterDropdown(discord.ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(
+                label="How to get the invoice",
+                value="invoice",
+                emoji="🧾",
+            ),
+            discord.SelectOption(
+                label="How to get the order number",
+                value="order_number",
+                emoji="🔢",
+            ),
+            discord.SelectOption(
+                label="Still need help?",
+                value="help",
+                emoji="❗",
+            ),
+        ]
+        super().__init__(
+            placeholder="Choose how you want to verificate...",
+            min_values=1,
+            max_values=1,
+            options=options,
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        if self.values[0] == "invoice":
+            view = discord.ui.View()
+            button = discord.ui.Button(
+                style=discord.ButtonStyle.url,
+                label="See on Gumroad",
+                url="https://customers.gumroad.com/article/194-i-need-an-invoice",
+            )
+            view.add_item(item=button)
+            embed = discord.Embed(
+                title="How do I get the invoice?",
+                description='**To get the invoice you need to:**\n- Find the order receipt you received from Gumroad in your email. Just search for `Gumroad` or the `noreply@customers.gumroad.com` address in your inbox, and find the receipt of the droptop order.\n- Click on the **"Generate"** button at the bottom of the receipt to start the Gumroad\'s Invoice generator, where you can enter your name and address (those are actually only required to get the invoice, but are not required by us).\n- Click on the **"Download"** button, and the invoice will download as a PDF.\n- Load the PDF file in the file attachment of the command.\n\n(*It\'s possible the bot fails to parse the invoice, resulting in an error message. If that happens please try the other method or ask for help*)',
+            )
+            embed.set_image(
+                url="https://d33v4339jhl8k0.cloudfront.net/docs/assets/5c4657ad2c7d3a66e32d763f/images/65b0e4b487e88924b5fa2015/file-5q7QumzVdW.png"
+            )
+
+        elif self.values[0] == "order_number":
+            view = discord.utils.MISSING
+            embed = discord.Embed(
+                title="How do I get the order number?",
+                description="**To get the order number you need to:**\n- Get the invoice following the above tutorial.\n- Get the order number from the invoice.\n- Paste the invoice number in the bot command option.",
+            )
+
+        else:
+            view = discord.utils.MISSING
+            embed = discord.Embed(
+                title="No luck with the other methods?",
+                description="If you still can't find the invoice or the order number, ping or PM (send a private message) to @Bunz.",
+                color=discord.Color.red(),
+            )
+
+        await interaction.response.send_message(
+            embed=embed,
+            ephemeral=True,
+            view=view,
+        )
+
+
 class NewAppRelease(discord.ui.Modal, title="New App Release"):
     def __init__(
         self,
@@ -1407,7 +1596,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
             self.rmskin_path.unlink()
 
-            #  Remove empty folders 
+            #  Remove empty folders
             root = "tmp"
             folders = list(os.walk(root))
             for folder, _, _ in folders[::-1]:
