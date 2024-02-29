@@ -10,7 +10,6 @@ from typing import List, Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
-from dotenv import load_dotenv
 
 from utils import (
     analyze_invoice,
@@ -36,12 +35,6 @@ from utils import (
     to_webp,
     version_date,
 )
-
-load_dotenv()
-
-global_data_repo = os.getenv("global_data_repo")
-community_apps_repo = os.getenv("community_apps_repo")
-community_themes_repo = os.getenv("community_themes_repo")
 
 
 class DroptopCommands(commands.Cog):
@@ -1525,8 +1518,9 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             authorised_members = [
                 self.configs["author_id"],
                 self.configs["cari_id"],
-                interaction.user.id,
             ]
+            if interaction.user.id not in authorized_members:
+                authorised_members.append(interaction.user.id)
 
         if interaction.user.id in authorised_members:
             rmskin_creation = push_rmskin(
@@ -1730,8 +1724,9 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             authorised_members = [
                 self.configs["author_id"],
                 self.configs["cari_id"],
-                interaction.user.id,
             ]
+            if interaction.user.id not in authorized_members:
+                authorised_members.append(interaction.user.id)
 
         if interaction.user.id in authorised_members:
 
@@ -1977,7 +1972,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
             embed.set_image(url="attachment://image.png")
         else:
             embed.set_image(url=self.image_url)
-        
+
         threads = []
         for thread in self.channel.threads:
             threads.append(thread)
@@ -2004,7 +1999,9 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                         icon_url=interaction.user.avatar.url,
                     )
                     if self.image_preview:
-                        image_file = await self.image_preview.to_file(filename="image.png")
+                        image_file = await self.image_preview.to_file(
+                            filename="image.png"
+                        )
                         newembed.set_image(url="attachment://image.png")
                     else:
                         newembed.set_image(url=self.image_url)
@@ -2185,7 +2182,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             embed.set_image(url="attachment://image.png")
         else:
             embed.set_image(url=self.image_url)
-        
+
         threads = []
         for thread in self.channel.threads:
             threads.append(thread)
@@ -2212,7 +2209,9 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                         icon_url=interaction.user.avatar.url,
                     )
                     if self.image_preview:
-                        image_file = await self.image_preview.to_file(filename="image.png")
+                        image_file = await self.image_preview.to_file(
+                            filename="image.png"
+                        )
                         newembed.set_image(url="attachment://image.png")
                     else:
                         newembed.set_image(url=self.image_url)
