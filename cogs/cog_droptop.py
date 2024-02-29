@@ -10,6 +10,7 @@ from typing import List, Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
+from dotenv import load_dotenv
 
 from utils import (
     analyze_invoice,
@@ -35,6 +36,12 @@ from utils import (
     to_webp,
     version_date,
 )
+
+load_dotenv()
+
+global_data_repo = os.getenv("global_data_repo")
+community_apps_repo = os.getenv("community_apps_repo")
+community_themes_repo = os.getenv("community_themes_repo")
 
 
 class DroptopCommands(commands.Cog):
@@ -1584,6 +1591,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             for thread in all_threads:
                 if thread.name == f"{app_title} - {author}":
                     await thread.send(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
                     break
             else:
                 await self.channel.create_thread(
@@ -1596,7 +1604,6 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
             self.rmskin_path.unlink()
 
-            #  Remove empty folders
             root = "tmp"
             folders = list(os.walk(root))
             for folder, _, _ in folders[::-1]:
@@ -1797,6 +1804,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             for thread in all_threads:
                 if thread.name == f"{theme_title} - {author}":
                     await thread.send(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
                     break
             else:
                 await self.channel.create_thread(
@@ -1907,7 +1915,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
             if self.suffix == "jpg":
                 image_extension = Path(self.image_preview.filename).suffix
                 image_name = self.image_url.replace(
-                    "https://raw.githubusercontent.com/Droptop-Four/test/main/data/community_apps/img/",
+                    f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/",
                     "",
                 )
                 image_name = image_name.replace(".webp", "")
@@ -1916,7 +1924,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                 webp_path = to_webp(image_path)
             else:
                 image_name = self.image_url.replace(
-                    "https://raw.githubusercontent.com/Droptop-Four/test/main/data/community_apps/img/",
+                    f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/",
                     "",
                 )
                 image_name = image_name.replace(".webp", "")
@@ -1969,6 +1977,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
             embed.set_image(url="attachment://image.png")
         else:
             embed.set_image(url=self.image_url)
+        
         threads = []
         for thread in self.channel.threads:
             threads.append(thread)
@@ -1976,46 +1985,38 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         async for thread in self.channel.archived_threads():
             threads.append(thread)
 
-        if f"{self.community_app}" in threads:
-            if self.image_preview:
-                await thread.send(embed=embed, file=image_file, view=view)
-
-                messages = [
-                    message
-                    async for message in thread.history(limit=1, oldest_first=True)
-                ]
-
-                newembed = discord.Embed(
-                    title=f"{self.community_app}",
-                    description=f"{self.description.value}",
-                    color=discord.Color.from_rgb(75, 215, 100),
-                )
-                newembed.set_author(
-                    name="New Community App Release",
-                    url=self.configs["website"] + "/community-apps",
-                )
-                newembed.set_footer(
-                    text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-                    icon_url=interaction.user.avatar.url,
-                )
+        for thread in threads:
+            if f"{self.community_app}" in thread.name:
                 if self.image_preview:
-                    image_file = await self.image_preview.to_file(filename="image.png")
-                    newembed.set_image(url="attachment://image.png")
+                    await thread.send(embed=embed, file=image_file, view=view)
+
+                    newembed = discord.Embed(
+                        title=f"{self.community_app}",
+                        description=f"{self.description.value}",
+                        color=discord.Color.from_rgb(75, 215, 100),
+                    )
+                    newembed.set_author(
+                        name="New Community App Release",
+                        url=self.configs["website"] + "/community-apps",
+                    )
+                    newembed.set_footer(
+                        text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
+                        icon_url=interaction.user.avatar.url,
+                    )
+                    if self.image_preview:
+                        image_file = await self.image_preview.to_file(filename="image.png")
+                        newembed.set_image(url="attachment://image.png")
+                    else:
+                        newembed.set_image(url=self.image_url)
+
+                    await thread.starter_message.edit(
+                        embed=newembed, attachments=[image_file], view=view
+                    )
                 else:
-                    newembed.set_image(url=self.image_url)
+                    await thread.send(embed=embed, view=view)
 
-                await messages[0].edit(
-                    embed=newembed, attachments=[image_file], view=view
-                )
-            else:
-                await thread.send(embed=embed, view=view)
-
-                messages = [
-                    message
-                    async for message in thread.history(limit=1, oldest_first=True)
-                ]
-
-                await messages[0].edit(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
+                break
         else:
             if self.image_preview:
                 await self.channel.create_thread(
@@ -2123,7 +2124,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             if self.suffix == "jpg":
                 image_extension = Path(self.image_preview.filename).suffix
                 image_name = self.image_url.replace(
-                    "https://raw.githubusercontent.com/Droptop-Four/test/main/data/community_themes/img/",
+                    "https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/",
                     "",
                 )
                 image_name = image_name.replace(".webp", "")
@@ -2132,7 +2133,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                 webp_path = to_webp(image_path)
             else:
                 image_name = self.image_url.replace(
-                    "https://raw.githubusercontent.com/Droptop-Four/test/main/data/community_themes/img/",
+                    "https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/",
                     "",
                 )
                 image_name = image_name.replace(".webp", "")
@@ -2184,6 +2185,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             embed.set_image(url="attachment://image.png")
         else:
             embed.set_image(url=self.image_url)
+        
         threads = []
         for thread in self.channel.threads:
             threads.append(thread)
@@ -2191,46 +2193,38 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         async for thread in self.channel.archived_threads():
             threads.append(thread)
 
-        if f"{self.community_theme}" in threads:
-            if self.image_preview:
-                await thread.send(embed=embed, file=image_file, view=view)
-
-                messages = [
-                    message
-                    async for message in thread.history(limit=1, oldest_first=True)
-                ]
-
-                newembed = discord.Embed(
-                    title=f"{self.community_theme}",
-                    description=f"{self.description.value}",
-                    color=discord.Color.from_rgb(75, 215, 100),
-                )
-                newembed.set_author(
-                    name="New Community Theme Release",
-                    url=self.configs["website"] + "/community-themes",
-                )
-                newembed.set_footer(
-                    text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-                    icon_url=interaction.user.avatar.url,
-                )
+        for thread in threads:
+            if f"{self.community_theme}" in thread.name:
                 if self.image_preview:
-                    image_file = await self.image_preview.to_file(filename="image.png")
-                    newembed.set_image(url="attachment://image.png")
+                    await thread.send(embed=embed, file=image_file, view=view)
+
+                    newembed = discord.Embed(
+                        title=f"{self.community_theme}",
+                        description=f"{self.description.value}",
+                        color=discord.Color.from_rgb(75, 215, 100),
+                    )
+                    newembed.set_author(
+                        name="New Community Theme Release",
+                        url=self.configs["website"] + "/community-themes",
+                    )
+                    newembed.set_footer(
+                        text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
+                        icon_url=interaction.user.avatar.url,
+                    )
+                    if self.image_preview:
+                        image_file = await self.image_preview.to_file(filename="image.png")
+                        newembed.set_image(url="attachment://image.png")
+                    else:
+                        newembed.set_image(url=self.image_url)
+
+                    await thread.starter_message.edit(
+                        embed=newembed, attachments=[image_file], view=view
+                    )
                 else:
-                    newembed.set_image(url=self.image_url)
+                    await thread.send(embed=embed, view=view)
 
-                await messages[0].edit(
-                    embed=newembed, attachments=[image_file], view=view
-                )
-            else:
-                await thread.send(embed=embed, view=view)
-
-                messages = [
-                    message
-                    async for message in thread.history(limit=1, oldest_first=True)
-                ]
-
-                await messages[0].edit(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
+                break
         else:
             if self.image_preview:
                 await self.channel.create_thread(
