@@ -1989,11 +1989,6 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                 if self.image_preview:
                     await thread.send(embed=embed, file=image_file, view=view)
 
-                    messages = [
-                        message
-                        async for message in thread.history(limit=1, oldest_first=True)
-                    ]
-
                     newembed = discord.Embed(
                         title=f"{self.community_app}",
                         description=f"{self.description.value}",
@@ -2013,18 +2008,13 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                     else:
                         newembed.set_image(url=self.image_url)
 
-                    await messages[0].edit(
+                    await thread.starter_message.edit(
                         embed=newembed, attachments=[image_file], view=view
                     )
                 else:
                     await thread.send(embed=embed, view=view)
 
-                    messages = [
-                        message
-                        async for message in thread.history(limit=1, oldest_first=True)
-                    ]
-
-                    await messages[0].edit(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
                 break
         else:
             if self.image_preview:
@@ -2207,11 +2197,6 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                 if self.image_preview:
                     await thread.send(embed=embed, file=image_file, view=view)
 
-                    messages = [
-                        message
-                        async for message in thread.history(limit=1, oldest_first=True)
-                    ]
-
                     newembed = discord.Embed(
                         title=f"{self.community_theme}",
                         description=f"{self.description.value}",
@@ -2231,18 +2216,13 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                     else:
                         newembed.set_image(url=self.image_url)
 
-                    await messages[0].edit(
+                    await thread.starter_message.edit(
                         embed=newembed, attachments=[image_file], view=view
                     )
                 else:
                     await thread.send(embed=embed, view=view)
 
-                    messages = [
-                        message
-                        async for message in thread.history(limit=1, oldest_first=True)
-                    ]
-
-                    await messages[0].edit(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
                 break
         else:
             if self.image_preview:
