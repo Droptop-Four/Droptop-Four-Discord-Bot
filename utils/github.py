@@ -149,7 +149,7 @@ def edit_release(private_key, version, cl_features, cl_modifications, cl_bugfixe
             for bugfix in cl_bugfixes:
                 message += f"- {bugfix}\n"
 
-        message += f"\n\n# >>> :arrow_down: [Update Droptop](https://github.com/Droptop-Four/Droptop-Four/releases/download/v{mainversion}.{miniversion}/Droptop_Update.rmskin) :arrow_down: <<<\n"
+        message += f"\n\n# >>> :arrow_down: [Download Droptop](https://github.com/Droptop-Four/Droptop-Four/releases/download/v{mainversion}.{miniversion}/Droptop_Basic_Version.rmskin) :arrow_down: <<<\n"
 
         release.update_release(
             name=f"Droptop Four v{mainversion}.{miniversion}", message=message
