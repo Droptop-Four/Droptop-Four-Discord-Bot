@@ -10,7 +10,6 @@ from typing import List, Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
-from dotenv import load_dotenv
 
 from utils import (
     analyze_invoice,
@@ -36,12 +35,6 @@ from utils import (
     to_webp,
     version_date,
 )
-
-load_dotenv()
-
-global_data_repo = os.getenv("global_data_repo")
-community_apps_repo = os.getenv("community_apps_repo")
-community_themes_repo = os.getenv("community_themes_repo")
 
 
 class DroptopCommands(commands.Cog):
