@@ -1591,6 +1591,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             for thread in all_threads:
                 if thread.name == f"{app_title} - {author}":
                     await thread.send(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
                     break
             else:
                 await self.channel.create_thread(
@@ -1603,7 +1604,6 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
             self.rmskin_path.unlink()
 
-            #  Remove empty folders
             root = "tmp"
             folders = list(os.walk(root))
             for folder, _, _ in folders[::-1]:
@@ -1804,6 +1804,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             for thread in all_threads:
                 if thread.name == f"{theme_title} - {author}":
                     await thread.send(embed=embed, view=view)
+                    await thread.starter_message.edit(embed=embed, view=view)
                     break
             else:
                 await self.channel.create_thread(
