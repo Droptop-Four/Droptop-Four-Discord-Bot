@@ -1972,7 +1972,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
             embed.set_image(url="attachment://image.png")
         else:
             embed.set_image(url=self.image_url)
-        
+
         threads = []
         for thread in self.channel.threads:
             threads.append(thread)
@@ -1999,7 +1999,9 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                         icon_url=interaction.user.avatar.url,
                     )
                     if self.image_preview:
-                        image_file = await self.image_preview.to_file(filename="image.png")
+                        image_file = await self.image_preview.to_file(
+                            filename="image.png"
+                        )
                         newembed.set_image(url="attachment://image.png")
                     else:
                         newembed.set_image(url=self.image_url)
@@ -2180,7 +2182,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             embed.set_image(url="attachment://image.png")
         else:
             embed.set_image(url=self.image_url)
-        
+
         threads = []
         for thread in self.channel.threads:
             threads.append(thread)
@@ -2207,7 +2209,9 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                         icon_url=interaction.user.avatar.url,
                     )
                     if self.image_preview:
-                        image_file = await self.image_preview.to_file(filename="image.png")
+                        image_file = await self.image_preview.to_file(
+                            filename="image.png"
+                        )
                         newembed.set_image(url="attachment://image.png")
                     else:
                         newembed.set_image(url=self.image_url)
