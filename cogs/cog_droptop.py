@@ -1519,7 +1519,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
                 self.configs["author_id"],
                 self.configs["cari_id"],
             ]
-            if interaction.user.id not in authorized_members:
+            if interaction.user.id not in authorised_members:
                 authorised_members.append(interaction.user.id)
 
         if interaction.user.id in authorised_members:
@@ -1725,7 +1725,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                 self.configs["author_id"],
                 self.configs["cari_id"],
             ]
-            if interaction.user.id not in authorized_members:
+            if interaction.user.id not in authorised_members:
                 authorised_members.append(interaction.user.id)
 
         if interaction.user.id in authorised_members:
