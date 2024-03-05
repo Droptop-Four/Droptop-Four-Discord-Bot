@@ -8,6 +8,7 @@ from discord.ext.tasks import loop
 
 from utils import (
     edit_release,
+    get_version,
     github_reader,
     json_update,
     sync_files,
@@ -350,9 +351,7 @@ class AdminCommands(commands.Cog):
     @loop(seconds=600)
     async def version_stats(self):
         channel = self.bot.get_channel(self.bot.configs["versionstats_channel"])
-        version = github_reader(
-            self.bot.configs["github_private_key"], "data/version.json"
-        )
+        version = await get_version()
         await channel.edit(name="🆕╏Version: " + str(version["version"]))
 
     @loop(seconds=600)

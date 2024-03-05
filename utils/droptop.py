@@ -1,5 +1,7 @@
-import aiohttp
 import json
+
+import aiohttp
+
 
 async def fetch(session, url):
     """Fetch an url"""
@@ -17,3 +19,12 @@ async def get_downloads():
         data = json.loads(data)
         return data["basic_downloads"], data["update_downloads"]
 
+
+async def get_version():
+    """Gets the version of Droptop Four"""
+
+    url = "https://api.droptopfour.com/v1/version"
+    async with aiohttp.ClientSession() as session:
+        data = await fetch(session, url)
+        data = json.loads(data)
+        return data
