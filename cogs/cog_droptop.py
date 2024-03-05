@@ -14,6 +14,7 @@ from discord.ext import commands
 from utils import (
     analyze_invoice,
     get_all_sales,
+    get_community_app,
     get_downloads,
     get_followers,
     get_metadata,
@@ -164,34 +165,43 @@ class DroptopCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
         message = await interaction.original_response()
-    
+
         gumroad_sales = get_all_sales(json.loads(self.bot.configs["gumroad_token"]))
-        github_basic_downloads, github_update_downloads = await get_downloads()
-        deviantart_views, deviantart_favourites, deviantart_downloads = get_metadata(
-            self.bot.configs["deviantart_auth_url"]
-        )
-        github_followers = get_followers(self.bot.configs["github_private_key"])
-        github_stars = get_stars(self.bot.configs["github_private_key"])
+        status, data = await get_downloads("droptop")
+        if status == 200:
+            github_basic_downloads, github_update_downloads = (
+                data["basic_downloads"],
+                data["update_downloads"],
+            )
+            deviantart_views, deviantart_favourites, deviantart_downloads = (
+                get_metadata(self.bot.configs["deviantart_auth_url"])
+            )
+            github_followers = get_followers(self.bot.configs["github_private_key"])
+            github_stars = get_stars(self.bot.configs["github_private_key"])
 
-        embed.add_field(
-            name="<:Download:1041649764929916938> Downloads",
-            value=f"```css\n{'Basic Variant':<18}{github_basic_downloads+deviantart_downloads}\n{'Update':<18}{github_update_downloads}\n{'Supporter':<18}{gumroad_sales}```",
-            inline=False,
-        )
-        embed.add_field(
-            name="<:deviantart:1151924474548068482> DeviantArt",
-            value=f"```css\n{'Views':<18}{deviantart_views}\n{'Favourites':<18}{deviantart_favourites}```",
-            inline=False,
-        )
-        embed.add_field(
-            name="<:github:1152028987523076266> Github",
-            value=f"```css\n{'Followers':<18}{github_followers}\n{'Stars':<18}{github_stars}```",
-            inline=False,
-        )
+            embed.add_field(
+                name="<:Download:1041649764929916938> Downloads",
+                value=f"```css\n{'Basic Variant':<18}{github_basic_downloads+deviantart_downloads}\n{'Update':<18}{github_update_downloads}\n{'Supporter':<18}{gumroad_sales}```",
+                inline=False,
+            )
+            embed.add_field(
+                name="<:deviantart:1151924474548068482> DeviantArt",
+                value=f"```css\n{'Views':<18}{deviantart_views}\n{'Favourites':<18}{deviantart_favourites}```",
+                inline=False,
+            )
+            embed.add_field(
+                name="<:github:1152028987523076266> Github",
+                value=f"```css\n{'Followers':<18}{github_followers}\n{'Stars':<18}{github_stars}```",
+                inline=False,
+            )
 
-        embed.remove_field(0)
+            embed.remove_field(0)
 
-        await message.edit(embeds=[embed])
+            await message.edit(embeds=[embed])
+        else:
+            await message.edit(
+                content="There was an error getting all of the stats... Try again later"
+            )
 
     @app_commands.command(name="translation_status")
     async def translation_status(self, interaction: discord.Interaction):
@@ -642,10 +652,8 @@ class DroptopCommands(commands.Cog):
         current: str,
     ) -> List[app_commands.Choice[str]]:
         community_apps_editable = []
-        data = github_reader(
-            self.bot.configs["github_private_key"],
-            "data/community_apps/community_apps.json",
-        )
+
+        data = get_community_app()
         for app in data["apps"]:
             if interaction.user.id in app["app"]["authorised_members"]:
                 community_apps_editable.append(
@@ -667,26 +675,19 @@ class DroptopCommands(commands.Cog):
     ) -> None:
         """Displays info about Droptop Four Community Apps"""
 
-        data = github_reader(
-            self.bot.configs["github_private_key"],
-            "data/community_apps/community_apps.json",
-        )
+        status, app = await get_community_app(name=name)
 
-        community_apps_names = []
-        for app in data["apps"]:
-            community_apps_names.append(app["app"]["name"])
+        if status == 200:
+            id = app["id"]
+            uuid = app["uuid"]
+            author = app["author"]
+            description = app["desc"]
+            version = app["version"]
+            download_link = app["direct_download_link"]
+            image_url = app["image_url"]
 
-        if name in community_apps_names:
-            for app in data["apps"]:
-                app = app["app"]
-                if name.lower() == app["name"].lower():
-                    id = app["id"]
-                    name = app["name"]
-                    author = app["author"]
-                    description = app["desc"]
-                    version = app["version"]
-                    download_link = app["direct_download_link"]
-                    image_url = app["image_url"]
+            status_d, downloads = await get_downloads("app", uuid=uuid)
+            downloads = downloads["downloads"]
 
             view = discord.ui.View()
             style = discord.ButtonStyle.url
@@ -710,7 +711,9 @@ class DroptopCommands(commands.Cog):
                 name="Community App Info",
                 url=self.bot.configs["website"] + "/community-apps",
             )
-            embed.add_field(name="Version: ", value=version, inline=False)
+            embed.add_field(name="Version: ", value=version, inline=True)
+            if status_d == 200:
+                embed.add_field(name="Downloads:", value=downloads, inline=True)
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )",
                 icon_url=interaction.user.avatar.url,
@@ -718,9 +721,14 @@ class DroptopCommands(commands.Cog):
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
 
-        else:
+        elif status == 404:
             await interaction.response.send_message(
                 f"The {name} community app doesn't exists.", ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                f"An error occurred while trying to get the information of the {name} community app.",
+                ephemeral=True,
             )
 
     @community_app_group.command(name="new_release")
@@ -997,10 +1005,8 @@ class DroptopCommands(commands.Cog):
         current: str,
     ) -> List[app_commands.Choice[str]]:
         community_themes_editable = []
-        data = github_reader(
-            self.bot.configs["github_private_key"],
-            "data/community_themes/community_themes.json",
-        )
+
+        data = get_community_theme()
         for theme in data["themes"]:
             if interaction.user.id in theme["theme"]["authorised_members"]:
                 community_themes_editable.append(
@@ -1022,25 +1028,19 @@ class DroptopCommands(commands.Cog):
     ) -> None:
         """Displays info about Droptop Four Community Themes"""
 
-        data = github_reader(
-            self.bot.configs["github_private_key"],
-            "data/community_themes/community_themes.json",
-        )
+        status, theme = await get_community_theme(name=name)
 
-        community_themes_names = []
-        for theme in data["themes"]:
-            community_themes_names.append(theme["theme"]["name"])
+        if status == 200:
+            id = theme["id"]
+            uuid = app["uuid"]
+            name = theme["name"]
+            author = theme["author"]
+            description = theme["desc"]
+            download_link = theme["direct_download_link"]
+            image_url = theme["image_url"]
 
-        if name in community_themes_names:
-            for theme in data["themes"]:
-                theme = theme["theme"]
-                if name.lower() == theme["name"].lower():
-                    id = theme["id"]
-                    name = theme["name"]
-                    author = theme["author"]
-                    description = theme["desc"]
-                    download_link = theme["direct_download_link"]
-                    image_url = theme["image_url"]
+            status_d, downloads = await get_downloads("app", uuid=uuid)
+            downloads = downloads["downloads"]
 
             view = discord.ui.View()
             style = discord.ButtonStyle.url
@@ -1060,6 +1060,8 @@ class DroptopCommands(commands.Cog):
                 description=f"{description}",
                 color=discord.Color.from_rgb(75, 215, 100),
             )
+            if status_d == 200:
+                embed.add_field(name="Version: ", value=version, inline=False)
             embed.set_author(
                 name="Community Theme Info",
                 url=self.bot.configs["website"] + "/community-themes",
@@ -1071,9 +1073,14 @@ class DroptopCommands(commands.Cog):
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
 
-        else:
+        elif status == 404:
             await interaction.response.send_message(
                 f"The {name} community theme doesn't exists.", ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                f"An error occurred while trying to get the information of the {name} community theme.",
+                ephemeral=True,
             )
 
     @community_theme_group.command(name="new_release")

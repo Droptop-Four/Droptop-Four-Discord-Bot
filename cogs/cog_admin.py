@@ -351,8 +351,9 @@ class AdminCommands(commands.Cog):
     @loop(seconds=600)
     async def version_stats(self):
         channel = self.bot.get_channel(self.bot.configs["versionstats_channel"])
-        version = await get_version()
-        await channel.edit(name="🆕╏Version: " + str(version["version"]))
+        status, data = await get_version()
+        if status == 200:
+            await channel.edit(name="🆕╏Version: " + str(data["version"]))
 
     @loop(seconds=600)
     async def supporter_stats(self):
