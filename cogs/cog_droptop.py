@@ -14,9 +14,9 @@ from discord.ext import commands
 from utils import (
     analyze_invoice,
     get_all_sales,
+    get_downloads,
     get_followers,
     get_metadata,
-    get_releases_downloads,
     get_stars,
     get_title_author,
     github_reader,
@@ -164,12 +164,9 @@ class DroptopCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
         message = await interaction.original_response()
-
+    
         gumroad_sales = get_all_sales(json.loads(self.bot.configs["gumroad_token"]))
-        # TODO: this blocks heartbeat (iteration through all releases to get all downloads)
-        github_basic_downloads, github_update_downloads = get_releases_downloads(
-            self.bot.configs["github_private_key"]
-        )
+        github_basic_downloads, github_update_downloads = await get_downloads()
         deviantart_views, deviantart_favourites, deviantart_downloads = get_metadata(
             self.bot.configs["deviantart_auth_url"]
         )
