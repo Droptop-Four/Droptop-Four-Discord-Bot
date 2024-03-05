@@ -4,6 +4,7 @@ __all__ = [
     "database",
     "date_validator",
     "deviantart",
+    "droptop",
     "firebase",
     "generators",
     "github",
@@ -20,12 +21,12 @@ from .crowdin import initialize_crowdin
 from .database import initialize_mongodb
 from .date_validator import validate_date
 from .deviantart import get_metadata
+from .droptop import get_downloads, get_version
 from .firebase import initialize_firebase, sync_files
 from .generators import generate_uuid_string
 from .github import (
     edit_release,
     get_followers,
-    get_releases_downloads,
     get_stars,
     github_reader,
     image_delete,

@@ -63,32 +63,6 @@ def github_reader(private_key, path):
     return data
 
 
-def get_releases_downloads(private_key):
-    """
-    Gets the number of downloads across all releases.
-
-    Args:
-            private_key (str): The authentication private_key
-
-    Returns:
-            basic_downloads (int): The number of downloads of the Basic variant
-            update_downloads (int): The number of downloads of the Update variant
-    """
-
-    g, all_files = initialize_github(private_key)
-    repo = g.get_repo("Droptop-Four/Droptop-Four")
-    basic_downloads = 0
-    update_downloads = 0
-    releases = repo.get_releases()
-    for release in releases:
-        assets = release.get_assets()
-
-        basic_downloads += assets[0].download_count
-        update_downloads += assets[1].download_count
-
-    return basic_downloads, update_downloads
-
-
 def get_stars(private_key):
     """
     Gets the number of stars across all repos.
