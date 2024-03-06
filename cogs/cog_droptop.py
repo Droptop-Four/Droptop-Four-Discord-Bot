@@ -165,13 +165,13 @@ class DroptopCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
         message = await interaction.original_response()
-
-        gumroad_sales = get_all_sales(json.loads(self.bot.configs["gumroad_token"]))
+        
         status, data = await get_downloads("droptop")
         if status == 200:
-            github_basic_downloads, github_update_downloads = (
+            github_basic_downloads, github_update_downloads, supporter_downloads = (
                 data["basic_downloads"],
                 data["update_downloads"],
+                data["supporter_downloads"]
             )
             deviantart_views, deviantart_favourites, deviantart_downloads = (
                 get_metadata(self.bot.configs["deviantart_auth_url"])
@@ -181,7 +181,7 @@ class DroptopCommands(commands.Cog):
 
             embed.add_field(
                 name="<:Download:1041649764929916938> Downloads",
-                value=f"```css\n{'Basic Variant':<18}{github_basic_downloads+deviantart_downloads}\n{'Update':<18}{github_update_downloads}\n{'Supporter':<18}{gumroad_sales}```",
+                value=f"```css\n{'Basic Variant':<18}{github_basic_downloads+deviantart_downloads}\n{'Update':<18}{github_update_downloads}\n{'Supporter':<18}{supporter_downloads}```",
                 inline=False,
             )
             embed.add_field(
