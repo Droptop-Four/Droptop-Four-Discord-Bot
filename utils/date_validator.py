@@ -1,4 +1,7 @@
 import datetime
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 def validate_date(date):
@@ -6,10 +9,10 @@ def validate_date(date):
     Checks if the date is valid.
 
     Args:
-            date (str): The date to check
+        date (str): The date to check
 
     Returns:
-            bool: If the date is valid or not
+        bool: If the date is valid or not
     """
 
     try:

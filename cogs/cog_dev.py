@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import discord
@@ -5,6 +6,8 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils import command_mention
+
+_logger = logging.getLogger(__name__)
 
 original_extensions = [
     "cogs.cog_admin",

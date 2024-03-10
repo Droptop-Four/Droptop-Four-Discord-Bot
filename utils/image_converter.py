@@ -1,4 +1,8 @@
+import logging
+
 from PIL import Image
+
+_logger = logging.getLogger(__name__)
 
 
 def to_webp(source):
@@ -6,10 +10,10 @@ def to_webp(source):
     Convert image to Webp.
 
     Args:
-            source (pathlib.Path): Path to source image
+        source (pathlib.Path): Path to source image
 
     Returns:
-            destination (pathlib.Path): Path to new image
+        destination (pathlib.Path): Path to new image
     """
 
     destination = source.with_suffix(".webp")

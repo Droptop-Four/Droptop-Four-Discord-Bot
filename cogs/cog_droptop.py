@@ -1,8 +1,8 @@
 import configparser
 import json
+import logging
 import math
 import os
-import traceback
 import zipfile
 from pathlib import Path
 from typing import List, Optional
@@ -36,6 +36,8 @@ from utils import (
     to_webp,
     version_date,
 )
+
+_logger = logging.getLogger(__name__)
 
 
 class DroptopCommands(commands.Cog):
@@ -165,13 +167,13 @@ class DroptopCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
         message = await interaction.original_response()
-        
+
         status, data = await get_downloads("droptop")
         if status == 200:
             github_basic_downloads, github_update_downloads, supporter_downloads = (
                 data["basic_downloads"],
                 data["update_downloads"],
-                data["supporter_downloads"]
+                data["supporter_downloads"],
             )
             deviantart_views, deviantart_favourites, deviantart_downloads = (
                 get_metadata(self.bot.configs["deviantart_auth_url"])
@@ -1195,7 +1197,7 @@ class DroptopCommands(commands.Cog):
                 confirm_button.disabled = True
                 cancel_button.disabled = True
                 await original.edit(view=view)
-                
+
                 await interaction.response.send_message(
                     "Action cancelled...", ephemeral=True
                 )
@@ -1637,7 +1639,34 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
-        traceback.print_tb(error.__traceback__)
+
+        channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+        embed = discord.Embed(
+            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+        )
+        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+        embed.add_field(
+            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+        )
+        embed.add_field(
+            name="Command", value=f"{interaction.command.qualified_name}", inline=False
+        )
+        embed.add_field(
+            name="Command mention",
+            value=f"{interaction.command.extras['mention']}",
+            inline=False,
+        )
+        embed.add_field(name="Error", value=error, inline=False)
+        embed.add_field(
+            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        )
+
+        await channel.send(embed=embed)
+
+        _logger.error(
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+        )
 
 
 class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
@@ -1852,7 +1881,34 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
-        traceback.print_tb(error.__traceback__)
+
+        channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+        embed = discord.Embed(
+            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+        )
+        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+        embed.add_field(
+            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+        )
+        embed.add_field(
+            name="Command", value=f"{interaction.command.qualified_name}", inline=False
+        )
+        embed.add_field(
+            name="Command mention",
+            value=f"{interaction.command.extras['mention']}",
+            inline=False,
+        )
+        embed.add_field(name="Error", value=error, inline=False)
+        embed.add_field(
+            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        )
+
+        await channel.send(embed=embed)
+
+        _logger.error(
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+        )
 
 
 class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
@@ -2029,7 +2085,9 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                         newembed.set_image(url=self.image_url)
 
                     async for message in thread.history(oldest_first=True, limit=1):
-                        await message.edit(embed=newembed, attachments=[image_file], view=view)
+                        await message.edit(
+                            embed=newembed, attachments=[image_file], view=view
+                        )
                 else:
                     await thread.send(embed=embed, view=view)
 
@@ -2061,7 +2119,34 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
-        traceback.print_tb(error.__traceback__)
+
+        channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+        embed = discord.Embed(
+            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+        )
+        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+        embed.add_field(
+            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+        )
+        embed.add_field(
+            name="Command", value=f"{interaction.command.qualified_name}", inline=False
+        )
+        embed.add_field(
+            name="Command mention",
+            value=f"{interaction.command.extras['mention']}",
+            inline=False,
+        )
+        embed.add_field(name="Error", value=error, inline=False)
+        embed.add_field(
+            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        )
+
+        await channel.send(embed=embed)
+
+        _logger.error(
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+        )
 
 
 class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
@@ -2239,7 +2324,9 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                         newembed.set_image(url=self.image_url)
 
                     async for message in thread.history(oldest_first=True, limit=1):
-                        await message.edit(embed=newembed, attachments=[image_file], view=view)
+                        await message.edit(
+                            embed=newembed, attachments=[image_file], view=view
+                        )
                 else:
                     await thread.send(embed=embed, view=view)
 
@@ -2271,7 +2358,34 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
-        traceback.print_tb(error.__traceback__)
+
+        channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+        embed = discord.Embed(
+            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+        )
+        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+        embed.add_field(
+            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+        )
+        embed.add_field(
+            name="Command", value=f"{interaction.command.qualified_name}", inline=False
+        )
+        embed.add_field(
+            name="Command mention",
+            value=f"{interaction.command.extras['mention']}",
+            inline=False,
+        )
+        embed.add_field(name="Error", value=error, inline=False)
+        embed.add_field(
+            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        )
+
+        await channel.send(embed=embed)
+
+        _logger.error(
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+        )
 
 
 class ConfirmDeletion(discord.ui.View):

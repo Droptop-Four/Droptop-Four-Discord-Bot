@@ -1,4 +1,7 @@
+import logging
 import re
+
+_logger = logging.getLogger(__name__)
 
 
 def rmskin_name_check(type, name):
@@ -6,11 +9,11 @@ def rmskin_name_check(type, name):
     Checks if the rmskin file has the proper name.
 
     Args:
-            type (str): The type of package [app, theme]
-            name (str): The name of the package
+        type (str): The type of package [app, theme]
+        name (str): The name of the package
 
     Returns:
-            bool: If the name is valid
+        bool: If the name is valid
     """
 
     if type == "app":
@@ -31,11 +34,11 @@ def rmskin_rename(type, name):
     Renames the rmskin file to the proper name.
 
     Args:
-            type (str): The type of package [app, theme]
-            name (str): The name of the package
+        type (str): The type of package [app, theme]
+        name (str): The name of the package
 
     Returns:
-            name (str): The new name of the package
+        name (str): The new name of the package
     """
 
     name = name.replace("_", " ")
@@ -52,12 +55,12 @@ def get_title_author(type, name):
     Separates the title and the author from the name.
 
     Args:
-            type (str): The type of package [app, theme]
-            name (str): The name of the package
+        type (str): The type of package [app, theme]
+        name (str): The name of the package
 
     Returns:
-            title (str): The title of the package
-            author (str): The author of the package
+        title (str): The title of the package
+        author (str): The author of the package
     """
 
     lista = name.split("_-_")
@@ -89,11 +92,11 @@ def img_rename(type, name):
     Renames the image file to the proper name.
 
     Args:
-            title (str): The title of the package
-            author (str): The author of the package
+        title (str): The title of the package
+        author (str): The author of the package
 
     Returns:
-            name (str): The new name of the image
+        name (str): The new name of the image
     """
 
     name = name.replace(" ", "_")

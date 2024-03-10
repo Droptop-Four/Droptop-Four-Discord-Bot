@@ -1,3 +1,4 @@
+import logging
 import threading
 from pathlib import Path
 
@@ -5,28 +6,29 @@ import firebase_admin
 import requests
 from firebase_admin import credentials, storage
 
+_logger = logging.getLogger(__name__)
 
-def initialize_firebase(creds, logger):
+
+def initialize_firebase(creds):
     """
-    Initializes the connection with firebase.
+    Initializes the connection with Firebase.
 
     Args:
-            creds (dict): The credentials for initializing the connection
-            logger (logger): The logger
+        creds (dict): The credentials for initializing the connection
 
     Returns:
-            bool: If the connection was initialized
-            None/error: If the connection was initialized, None; if not, the error
+        bool: If the connection was initialized
+        None/e: If the connection was initialized, None; if not, the error
     """
 
     try:
         cred = credentials.Certificate(creds)
         firebase_admin.initialize_app(cred)
-        logger.info("Connection to firebase successfully initialized")
-        return True, ""
+        _logger.info("Connection to Firebase successfully initialized")
+        return True, None
 
     except Exception as e:
-        logger.critical(f"Connection to firebase failed!\n{e}")
+        _logger.critical(f"Connection to Firebase failed!\n{e}")
         return False, e
 
 
@@ -35,9 +37,9 @@ def post_webhook(url, title, message):
     Sends the webhook to discord server.
 
     Args:
-            url (str): The url of the discord webhook
-            title (str): The title of the embed to send
-            message (str): The message of the embed to send
+        url (str): The url of the discord webhook
+        title (str): The title of the embed to send
+        message (str): The message of the embed to send
     """
 
     data = {
@@ -54,14 +56,14 @@ def post_webhook(url, title, message):
 
 def upload_file(file, bucket_url):
     """
-    Uploads the file to firebase storage.
+    Uploads the file to Firebase storage.
 
     Args:
-            file (str): The file to upload to firebase
-            bucket_url (str): The url of the firebase bucket
+        file (str): The file to upload to Firebase
+        bucket_url (str): The url of the Firebase bucket
 
     Returns:
-            success (bool): If the uploading succeded or not
+        success (bool): If the uploading succeded or not
     """
 
     print(f"Uploading file {file}...")
@@ -92,13 +94,13 @@ def upload_file(file, bucket_url):
 
 def sync_files_thread(files, names, bucket_url, webhook_url):
     """
-    Syncs files with firebase, thread.
+    Syncs files with Firebase, thread.
 
     Args:
-            files (list): The list of files to use
-            names (list): The list of names to use
-            bucket_url (str): The url of the firebase bucket
-            webhook_url (str): The url of the discord webhook
+        files (list): The list of files to use
+        names (list): The list of names to use
+        bucket_url (str): The url of the Firebase bucket
+        webhook_url (str): The url of the discord webhook
     """
 
     file_names = []
@@ -124,7 +126,7 @@ def sync_files_thread(files, names, bucket_url, webhook_url):
         post_webhook(
             webhook_url,
             "Files synced",
-            "The files are successfully synced on firebase for the alternative download",
+            "The files are successfully synced on Firebase for the alternative download",
         )
     elif done == 1:
         post_webhook(
@@ -136,19 +138,19 @@ def sync_files_thread(files, names, bucket_url, webhook_url):
         post_webhook(
             webhook_url,
             "ERROR",
-            "The files couldn't be uploaded to firebase, the packages versions might be outdated. Run again the sync_firebase command",
+            "The files couldn't be uploaded to Firebase, the packages versions might be outdated. Run again the sync_firebase command",
         )
 
 
 def sync_files(files, names, bucket_url, webhook_url):
     """
-    Syncs files with firebase.
+    Syncs files with Firebase.
 
     Args:
-            files (list): The list of files to use
-            names (list): The list of names to use
-            bucket_url (str): The url of the firebase bucket
-            webhook_url (str): The url of the discord webhook
+        files (list): The list of files to use
+        names (list): The list of names to use
+        bucket_url (str): The url of the Firebase bucket
+        webhook_url (str): The url of the discord webhook
     """
 
     thread = threading.Thread(

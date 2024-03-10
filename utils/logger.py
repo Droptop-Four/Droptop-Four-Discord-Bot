@@ -2,7 +2,10 @@ import datetime as dt
 import json
 import logging.config
 
+import discord
 import sentry_sdk
+
+_logger = logging.getLogger(__name__)
 
 
 class ColorFormatter(logging.Formatter):
@@ -23,7 +26,9 @@ class ColorFormatter(logging.Formatter):
     }
 
     def format(self, record):
-        formatter = self.FORMATS[logging.DEBUG]
+        formatter = self.FORMATS.get(record.levelno)
+        if formatter is None:
+            formatter = self.FORMATS[logging.DEBUG]
 
         if record.exc_info:
             text = formatter.formatException(record.exc_info)
@@ -39,8 +44,7 @@ def initialize_logger(sentry_dsn):
     Initializes the logger.
 
     Returns:
-            bool: If the logger was initialized
-            logger (logger): The logger
+        bool: If the logger was initialized
     """
 
     logging_config = {
@@ -73,17 +77,17 @@ def initialize_logger(sentry_dsn):
             },
         },
         "loggers": {
-            "Discord-Bot": {
-                "handlers": ["stdout", "file"],
-                "level": "INFO",
-                "propagate": False,
-            },
-            "Discord-Bot.discord": {
+            "discord": {
                 "handlers": ["stdout", "file"],
                 "level": "INFO",
                 "propagate": True,
             },
-            "Discord-Bot.discord.http": {
+            "discord.http": {
+                "handlers": ["stdout", "file"],
+                "level": "WARNING",
+                "propagate": True,
+            },
+            "discord.state": {
                 "handlers": ["stdout", "file"],
                 "level": "INFO",
                 "propagate": True,
@@ -92,11 +96,14 @@ def initialize_logger(sentry_dsn):
         "root": {"level": "INFO", "handlers": ["stdout", "file"]},
     }
 
-    logging.config.dictConfig(logging_config)
-    logger = logging.getLogger("Discord-Bot")
+    discord.utils.setup_logging()
 
-    logger.info("------------------------------")
-    logger.info("Logger succesfully initialized")
+    logging.config.dictConfig(logging_config)
+
+    root_logger = logging.getLogger()
+    root_logger.info("------------------------------")
+
+    _logger.info("Logger succesfully initialized")
 
     sentry_sdk.init(
         dsn=sentry_dsn,
@@ -110,4 +117,4 @@ def initialize_logger(sentry_dsn):
         enable_tracing=True,
     )
 
-    return True, logger
+    return True

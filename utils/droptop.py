@@ -1,12 +1,15 @@
 import json
+import logging
 
 import aiohttp
+
+_logger = logging.getLogger(__name__)
 
 
 async def fetch(session, url):
     """
     Fetch an url
-    
+
     Args:
         session (aiohttp.ClientSession): The aiohttp session
         url (str): The url to fetch
@@ -23,7 +26,7 @@ async def fetch(session, url):
 async def get_downloads(type, *, uuid=None):
     """
     Gets the number of downloads of Droptop Four
-    
+
     Args:
         type (str): The type of the download. Can be 'droptop', 'app' or 'theme'
         uuid (str): The UUID of the app or theme
@@ -51,7 +54,7 @@ async def get_downloads(type, *, uuid=None):
 async def get_version():
     """
     Gets the version of Droptop Four
-    
+
     Returns:
         status (int): The status code of the request
         data (dict): The data of the request
@@ -67,7 +70,7 @@ async def get_version():
 async def get_community_app(*, id=None, uuid=None, name=None):
     """
     Gets all the Community Apps of Droptop
-    
+
     Args:
         id (int): The ID of the app
         uuid (str): The UUID of the app
@@ -96,7 +99,7 @@ async def get_community_app(*, id=None, uuid=None, name=None):
 async def get_community_theme(*, id=None, uuid=None, name=None):
     """
     Gets all the Community Themes of Droptop
-    
+
     Args:
         id (int): The ID of the theme
         uuid (str): The UUID of the theme

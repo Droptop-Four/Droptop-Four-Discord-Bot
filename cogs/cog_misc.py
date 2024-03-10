@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from time import time
 from typing import Optional
@@ -5,6 +6,8 @@ from typing import Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
+
+_logger = logging.getLogger(__name__)
 
 
 class MiscCommands(commands.Cog):

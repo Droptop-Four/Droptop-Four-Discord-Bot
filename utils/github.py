@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -9,6 +10,8 @@ from dotenv import load_dotenv
 
 from .generators import generate_uuid_string
 from .time_utils import version_date
+
+_logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -24,11 +27,11 @@ def initialize_github(private_key):
     Initializes the connection with github.
 
     Args:
-            private_key (str): The private key
+        private_key (str): The private key
 
     Returns:
-            g (Github): The github instance
-            all_files (list): Empty list
+        g (Github): The github instance
+        all_files (list): Empty list
     """
 
     auth = github.Auth.AppAuth(auth_app, private_key)
@@ -45,11 +48,11 @@ def github_reader(private_key, path):
     Reads a file from github and returns it as a json object.
 
     Args:
-            private_key (str): The authentication private_key
-            path (str): Path to file on github
+        private_key (str): The authentication private_key
+        path (str): Path to file on github
 
     Returns:
-            data: (json): JSON object of file contents
+        data: (json): JSON object of file contents
     """
 
     g, all_files = initialize_github(private_key)
@@ -68,10 +71,10 @@ def get_stars(private_key):
     Gets the number of stars across all repos.
 
     Args:
-            private_key (str): The authentication private_key
+        private_key (str): The authentication private_key
 
     Returns:
-            stars (int): The number of stars
+        stars (int): The number of stars
     """
 
     g, all_files = initialize_github(private_key)
@@ -89,14 +92,14 @@ def edit_release(private_key, version, cl_features, cl_modifications, cl_bugfixe
     Edits the specific release on Github
 
     Args:
-            private_key (str): The authentication private_key
-            version (str): The version of the package
-            cl_features (list): A list of features of a droptop new version
-            cl_modifications (list): A list of modifications of a droptop new version
-            cl_bugfixes (list): A list of bug fixes of a droptop new version
+        private_key (str): The authentication private_key
+        version (str): The version of the package
+        cl_features (list): A list of features of a droptop new version
+        cl_modifications (list): A list of modifications of a droptop new version
+        cl_bugfixes (list): A list of bug fixes of a droptop new version
 
     Returns:
-            edited (bool): If the release was edited
+        edited (bool): If the release was edited
     """
 
     g, all_files = initialize_github(private_key)
@@ -141,10 +144,10 @@ def get_followers(private_key):
     Gets the number of followers of the organization.
 
     Args:
-            private_key (str): The authentication private_key
+        private_key (str): The authentication private_key
 
     Returns:
-            followers (int): The number of followers
+        followers (int): The number of followers
     """
 
     g, all_files = initialize_github(private_key)
@@ -159,12 +162,12 @@ def push_rmskin(private_key, type, package_name):
     Pushes the rmskin package to github.
 
     Args:
-            private_key (str): The authentication private_key
-            type (str): The type of package [app, theme]
-            package_name (str): The name of the package
+        private_key (str): The authentication private_key
+        type (str): The type of package [app, theme]
+        package_name (str): The name of the package
 
     Returns:
-            creation (bool): if the package was created (True) or it was already present and was only updated (False)
+        creation (bool): if the package was created (True) or it was already present and was only updated (False)
     """
 
     g, all_files = initialize_github(private_key)
@@ -219,12 +222,12 @@ def push_image(private_key, type, image_name):
     Pushes the image to github
 
     Args:
-            private_key (str): The authentication private_key
-            type (str): The type of package [app, theme]
-            image_name (str): The name of the image
+        private_key (str): The authentication private_key
+        type (str): The type of package [app, theme]
+        image_name (str): The name of the image
 
     Returns:
-            creation (bool): if the image was created (True) or it was already present and was only updated (False)
+        creation (bool): if the image was created (True) or it was already present and was only updated (False)
     """
 
     g, all_files = initialize_github(private_key)
@@ -302,30 +305,30 @@ def json_update(
     Updates the json file with the new package information
 
     Args:
-            private_key (str): The authentication private_key
-            type (str): The type of package [app, theme]
-            authorised_members (list): A list of authorised members to edit apps/themes
-            title (str): The title of the package
-            author (str): The author of the package
-            description (str): The description of the package
-            changenotes (str): The changenotes of the version
-            rmskin_name (str): The name of the rmskin package
-            image_name (str): The name of the image
-            version (str): The version of the package
-            uuid (str): The uuid of the package
-            author_link (str): The link of the author
-            github_repo (str): The link of the repo
-            ann_date (float): The date of the announcement
-            ann_expiration (float): The expiration date of the announcement
-            announcement (str): The announcement
-            ann_type (str): The type of announcement [Important, Warning, Info]
-            ann_scope (str): The scope of the announcement [App, Website, Website & App]
-            cl_features (list): A list of features of a droptop new version
-            cl_modifications (list): A list of modifications of a droptop new version
-            cl_bugfixes (list): A list of bug fixes of a droptop new version
+        private_key (str): The authentication private_key
+        type (str): The type of package [app, theme]
+        authorised_members (list): A list of authorised members to edit apps/themes
+        title (str): The title of the package
+        author (str): The author of the package
+        description (str): The description of the package
+        changenotes (str): The changenotes of the version
+        rmskin_name (str): The name of the rmskin package
+        image_name (str): The name of the image
+        version (str): The version of the package
+        uuid (str): The uuid of the package
+        author_link (str): The link of the author
+        github_repo (str): The link of the repo
+        ann_date (float): The date of the announcement
+        ann_expiration (float): The expiration date of the announcement
+        announcement (str): The announcement
+        ann_type (str): The type of announcement [Important, Warning, Info]
+        ann_scope (str): The scope of the announcement [App, Website, Website & App]
+        cl_features (list): A list of features of a droptop new version
+        cl_modifications (list): A list of modifications of a droptop new version
+        cl_bugfixes (list): A list of bug fixes of a droptop new version
 
     Returns:
-            creation (bool): if the app inside of the json was created (True) or it was already present and was only updated (False)
+        creation (bool): if the app inside of the json was created (True) or it was already present and was only updated (False)
     """
 
     g, all_files = initialize_github(private_key)
@@ -760,20 +763,20 @@ def json_edit(
     Edits the specified app or theme
 
     Args:
-            private_key (str): The authentication private_key
-            type (str): The type of package [app, theme]
-            uuid (str): The uuid of the app/theme
-            author (str): The author of the package
-            description (str): The description of the package
-            author_link (str): The link of the author
-            github_repo (str): The link of the repo
-            authorised_members (list): A list of authorised members to edit apps/themes
+        private_key (str): The authentication private_key
+        type (str): The type of package [app, theme]
+        uuid (str): The uuid of the app/theme
+        author (str): The author of the package
+        description (str): The description of the package
+        author_link (str): The link of the author
+        github_repo (str): The link of the repo
+        authorised_members (list): A list of authorised members to edit apps/themes
 
     Returns:
-            edited_json (bool): If the json was edited
-            download_link: The download link of the app/theme
-            image_link: The image link of the app/theme
-            item_id: The id of the app/theme
+        edited_json (bool): If the json was edited
+        download_link: The download link of the app/theme
+        image_link: The image link of the app/theme
+        item_id: The id of the app/theme
     """
 
     g, all_files = initialize_github(private_key)
@@ -889,9 +892,9 @@ def rmskin_delete(private_key, type, name):
     Deletes the specified app or theme rmskin package
 
     Args:
-            private_key (str): The authentication private_key
-            type (str): The type of package [app, theme]
-            name (str): The name of the app/theme
+        private_key (str): The authentication private_key
+        type (str): The type of package [app, theme]
+        name (str): The name of the app/theme
     """
 
     g, all_files = initialize_github(private_key)
@@ -914,9 +917,9 @@ def image_delete(private_key, type, name):
     Deletes the specified app or theme image
 
     Args:
-            private_key (str): The authentication private_key
-            type (str): The type of package [app, theme]
-            name (str): The name of the app/theme
+        private_key (str): The authentication private_key
+        type (str): The type of package [app, theme]
+        name (str): The name of the app/theme
     """
 
     g, all_files = initialize_github(private_key)
@@ -940,9 +943,9 @@ def json_delete(private_key, type, uuid):
     Deletes the specified app or theme from its json file
 
     Args:
-            private_key (str): The authentication private_key
-            type (str): The type of package [app, theme]
-            uuid (str): The uuid of the app/theme
+        private_key (str): The authentication private_key
+        type (str): The type of package [app, theme]
+        uuid (str): The uuid of the app/theme
     """
 
     g, all_files = initialize_github(private_key)

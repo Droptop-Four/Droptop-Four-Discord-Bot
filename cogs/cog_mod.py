@@ -1,9 +1,12 @@
 import datetime
+import logging
 from typing import List, Optional
 
 import discord
 from discord import app_commands
 from discord.ext import commands
+
+_logger = logging.getLogger(__name__)
 
 
 class ModerationCommands(commands.Cog):
