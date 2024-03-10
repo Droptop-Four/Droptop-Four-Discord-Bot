@@ -3,12 +3,13 @@
 	Discord: https://discord.gg/hQGDm4F5Ef
 	Author: Bunz (bunz#3066)
 	Date created: 21/10/2022
-	Bot Version: 4.0-alpha.1
+	Bot Version: 4.0
 	Python Version: 3.11.4
 	Cogs: 5
 """
 
 import json
+import logging
 import os
 import re
 from datetime import datetime
@@ -29,6 +30,8 @@ from utils import (
 load_dotenv()
 
 
+logger = logging.getLogger("main")
+
 main_prefix = ()
 
 bot = commands.Bot(
@@ -44,24 +47,29 @@ bot = commands.Bot(
 
 bot.launch_time = datetime.utcnow()
 
-logger_status, logger = initialize_logger(os.getenv("sentry_dsn"))
+try:
+    logger_status = initialize_logger(os.getenv("sentry_dsn"))
+except Exception as e:
+    logger_status = False
+    logger.critical(f"Logger failed to initialize!\n{e}")
 
 db_id, db_cluster = os.getenv("mongodb_id"), os.getenv("db_cluster")
 
-db_status = initialize_mongodb(db_id, db_cluster, logger)
+db_status, collection = initialize_mongodb(db_id, db_cluster)
 
-if db_status[0]:
-    config_collection = db_status[1]
+if db_status:
+    config_collection = collection
     bot.configs = config_collection.find_one({}, {"_id": 0})
 
-    firebase_status = initialize_firebase(
-        json.loads(bot.configs["firebase_creds"]), logger
+    firebase_status, firebase_error = initialize_firebase(
+        json.loads(bot.configs["firebase_creds"])
     )
 
     bot.cari_logo = bot.configs["cari_logo"]
     bot.droptopfour_logo = bot.configs["droptopfour_logo"]
 else:
-    firebase_status = False, ""
+    firebase_status = False
+    firebase_error = "Database failed to initialize, so Firebase was not initialized."
 
 
 @bot.event
@@ -156,7 +164,7 @@ async def on_command_error(ctx, error):
 
     channel = bot.get_channel(bot.configs["commandlog_channel"])
 
-    embed = discord.Embed(title="Command")
+    embed = discord.Embed(title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0))
     embed.add_field(name="User", value=f"<@{ctx.author.id}>", inline=False)
     embed.add_field(name="Channel", value=f"<#{ctx.channel.id}>", inline=False)
     embed.add_field(name="Command", value=f"{ctx.command.qualified_name}", inline=False)
@@ -168,16 +176,15 @@ async def on_command_error(ctx, error):
         params.append(parameter)
     embed.add_field(name="Params", value=f"{params}", inline=False)
     embed.add_field(name="Error", value=error, inline=False)
+    embed.add_field(
+        name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+    )
 
     await channel.send(embed=embed)
 
     logger.error(
-        f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}"
+        f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}; Traceback: {error.__traceback__}"
     )
-
-    # print(
-    #     f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}"
-    # )
 
 
 @bot.tree.error
@@ -205,18 +212,17 @@ async def on_tree_error(interaction, error):
         params.append(parameter)
     embed.add_field(name="Params", value=f"{params}", inline=False)
     embed.add_field(name="Error", value=error, inline=False)
+    embed.add_field(
+        name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+    )
 
     await channel.send(embed=embed)
     logger.error(
-        f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Params: {params}; Error: {error}"
+        f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Params: {params}; Error: {error}; Traceback: {error.__traceback__}"
     )
 
-    # print(
-    #     f"User: <@{interaction.user.id}>\nChannel: <#{interaction.channel_id}>\nCommand: {interaction.command.qualified_name}\nParams: {params}\nError: {error}"
-    # )
 
-
-if db_status[0] and firebase_status[0] and logger_status:
+if db_status and firebase_status and logger_status:
     # print("Bot is ready to start")
     logger.info("Bot is ready to start")
 
@@ -238,10 +244,10 @@ if db_status[0] and firebase_status[0] and logger_status:
 else:
     # print("Bot is not ready")
     logger.warning("Bot is not ready")
-    if not db_status[0]:
+    if not db_status:
         # print("MongoDB is not ready")
         logger.warning("MongoDB is not ready")
-    if not firebase_status[0]:
+    if not firebase_status:
         # print("Firebase is not ready")
         logger.warning("Firebase is not ready")
     if not logger_status:

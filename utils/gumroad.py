@@ -1,5 +1,9 @@
+import logging
+
 import fitz
 import pygumroad
+
+_logger = logging.getLogger(__name__)
 
 
 def initialize_gumroad(token):
@@ -12,8 +16,11 @@ def initialize_gumroad(token):
     Returns:
         client (GumroadClient): The gumroad instance
     """
-
-    client = pygumroad.GumroadClient(secrets_dict=token)
+    try:
+        client = pygumroad.GumroadClient(secrets_dict=token)
+    except Exception as e:
+        _logger.critical(f"Connection to gumroad failed! -> {e}")
+        client = None
 
     return client
 

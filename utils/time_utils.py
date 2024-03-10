@@ -1,5 +1,8 @@
+import logging
 import time
 from datetime import date, datetime
+
+_logger = logging.getLogger(__name__)
 
 
 def date_time():
@@ -7,7 +10,7 @@ def date_time():
     Returns the datetime of the moment
 
     Returns:
-            datetimestr (str): The datetime of the moment
+        datetimestr (str): The datetime of the moment
     """
 
     nowstr = datetime.now()
@@ -23,7 +26,7 @@ def today_date():
     Returns today's date
 
     Returns:
-            today (date): Today's date
+        today (date): Today's date
     """
 
     today = date.today()
@@ -36,7 +39,7 @@ def version_date():
     Returns the time format as 23.0915
 
     Returns:
-            string (str): The time format
+        string (str): The time format
     """
 
     string = time.strftime("%y.%m%d")

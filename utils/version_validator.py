@@ -1,12 +1,17 @@
+import logging
+
+_logger = logging.getLogger(__name__)
+
+
 def version_validator(version):
     """
     Checks if the version is written in a proper way.
 
     Args:
-            version (str): The version to check
+        version (str): The version to check
 
     Returns:
-            is_valid (bool): True if the version is valid, False if not
+        is_valid (bool): True if the version is valid, False if not
     """
 
     version_numbers = version.split(".")

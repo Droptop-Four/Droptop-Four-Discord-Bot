@@ -1,4 +1,4 @@
-import traceback
+import logging
 from typing import List
 
 import discord
@@ -15,6 +15,8 @@ from utils import (
     validate_date,
     version_validator,
 )
+
+_logger = logging.getLogger(__name__)
 
 
 class NewVersion(discord.ui.Modal, title="New Version"):
@@ -184,7 +186,34 @@ class NewVersion(discord.ui.Modal, title="New Version"):
         await interaction.followup.send(
             f"Oops! Something went wrong.\n{error}", ephemeral=True
         )
-        traceback.print_tb(error.__traceback__)
+
+        channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+        embed = discord.Embed(
+            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+        )
+        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+        embed.add_field(
+            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+        )
+        embed.add_field(
+            name="Command", value=f"{interaction.command.qualified_name}", inline=False
+        )
+        embed.add_field(
+            name="Command mention",
+            value=f"{interaction.command.extras['mention']}",
+            inline=False,
+        )
+        embed.add_field(name="Error", value=error, inline=False)
+        embed.add_field(
+            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        )
+
+        await channel.send(embed=embed)
+
+        _logger.error(
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+        )
 
 
 class NewPoll(discord.ui.Modal, title="New Poll"):
@@ -241,7 +270,34 @@ class NewPoll(discord.ui.Modal, title="New Poll"):
         await interaction.followup.send(
             f"Oops! Something went wrong.\n{error}", ephemeral=True
         )
-        traceback.print_tb(error.__traceback__)
+
+        channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+        embed = discord.Embed(
+            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+        )
+        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+        embed.add_field(
+            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+        )
+        embed.add_field(
+            name="Command", value=f"{interaction.command.qualified_name}", inline=False
+        )
+        embed.add_field(
+            name="Command mention",
+            value=f"{interaction.command.extras['mention']}",
+            inline=False,
+        )
+        embed.add_field(name="Error", value=error, inline=False)
+        embed.add_field(
+            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        )
+
+        await channel.send(embed=embed)
+
+        _logger.error(
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+        )
 
 
 class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
@@ -324,7 +380,40 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
             await interaction.followup.send(
                 f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
             )
-            traceback.print_tb(error.__traceback__)
+
+            channel = bot.get_channel(bot.configs["commandlog_channel"])
+
+            embed = discord.Embed(
+                title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+            )
+            embed.add_field(
+                name="User", value=f"<@{interaction.user.id}>", inline=False
+            )
+            embed.add_field(
+                name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+            )
+            embed.add_field(
+                name="Command",
+                value=f"{interaction.command.qualified_name}",
+                inline=False,
+            )
+            embed.add_field(
+                name="Command mention",
+                value=f"{interaction.command.extras['mention']}",
+                inline=False,
+            )
+            embed.add_field(name="Error", value=error, inline=False)
+            embed.add_field(
+                name="Traceback",
+                value=f"```fix\n{error.__traceback__}\n```",
+                inline=False,
+            )
+
+            await channel.send(embed=embed)
+
+            _logger.error(
+                f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            )
 
 
 class AdminCommands(commands.Cog):
