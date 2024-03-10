@@ -808,6 +808,10 @@ class DroptopCommands(commands.Cog):
                     default_github_repo = ""
 
             async def confirm_callback(interaction):
+                confirm_button.disabled = True
+                cancel_button.disabled = True
+                await original.edit(view=view)
+
                 await interaction.response.send_modal(
                     NewAppRelease(
                         self.bot.configs,
@@ -822,6 +826,10 @@ class DroptopCommands(commands.Cog):
                 )
 
             async def cancel_callback(interaction):
+                confirm_button.disabled = True
+                cancel_button.disabled = True
+                await original.edit(view=view)
+
                 await interaction.response.send_message(
                     "Action cancelled...", ephemeral=True
                 )
@@ -1166,6 +1174,10 @@ class DroptopCommands(commands.Cog):
                     default_github_repo = ""
 
             async def confirm_callback(interaction):
+                confirm_button.disabled = True
+                cancel_button.disabled = True
+                await original.edit(view=view)
+
                 await interaction.response.send_modal(
                     NewThemeRelease(
                         self.bot.configs,
@@ -1180,6 +1192,10 @@ class DroptopCommands(commands.Cog):
                 )
 
             async def cancel_callback(interaction):
+                confirm_button.disabled = True
+                cancel_button.disabled = True
+                await original.edit(view=view)
+                
                 await interaction.response.send_message(
                     "Action cancelled...", ephemeral=True
                 )
