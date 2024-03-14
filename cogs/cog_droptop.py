@@ -1657,14 +1657,15 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -1899,14 +1900,15 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -2137,14 +2139,15 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -2376,14 +2379,15 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 

@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import re
+import traceback
 from datetime import datetime
 
 import discord
@@ -176,14 +177,15 @@ async def on_command_error(ctx, error):
         params.append(parameter)
     embed.add_field(name="Params", value=f"{params}", inline=False)
     embed.add_field(name="Error", value=error, inline=False)
+    traceback_str = "".join(traceback.format_tb(error.__traceback__))
     embed.add_field(
-        name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
     )
 
     await channel.send(embed=embed)
 
     logger.error(
-        f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}; Traceback: {error.__traceback__}"
+        f"User: <@{ctx.author.id}>; Channel: <#{ctx.channel.id}>; Command: {ctx.command.qualified_name}; Params: {params}; Error: {error}; Traceback: {traceback_str}"
     )
 
 
@@ -212,13 +214,14 @@ async def on_tree_error(interaction, error):
         params.append(parameter)
     embed.add_field(name="Params", value=f"{params}", inline=False)
     embed.add_field(name="Error", value=error, inline=False)
+    traceback_str = "".join(traceback.format_tb(error.__traceback__))
     embed.add_field(
-        name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+        name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
     )
 
     await channel.send(embed=embed)
     logger.error(
-        f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Params: {params}; Error: {error}; Traceback: {error.__traceback__}"
+        f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Params: {params}; Error: {error}; Traceback: {traceback_str}"
     )
 
 
