@@ -15,6 +15,7 @@ from utils import (
     analyze_invoice,
     get_all_sales,
     get_community_app,
+    get_community_theme,
     get_downloads,
     get_followers,
     get_metadata,
@@ -636,11 +637,9 @@ class DroptopCommands(commands.Cog):
         current: str,
     ) -> List[app_commands.Choice[str]]:
         community_apps_names = []
-        data = github_reader(
-            self.bot.configs["github_private_key"],
-            "data/community_apps/community_apps.json",
-        )
-        for app in data["apps"]:
+        
+        status, data = await get_community_app()
+        for app in data:
             community_apps_names.append(app["app"]["name"])
         return [
             app_commands.Choice(name=community_app_name, value=community_app_name)
@@ -655,8 +654,8 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_apps_editable = []
 
-        data = get_community_app()
-        for app in data["apps"]:
+        status, data = await get_community_app()
+        for app in data:
             if interaction.user.id in app["app"]["authorised_members"]:
                 community_apps_editable.append(
                     f'{app["app"]["name"]} - {app["app"]["author"]}'
@@ -860,6 +859,7 @@ class DroptopCommands(commands.Cog):
 
     @community_app_group.command(name="edit")
     @app_commands.describe(
+        community_app="The Community App you want to edit",
         image_preview="The image of your Community App",
         authorised_member_1="A member you want to authorise to make changes to your app",
         authorised_member_2="A member you want to authorise to make changes to your app",
@@ -997,11 +997,9 @@ class DroptopCommands(commands.Cog):
         current: str,
     ) -> List[app_commands.Choice[str]]:
         community_themes_names = []
-        data = github_reader(
-            self.bot.configs["github_private_key"],
-            "data/community_themes/community_themes.json",
-        )
-        for theme in data["themes"]:
+
+        status, data = await get_community_theme()
+        for theme in data:
             community_themes_names.append(theme["theme"]["name"])
         return [
             app_commands.Choice(name=community_theme_name, value=community_theme_name)
@@ -1016,8 +1014,8 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_themes_editable = []
 
-        data = get_community_theme()
-        for theme in data["themes"]:
+        status, data = await get_community_theme()
+        for theme in data:
             if interaction.user.id in theme["theme"]["authorised_members"]:
                 community_themes_editable.append(
                     f'{theme["theme"]["name"]} - {theme["theme"]["author"]}'
@@ -1226,6 +1224,7 @@ class DroptopCommands(commands.Cog):
 
     @community_theme_group.command(name="edit")
     @app_commands.describe(
+        community_theme="The Community Theme you want to edit",
         image_preview="The image of your Community Theme",
         authorised_member_1="A member you want to authorise to make changes to your theme",
         authorised_member_2="A member you want to authorise to make changes to your theme",
@@ -1658,14 +1657,15 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -1900,14 +1900,15 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -2138,14 +2139,15 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -2377,14 +2379,15 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             inline=False,
         )
         embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
-            name="Traceback", value=f"```fix\n{error.__traceback__}\n```", inline=False
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
         )
 
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {error.__traceback__}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
         )
 
 
