@@ -652,7 +652,7 @@ def json_update(
                         "uuid": uuid,
                         "name": title,
                         "author": author,
-                        "author_id": authorised_members[2],
+                        "author_id": authorised_members[-1],
                         "author_link": author_link,
                         "desc": description,
                         "version": version,
