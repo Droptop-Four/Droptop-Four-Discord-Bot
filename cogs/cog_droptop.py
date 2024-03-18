@@ -183,7 +183,7 @@ class DroptopCommands(commands.Cog):
             github_stars = get_stars(self.bot.configs["github_private_key"])
 
             embed.add_field(
-                name="<:Download:1041649764929916938> Downloads",
+                name="<:Download:1219374850494431283> Downloads",
                 value=f"```css\n{'Basic Variant':<18}{github_basic_downloads+deviantart_downloads}\n{'Update':<18}{github_update_downloads}\n{'Supporter':<18}{supporter_downloads}```",
                 inline=False,
             )
