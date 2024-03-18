@@ -118,19 +118,19 @@ class NewVersion(discord.ui.Modal, title="New Version"):
             )
             if self.features.value:
                 embed.add_field(
-                    name="New features 🆕", value=self.features.value, inline=False
+                    name="New features <:New:1219373925062934689>", value=self.features.value, inline=False
                 )
             if self.modifications.value:
                 embed.add_field(
-                    name="Modifications ⚠️", value=self.modifications.value, inline=False
+                    name="Modifications <:Caution:1219373926791250000>", value=self.modifications.value, inline=False
                 )
             if self.bugfixes.value:
                 embed.add_field(
-                    name="Bug Fixes 🪲", value=self.bugfixes.value, inline=False
+                    name="Bug Fixes <:Mosquito:1219373928867303535>", value=self.bugfixes.value, inline=False
                 )
             embed.add_field(
                 name="Download",
-                value=f"⬇️ Download:\nhttps://github.com/Droptop-Four/Droptop-Four/releases/tag/v{self.version.value}.{self.miniversion.value}",
+                value=f"⬇<:Download:1219374850494431283> Download:\nhttps://github.com/Droptop-Four/Droptop-Four/releases/tag/v{self.version.value}.{self.miniversion.value}",
                 inline=False,
             )
             embed.set_footer(
@@ -508,8 +508,8 @@ class AdminCommands(commands.Cog):
         )
 
         files = [
-            "https://github.com/Droptop-Four/Droptop-Four/raw/main/Droptop_Basic_Version.rmskin",
-            "https://github.com/Droptop-Four/Droptop-Four/raw/main/Droptop_Update.rmskin",
+            "https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Basic_Version.rmskin",
+            "https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Update.rmskin",
         ]
         names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
         bucket_url = self.bot.configs["firebase_bucket_url"]
