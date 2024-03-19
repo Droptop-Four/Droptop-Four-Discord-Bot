@@ -791,11 +791,9 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            data = github_reader(
-                self.bot.configs["github_private_key"],
-                "data/community_apps/community_apps.json",
-            )
-            for app in data["apps"]:
+            _, data = await get_community_app()
+
+            for app in data:
                 if UUID == app["app"]["uuid"]:
                     new = False
                     default_description = app["app"]["desc"]
@@ -1156,11 +1154,9 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            data = github_reader(
-                self.bot.configs["github_private_key"],
-                "data/community_themes/community_themes.json",
-            )
-            for theme in data["themes"]:
+            _, data = await get_community_theme()
+            
+            for theme in data:
                 if UUID == theme["theme"]["uuid"]:
                     new = False
                     default_description = theme["theme"]["desc"]
@@ -1500,10 +1496,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             "Your app is being released... Please wait...", ephemeral=True
         )
         original = await interaction.original_response()
-        community_json = github_reader(
-            self.configs["github_private_key"],
-            "data/community_apps/community_apps.json",
-        )
+        _, community_json = get_community_app()
         authorised_members = []
 
         with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
@@ -1529,7 +1522,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             os.rename(f"tmp/{preview_image}", image_path)
             webp_path = to_webp(image_path)
 
-        for item in community_json["apps"]:
+        for item in community_json:
             app_tags = item["app"]
             if app_tags["uuid"] == UUID:
                 for member in app_tags["authorised_members"]:
