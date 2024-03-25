@@ -201,7 +201,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        channel = bot.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -290,7 +290,7 @@ class NewPoll(discord.ui.Modal, title="New Poll"):
             f"Oops! Something went wrong.\n{error}", ephemeral=True
         )
 
-        channel = bot.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -401,7 +401,7 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
                 f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
             )
 
-            channel = bot.get_channel(bot.configs["commandlog_channel"])
+            channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
 
             embed = discord.Embed(
                 title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
