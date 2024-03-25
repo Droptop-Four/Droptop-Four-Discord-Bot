@@ -62,6 +62,24 @@ class NewVersion(discord.ui.Modal, title="New Version"):
         self.add_item(self.bugfixes)
 
     async def on_submit(self, interaction: discord.Interaction):
+        if len(self.features.value) > 1024:
+            await interaction.response.send_message(
+                "The features are too long", ephemeral=True
+            )
+            return
+        
+        if len(self.modifications.value) > 1024:
+            await interaction.response.send_message(
+                "The modifications are too long", ephemeral=True
+            )
+            return
+
+        if len(self.bugfixes.value) > 1024:
+            await interaction.response.send_message(
+                "The bug fixes are too long", ephemeral=True
+            )
+            return
+        
         dtbrping = discord.utils.get(
             interaction.guild.roles, id=self.configs["newversion_role"]
         )
@@ -183,10 +201,6 @@ class NewVersion(discord.ui.Modal, title="New Version"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        await interaction.followup.send(
-            f"Oops! Something went wrong.\n{error}", ephemeral=True
-        )
-
         channel = bot.get_channel(bot.configs["commandlog_channel"])
 
         embed = discord.Embed(
@@ -214,6 +228,10 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
         _logger.error(
             f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
+        )
+
+        await interaction.followup.send(
+            f"Oops! Something went wrong.\n{error}", ephemeral=True
         )
 
 

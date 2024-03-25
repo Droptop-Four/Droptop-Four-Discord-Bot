@@ -1038,14 +1038,14 @@ class DroptopCommands(commands.Cog):
 
         if status == 200:
             id = theme["id"]
-            uuid = app["uuid"]
+            uuid = theme["uuid"]
             name = theme["name"]
             author = theme["author"]
             description = theme["desc"]
             download_link = theme["direct_download_link"]
             image_url = theme["image_url"]
 
-            status_d, downloads = await get_downloads("app", uuid=uuid)
+            status_d, downloads = await get_downloads("theme", uuid=uuid)
             downloads = downloads["downloads"]
 
             view = discord.ui.View()
