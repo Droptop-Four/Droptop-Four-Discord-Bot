@@ -1038,14 +1038,14 @@ class DroptopCommands(commands.Cog):
 
         if status == 200:
             id = theme["id"]
-            uuid = app["uuid"]
+            uuid = theme["uuid"]
             name = theme["name"]
             author = theme["author"]
             description = theme["desc"]
             download_link = theme["direct_download_link"]
             image_url = theme["image_url"]
 
-            status_d, downloads = await get_downloads("app", uuid=uuid)
+            status_d, downloads = await get_downloads("theme", uuid=uuid)
             downloads = downloads["downloads"]
 
             view = discord.ui.View()
@@ -1496,7 +1496,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             "Your app is being released... Please wait...", ephemeral=True
         )
         original = await interaction.original_response()
-        _, community_json = get_community_app()
+        _, community_json = await get_community_app()
         authorised_members = []
 
         with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
@@ -1632,7 +1632,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
 
-        channel = bot.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -1875,7 +1875,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
 
-        channel = bot.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -2114,7 +2114,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
 
-        channel = bot.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -2354,7 +2354,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
 
-        channel = bot.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
