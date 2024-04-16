@@ -67,7 +67,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 "The features are too long", ephemeral=True
             )
             return
-        
+
         if len(self.modifications.value) > 1024:
             await interaction.response.send_message(
                 "The modifications are too long", ephemeral=True
@@ -79,7 +79,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 "The bug fixes are too long", ephemeral=True
             )
             return
-        
+
         dtbrping = discord.utils.get(
             interaction.guild.roles, id=self.configs["newversion_role"]
         )
@@ -136,19 +136,25 @@ class NewVersion(discord.ui.Modal, title="New Version"):
             )
             if self.features.value:
                 embed.add_field(
-                    name="New features <:New:1219373925062934689>", value=self.features.value, inline=False
+                    name="<:New:1219373925062934689> New features",
+                    value=self.features.value,
+                    inline=False,
                 )
             if self.modifications.value:
                 embed.add_field(
-                    name="Modifications <:Caution:1219373926791250000>", value=self.modifications.value, inline=False
+                    name="<:Caution:1219373926791250000> Modifications",
+                    value=self.modifications.value,
+                    inline=False,
                 )
             if self.bugfixes.value:
                 embed.add_field(
-                    name="Bug Fixes <:Mosquito:1219373928867303535>", value=self.bugfixes.value, inline=False
+                    name="<:Mosquito:1219373928867303535> Bug Fixes",
+                    value=self.bugfixes.value,
+                    inline=False,
                 )
             embed.add_field(
-                name="Download",
-                value=f"⬇<:Download:1219374850494431283> Download:\nhttps://github.com/Droptop-Four/Droptop-Four/releases/tag/v{self.version.value}.{self.miniversion.value}",
+                name="<:Download:1219374850494431283> Download",
+                value=f"https://github.com/Droptop-Four/Droptop-Four/releases/tag/v{self.version.value}.{self.miniversion.value}",
                 inline=False,
             )
             embed.set_footer(
