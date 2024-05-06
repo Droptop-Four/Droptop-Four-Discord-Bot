@@ -131,7 +131,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
 
             embed = discord.Embed(
                 title=f"📢 Droptop Four {self.version.value}.{self.miniversion.value}",
-                url=f"https://github.com/Droptop-Four/Droptop-Four/releases/download/v{self.version.value}.{self.miniversion.value}/Droptop_Update.rmskin",
+                url=f"https://github.com/Droptop-Four/Droptop-Four/releases/tag/v{self.version.value}.{self.miniversion.value}",
                 color=0x2F3136,
             )
             if self.features.value:
@@ -154,7 +154,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 )
             embed.add_field(
                 name="<:Download:1219374850494431283> Download",
-                value=f"https://github.com/Droptop-Four/Droptop-Four/releases/tag/v{self.version.value}.{self.miniversion.value}",
+                value=f"https://github.com/Droptop-Four/Droptop-Four/releases/download/v{self.version.value}.{self.miniversion.value}/Droptop_Update.rmskin",
                 inline=False,
             )
             embed.set_footer(
