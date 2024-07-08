@@ -477,30 +477,6 @@ class AdminCommands(commands.Cog):
         members = len(role.members)
         await channel.edit(name="💚╏Supporters: " + str(members))
 
-    @loop(seconds=600)
-    async def issue_stats(self):
-        channel = self.bot.get_channel(self.bot.configs["issuestats_channel"])
-        help_channel = self.bot.get_channel(self.bot.configs["help_bug_report_channel"])
-
-        open = 0
-        closed = 0
-
-        for thread in help_channel.threads:
-            for tag in thread.applied_tags:
-                if tag.id == self.bot.configs["unsolved_forum_tag"]:
-                    open += 1
-                elif tag.id == self.bot.configs["solved_forum_tag"]:
-                    closed += 1
-
-        async for thread in help_channel.archived_threads():
-            for tag in thread.applied_tags:
-                if tag.id == self.bot.configs["unsolved_forum_tag"]:
-                    open += 1
-                elif tag.id == self.bot.configs["solved_forum_tag"]:
-                    closed += 1
-
-        await channel.edit(name=f"❌{open}╏✅{closed}")
-
     @app_commands.command(name="new_version")
     @app_commands.guild_only()
     async def new_version(self, interaction: discord.Interaction):
