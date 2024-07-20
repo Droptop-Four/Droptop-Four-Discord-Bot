@@ -637,7 +637,7 @@ class DroptopCommands(commands.Cog):
         current: str,
     ) -> List[app_commands.Choice[str]]:
         community_apps_names = []
-        
+
         status, data = await get_community_app()
         for app in data:
             community_apps_names.append(app["app"]["name"])
@@ -686,9 +686,7 @@ class DroptopCommands(commands.Cog):
             version = app["version"]
             download_link = app["direct_download_link"]
             image_url = app["image_url"]
-
-            status_d, downloads = await get_downloads("app", uuid=uuid)
-            downloads = downloads["downloads"]
+            downloads = app["downloads"]
 
             view = discord.ui.View()
             style = discord.ButtonStyle.url
@@ -713,8 +711,7 @@ class DroptopCommands(commands.Cog):
                 url=self.bot.configs["website"] + "/community-apps",
             )
             embed.add_field(name="Version: ", value=version, inline=True)
-            if status_d == 200:
-                embed.add_field(name="Downloads:", value=downloads, inline=True)
+            embed.add_field(name="Downloads:", value=downloads, inline=True)
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )",
                 icon_url=interaction.user.avatar.url,
@@ -1044,9 +1041,7 @@ class DroptopCommands(commands.Cog):
             description = theme["desc"]
             download_link = theme["direct_download_link"]
             image_url = theme["image_url"]
-
-            status_d, downloads = await get_downloads("theme", uuid=uuid)
-            downloads = downloads["downloads"]
+            downloads = theme["downloads"]
 
             view = discord.ui.View()
             style = discord.ButtonStyle.url
@@ -1066,8 +1061,7 @@ class DroptopCommands(commands.Cog):
                 description=f"{description}",
                 color=discord.Color.from_rgb(75, 215, 100),
             )
-            if status_d == 200:
-                embed.add_field(name="Version: ", value=version, inline=False)
+            embed.add_field(name="Version: ", value=version, inline=False)
             embed.set_author(
                 name="Community Theme Info",
                 url=self.bot.configs["website"] + "/community-themes",
@@ -1155,7 +1149,7 @@ class DroptopCommands(commands.Cog):
             rmskin_archive.close()
 
             _, data = await get_community_theme()
-            
+
             for theme in data:
                 if UUID == theme["theme"]["uuid"]:
                     new = False

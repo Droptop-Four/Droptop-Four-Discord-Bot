@@ -450,7 +450,6 @@ class AdminCommands(commands.Cog):
         self.member_stats.start()
         self.version_stats.start()
         self.supporter_stats.start()
-        self.issue_stats.start()
 
     @loop(seconds=600)
     async def member_stats(self):
