@@ -5,6 +5,9 @@ import aiohttp
 
 _logger = logging.getLogger(__name__)
 
+base_url = "https://api.droptopfour.com/"
+api_version = "v1"
+
 
 async def fetch(session, url):
     """
@@ -19,7 +22,9 @@ async def fetch(session, url):
         status (int): The status code of the response
     """
 
-    async with session.get(url) as response:
+    complete_url = base_url + api_version + url
+
+    async with session.get(complete_url) as response:
         return await response.text(), response.status
 
 
@@ -37,11 +42,11 @@ async def get_downloads(type, *, uuid=None):
     """
 
     if type == "droptop":
-        url = "https://api.droptopfour.com/v1/downloads"
+        url = "/downloads"
     elif type == "app":
-        url = f"https://api.droptopfour.com/v1/downloads/community-apps/{uuid}"
+        url = f"/downloads/community-apps/{uuid}"
     elif type == "theme":
-        url = f"https://api.droptopfour.com/v1/downloads/community-themes/{uuid}"
+        url = f"/downloads/community-themes/{uuid}"
     else:
         return 404, None
 
@@ -60,7 +65,7 @@ async def get_version():
         data (dict): The data of the request
     """
 
-    url = "https://api.droptopfour.com/v1/version"
+    url = "/version"
     async with aiohttp.ClientSession() as session:
         data, status = await fetch(session, url)
         data = json.loads(data)
@@ -82,18 +87,19 @@ async def get_community_app(*, id=None, uuid=None, name=None):
     """
 
     if id:
-        url = f"https://api.droptopfour.com/v1/community-apps/id/{id}"
+        url = f"/community-apps/id/{id}"
     elif name:
-        url = f"https://api.droptopfour.com/v1/community-apps/name/{name}"
+        url = f"/community-apps/name/{name}"
     elif uuid:
-        url = f"https://api.droptopfour.com/v1/community-apps/uuid/{uuid}"
+        url = f"/community-apps/uuid/{uuid}"
     else:
-        url = "https://api.droptopfour.com/v1/community-apps"
+        url = "/community-apps"
 
     async with aiohttp.ClientSession() as session:
         data, status = await fetch(session, url)
         data = json.loads(data)
-        return status, data
+
+    return status, data
 
 
 async def get_community_theme(*, id=None, uuid=None, name=None):
@@ -111,13 +117,13 @@ async def get_community_theme(*, id=None, uuid=None, name=None):
     """
 
     if id:
-        url = f"https://api.droptopfour.com/v1/community-themes/id/{id}"
+        url = f"/community-themes/id/{id}"
     elif name:
-        url = f"https://api.droptopfour.com/v1/community-themes/name/{name}"
+        url = f"/community-themes/name/{name}"
     elif uuid:
-        url = f"https://api.droptopfour.com/v1/community-themes/uuid/{uuid}"
+        url = f"/community-themes/uuid/{uuid}"
     else:
-        url = "https://api.droptopfour.com/v1/community-themes"
+        url = "/community-themes"
 
     async with aiohttp.ClientSession() as session:
         data, status = await fetch(session, url)

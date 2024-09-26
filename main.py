@@ -3,7 +3,7 @@
 	Discord: https://discord.gg/hQGDm4F5Ef
 	Author: Bunz (bunz#3066)
 	Date created: 21/10/2022
-	Bot Version: 4.0
+	Bot Version: 4.1
 	Python Version: 3.11.4
 	Cogs: 5
 """
@@ -54,12 +54,13 @@ except Exception as e:
     logger_status = False
     logger.critical(f"Logger failed to initialize!\n{e}")
 
-db_id, db_cluster = os.getenv("mongodb_id"), os.getenv("db_cluster")
+db_id, config_cluster = os.getenv("mongodb_id"), os.getenv("config_cluster")
 
-db_status, collection = initialize_mongodb(db_id, db_cluster)
+db_status, bot.db_client = initialize_mongodb(db_id)
 
 if db_status:
-    config_collection = collection
+    db = bot.db_client[config_cluster]
+    config_collection = db["Configs"]
     bot.configs = config_collection.find_one({}, {"_id": 0})
 
     firebase_status, firebase_error = initialize_firebase(
@@ -75,10 +76,6 @@ else:
 
 @bot.event
 async def on_ready():
-    # print(f"Logged in as {bot.user} (ID: {bot.user.id})")
-    # for guild in bot.guilds:
-    #     print("Connected to server: {}".format(guild))
-    # print("------")
 
     logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
     for guild in bot.guilds:
@@ -226,7 +223,6 @@ async def on_tree_error(interaction, error):
 
 
 if db_status and firebase_status and logger_status:
-    # print("Bot is ready to start")
     logger.info("Bot is ready to start")
 
     if not os.path.exists("tmp"):
@@ -240,19 +236,14 @@ if db_status and firebase_status and logger_status:
         bot.run(bot.configs["discord_token"])
     except discord.HTTPException as e:
         if e.status == 429:
-            # print("Rate limit detected. Restarting...")
             logger.warning("Rate limit detected. Restarting...")
             os.kill(1, 1)
         logger.warning(e)
 else:
-    # print("Bot is not ready")
     logger.warning("Bot is not ready")
     if not db_status:
-        # print("MongoDB is not ready")
         logger.warning("MongoDB is not ready")
     if not firebase_status:
-        # print("Firebase is not ready")
         logger.warning("Firebase is not ready")
     if not logger_status:
-        # print("Logger is not ready")
         logger.warning("Logger is not ready")

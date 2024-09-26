@@ -402,7 +402,6 @@ def json_update(
                 download_link = app_tags["direct_download_link"]
                 image_link = app_tags["image_url"]
                 item_id = app_tags["id"]
-                # uuid = app_tags["uuid"]
                 temp_json.unlink()
             elif app_tags["uuid"] == uuid and version == app_tags["version"]:
 

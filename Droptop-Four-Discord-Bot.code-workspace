@@ -5,6 +5,18 @@
 		}
 	],
 	"settings": {
+		"python.analysis.typeCheckingMode": "off",
+		"python.analysis.autoImportCompletions": true,
+		"python.envFile": "",
+		"[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+      },
+      "isort.args":["--profile", "black"],
+    "python.analysis.autoFormatStrings": true,
 		"workbench.colorCustomizations": {
 			"activityBar.activeBackground": "#858ef8",
 			"activityBar.background": "#858ef8",
