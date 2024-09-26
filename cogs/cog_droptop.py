@@ -13,6 +13,9 @@ from discord.ext import commands
 
 from utils import (
     analyze_invoice,
+    db_delete,
+    db_edit,
+    db_new,
     get_all_sales,
     get_community_app,
     get_community_theme,
@@ -810,6 +813,7 @@ class DroptopCommands(commands.Cog):
 
                 await interaction.response.send_modal(
                     NewAppRelease(
+                        self.bot.db_client,
                         self.bot.configs,
                         rmskin_path,
                         rmskin_name,
@@ -874,14 +878,15 @@ class DroptopCommands(commands.Cog):
         authorised_members = []
 
         if authorised_member_1:
-            authorised_members.append(authorised_member_1)
+            authorised_members.append(authorised_member_1.id)
         if authorised_member_2:
-            authorised_members.append(authorised_member_2)
+            authorised_members.append(authorised_member_2.id)
 
         if image_preview:
             if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
                 await interaction.response.send_modal(
                     EditAppRelease(
+                        self.bot.db_client,
                         self.bot.configs,
                         community_app,
                         channel,
@@ -893,6 +898,7 @@ class DroptopCommands(commands.Cog):
             elif image_preview.filename.lower().endswith(".webp"):
                 await interaction.response.send_modal(
                     EditAppRelease(
+                        self.bot.db_client,
                         self.bot.configs,
                         community_app,
                         channel,
@@ -909,6 +915,7 @@ class DroptopCommands(commands.Cog):
         else:
             await interaction.response.send_modal(
                 EditAppRelease(
+                    self.bot.db_client,
                     self.bot.configs,
                     community_app,
                     channel,
@@ -955,6 +962,9 @@ class DroptopCommands(commands.Cog):
             json_delete(self.bot.configs["github_private_key"], "app", uuid)
             rmskin_delete(self.bot.configs["github_private_key"], "app", community_app)
             image_delete(self.bot.configs["github_private_key"], "app", community_app)
+
+            db_delete(self.bot.db_client, "app", uuid)
+
             if delete_release_channel == "True":
                 channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
                 threads = []
@@ -1234,14 +1244,15 @@ class DroptopCommands(commands.Cog):
         authorised_members = []
 
         if authorised_member_1:
-            authorised_members.append(authorised_member_1)
+            authorised_members.append(authorised_member_1.id)
         if authorised_member_2:
-            authorised_members.append(authorised_member_2)
+            authorised_members.append(authorised_member_2.id)
 
         if image_preview:
             if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
                 await interaction.response.send_modal(
                     EditThemeRelease(
+                        self.bot.db_client,
                         self.bot.configs,
                         community_theme,
                         channel,
@@ -1253,6 +1264,7 @@ class DroptopCommands(commands.Cog):
             elif image_preview.filename.lower().endswith(".webp"):
                 await interaction.response.send_modal(
                     EditThemeRelease(
+                        self.bot.db_client,
                         self.bot.configs,
                         community_theme,
                         channel,
@@ -1269,6 +1281,7 @@ class DroptopCommands(commands.Cog):
         else:
             await interaction.response.send_modal(
                 EditThemeRelease(
+                    self.bot.db_client,
                     self.bot.configs,
                     community_theme,
                     channel,
@@ -1322,6 +1335,9 @@ class DroptopCommands(commands.Cog):
             image_delete(
                 self.bot.configs["github_private_key"], "theme", community_theme
             )
+
+            db_delete(self.bot.db_client, "theme", uuid)
+
             if delete_release_channel == "True":
                 channel = self.bot.get_channel(
                     self.bot.configs["themereleases_channel"]
@@ -1433,6 +1449,7 @@ class GetSupporterDropdown(discord.ui.Select):
 class NewAppRelease(discord.ui.Modal, title="New App Release"):
     def __init__(
         self,
+        db_client,
         configs,
         rmskin_path,
         rmskin_name,
@@ -1443,6 +1460,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
         default_github_repo,
     ):
         super().__init__()
+        self.db_client = db_client
         self.configs = configs
         self.rmskin_path = rmskin_path
         self.rmskin_name = rmskin_name
@@ -1537,8 +1555,9 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             image_creation = push_image(
                 self.configs["github_private_key"], "app", image_name
             )
-            updated_json, download_link, image_link, app_id, uuid = json_update(
-                self.configs["github_private_key"],
+
+            download_link, image_link, app_id, uuid = await db_new(
+                self.db_client,
                 "app",
                 authorised_members=authorised_members,
                 title=app_title,
@@ -1659,6 +1678,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
     def __init__(
         self,
+        db_client,
         configs,
         rmskin_path,
         rmskin_name,
@@ -1669,6 +1689,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
         default_github_repo,
     ):
         super().__init__()
+        self.db_client = db_client
         self.configs = configs
         self.rmskin_path = rmskin_path
         self.rmskin_name = rmskin_name
@@ -1773,8 +1794,9 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             image_creation = push_image(
                 self.configs["github_private_key"], "theme", image_name
             )
-            updated_json, download_link, image_link, theme_id, uuid = json_update(
-                self.configs["github_private_key"],
+
+            download_link, image_link, theme_id, uuid = await db_new(
+                self.db_client,
                 "theme",
                 authorised_members=authorised_members,
                 title=theme_title,
@@ -1902,6 +1924,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
     def __init__(
         self,
+        db_client,
         configs,
         community_app,
         channel,
@@ -1911,6 +1934,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         authorised_members=None,
     ):
         super().__init__()
+        self.db_client = db_client
         self.configs = configs
         self.community_app = community_app
         self.channel = channel
@@ -1996,8 +2020,8 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                 self.configs["github_private_key"], "app", image_name
             )
 
-        updated_json, download_link, image_link, app_id = json_edit(
-            self.configs["github_private_key"],
+        download_link, image_link, app_id = await db_edit(
+            self.db_client,
             "app",
             self.uuid,
             author=self.author.value,
@@ -2141,6 +2165,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
     def __init__(
         self,
+        db_client,
         configs,
         community_theme,
         channel,
@@ -2150,6 +2175,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         authorised_members=None,
     ):
         super().__init__()
+        self.db_client = db_client
         self.configs = configs
         self.community_theme = community_theme
         self.channel = channel
@@ -2237,8 +2263,8 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                 self.configs["github_private_key"], "theme", image_name
             )
 
-        updated_json, download_link, image_link, theme_id = json_edit(
-            self.configs["github_private_key"],
+        download_link, image_link, theme_id = await db_edit(
+            self.db_client,
             "theme",
             self.uuid,
             author=self.author.value,
