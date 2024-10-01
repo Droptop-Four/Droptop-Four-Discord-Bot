@@ -643,7 +643,7 @@ class DroptopCommands(commands.Cog):
 
         status, data = await get_community_app()
         for app in data:
-            community_apps_names.append(app["app"]["name"])
+            community_apps_names.append(app["name"])
         return [
             app_commands.Choice(name=community_app_name, value=community_app_name)
             for community_app_name in community_apps_names
@@ -659,9 +659,9 @@ class DroptopCommands(commands.Cog):
 
         status, data = await get_community_app()
         for app in data:
-            if interaction.user.id in app["app"]["authorised_members"]:
+            if interaction.user.id in app["authorised_members"]:
                 community_apps_editable.append(
-                    f'{app["app"]["name"]} - {app["app"]["author"]}'
+                    f'{app["name"]} - {app["author"]}'
                 )
         return [
             app_commands.Choice(name=community_app_name, value=community_app_name)
@@ -794,11 +794,11 @@ class DroptopCommands(commands.Cog):
             _, data = await get_community_app()
 
             for app in data:
-                if UUID == app["app"]["uuid"]:
+                if UUID == app["uuid"]:
                     new = False
-                    default_description = app["app"]["desc"]
-                    default_github_profile = app["app"]["author_link"]
-                    default_github_repo = app["app"]["official_link"]
+                    default_description = app["desc"]
+                    default_github_profile = app["author_link"]
+                    default_github_repo = app["official_link"]
                     break
                 else:
                     new = True
@@ -957,8 +957,8 @@ class DroptopCommands(commands.Cog):
                 "data/community_apps/community_apps.json",
             )
             for app in data["apps"]:
-                if community_app == f'{app["app"]["name"]} - {app["app"]["author"]}':
-                    uuid = app["app"]["uuid"]
+                if community_app == f'{app["name"]} - {app["author"]}':
+                    uuid = app["uuid"]
             json_delete(self.bot.configs["github_private_key"], "app", uuid)
             rmskin_delete(self.bot.configs["github_private_key"], "app", community_app)
             image_delete(self.bot.configs["github_private_key"], "app", community_app)
@@ -1005,7 +1005,7 @@ class DroptopCommands(commands.Cog):
 
         status, data = await get_community_theme()
         for theme in data:
-            community_themes_names.append(theme["theme"]["name"])
+            community_themes_names.append(theme["name"])
         return [
             app_commands.Choice(name=community_theme_name, value=community_theme_name)
             for community_theme_name in community_themes_names
@@ -1021,9 +1021,9 @@ class DroptopCommands(commands.Cog):
 
         status, data = await get_community_theme()
         for theme in data:
-            if interaction.user.id in theme["theme"]["authorised_members"]:
+            if interaction.user.id in theme["authorised_members"]:
                 community_themes_editable.append(
-                    f'{theme["theme"]["name"]} - {theme["theme"]["author"]}'
+                    f'{theme["name"]} - {theme["author"]}'
                 )
         return [
             app_commands.Choice(name=community_theme_name, value=community_theme_name)
@@ -1161,11 +1161,11 @@ class DroptopCommands(commands.Cog):
             _, data = await get_community_theme()
 
             for theme in data:
-                if UUID == theme["theme"]["uuid"]:
+                if UUID == theme["uuid"]:
                     new = False
-                    default_description = theme["theme"]["desc"]
-                    default_github_profile = theme["theme"]["author_link"]
-                    default_github_repo = theme["theme"]["official_link"]
+                    default_description = theme["desc"]
+                    default_github_profile = theme["author_link"]
+                    default_github_repo = theme["official_link"]
                     break
                 else:
                     new = True
@@ -1325,9 +1325,9 @@ class DroptopCommands(commands.Cog):
             for theme in data["themes"]:
                 if (
                     community_theme
-                    == f'{theme["theme"]["name"]} - {theme["theme"]["author"]}'
+                    == f'{theme["name"]} - {theme["author"]}'
                 ):
-                    uuid = theme["theme"]["uuid"]
+                    uuid = theme["uuid"]
             json_delete(self.bot.configs["github_private_key"], "theme", uuid)
             rmskin_delete(
                 self.bot.configs["github_private_key"], "theme", community_theme
@@ -1535,7 +1535,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             webp_path = to_webp(image_path)
 
         for item in community_json:
-            app_tags = item["app"]
+            app_tags = item
             if app_tags["uuid"] == UUID:
                 for member in app_tags["authorised_members"]:
                     authorised_members.append(member)
@@ -1773,7 +1773,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             webp_path = to_webp(image_path)
 
         for item in community_json["themes"]:
-            theme_tags = item["theme"]
+            theme_tags = item
             if theme_tags["uuid"] == UUID:
                 for member in theme_tags["authorised_members"]:
                     authorised_members.append(member)
@@ -1948,14 +1948,14 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         )
         for app in data["apps"]:
             if self.community_app == f"{app['app']['name']} - {app['app']['author']}":
-                self.uuid = app["app"]["uuid"]
-                self.default_name = app["app"]["name"]
-                self.default_author = app["app"]["author"]
-                self.version = app["app"]["version"]
-                self.default_description = app["app"]["desc"]
-                self.default_github_profile = app["app"]["author_link"]
-                self.default_github_repo = app["app"]["official_link"]
-                self.image_url = app["app"]["image_url"]
+                self.uuid = app["uuid"]
+                self.default_name = app["name"]
+                self.default_author = app["author"]
+                self.version = app["version"]
+                self.default_description = app["desc"]
+                self.default_github_profile = app["author_link"]
+                self.default_github_repo = app["official_link"]
+                self.image_url = app["image_url"]
 
         self.author = discord.ui.TextInput(
             label="Author",
@@ -2190,15 +2190,15 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         for theme in data["themes"]:
             if (
                 self.community_theme
-                == f'{theme["theme"]["name"]} - {theme["theme"]["author"]}'
+                == f'{theme["name"]} - {theme["author"]}'
             ):
-                self.uuid = theme["theme"]["uuid"]
-                self.default_name = theme["theme"]["name"]
-                self.default_author = theme["theme"]["author"]
-                self.default_description = theme["theme"]["desc"]
-                self.default_github_profile = theme["theme"]["author_link"]
-                self.default_github_repo = theme["theme"]["official_link"]
-                self.image_url = theme["theme"]["image_url"]
+                self.uuid = theme["uuid"]
+                self.default_name = theme["name"]
+                self.default_author = theme["author"]
+                self.default_description = theme["desc"]
+                self.default_github_profile = theme["author_link"]
+                self.default_github_repo = theme["official_link"]
+                self.image_url = theme["image_url"]
 
         self.author = discord.ui.TextInput(
             label="Author",
