@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import List, Optional
 
 import discord
-from bson.int64 import Int64
 from discord import app_commands
 from discord.ext import commands
 
