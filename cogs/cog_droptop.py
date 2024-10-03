@@ -3,11 +3,13 @@ import json
 import logging
 import math
 import os
+import traceback
 import zipfile
 from pathlib import Path
 from typing import List, Optional
 
 import discord
+from bson.int64 import Int64
 from discord import app_commands
 from discord.ext import commands
 
@@ -24,6 +26,7 @@ from utils import (
     get_metadata,
     get_stars,
     get_title_author,
+    get_version,
     github_reader,
     image_delete,
     img_rename,
@@ -347,9 +350,7 @@ class DroptopCommands(commands.Cog):
         data = github_reader(
             self.bot.configs["github_private_key"], "data/droptop_info.json"
         )
-        version = github_reader(
-            self.bot.configs["github_private_key"], "data/version.json"
-        )
+        _, version = get_version()
 
         if variant:
             if variant == "Basic":
@@ -618,18 +619,6 @@ class DroptopCommands(commands.Cog):
             )
         await interaction.response.send_message(embed=embed, view=view)
 
-    async def delete_channel_autocomplete(
-        self,
-        interaction: discord.Interaction,
-        current: str,
-    ) -> List[app_commands.Choice[str]]:
-        list = ["True", "False"]
-        return [
-            app_commands.Choice(name=item, value=item)
-            for item in list
-            if current.lower() in item.lower()
-        ]
-
     community_app_group = app_commands.Group(
         name="community_app", description="Community apps commands"
     )
@@ -650,6 +639,7 @@ class DroptopCommands(commands.Cog):
             if current.lower() in community_app_name.lower()
         ][:25]
 
+    # TODO: Update to use api endpoint that returns apps/themes that a specified user CAN modify
     async def authorised_community_app_autocomplete(
         self,
         interaction: discord.Interaction,
@@ -660,9 +650,7 @@ class DroptopCommands(commands.Cog):
         status, data = await get_community_app()
         for app in data:
             if interaction.user.id in app["authorised_members"]:
-                community_apps_editable.append(
-                    f'{app["name"]} - {app["author"]}'
-                )
+                community_apps_editable.append(f'{app["name"]} - {app["author"]}')
         return [
             app_commands.Choice(name=community_app_name, value=community_app_name)
             for community_app_name in community_apps_editable
@@ -778,9 +766,7 @@ class DroptopCommands(commands.Cog):
             else:
                 preview_image = f"Skins\Droptop Community Apps\Apps\{app_title.replace(' ', '_')}-{author.replace(' ', '_')}\Images\PreviewImage.png"  # Linux
 
-            if preview_image in rmskin_archive.namelist():
-                pass
-            else:
+            if preview_image not in rmskin_archive.namelist():
                 await interaction.followup.send(
                     "No image preview was found inside your rmskin package!\nBe sure to insert an image during the packaging process and repackage your app.",
                     ephemeral=True,
@@ -791,20 +777,25 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            _, data = await get_community_app()
+            status, app = await get_community_app(uuid=UUID)
 
-            for app in data:
-                if UUID == app["uuid"]:
-                    new = False
-                    default_description = app["desc"]
-                    default_github_profile = app["author_link"]
-                    default_github_repo = app["official_link"]
-                    break
-                else:
-                    new = True
-                    default_description = ""
-                    default_github_profile = ""
-                    default_github_repo = ""
+            if status == 200:
+                new = False
+                default_description = app["desc"]
+                default_github_profile = app["author_link"]
+                default_github_repo = app["official_link"]
+                authorised_members = app["authorised_members"]
+            else:
+                new = True
+                default_description = ""
+                default_github_profile = ""
+                default_github_repo = ""
+                authorised_members = [
+                    self.configs["author_id"],
+                    self.configs["cari_id"],
+                ]
+                if str(interaction.user.id) not in authorised_members:
+                    authorised_members.append(str(interaction.user.id))
 
             async def confirm_callback(interaction):
                 confirm_button.disabled = True
@@ -822,6 +813,7 @@ class DroptopCommands(commands.Cog):
                         default_description,
                         default_github_profile,
                         default_github_repo,
+                        authorised_members,
                     )
                 )
 
@@ -835,21 +827,26 @@ class DroptopCommands(commands.Cog):
                 )
                 rmskin_path.unlink()
 
-            confirm_button = discord.ui.Button(
-                label="Confirm", style=discord.ButtonStyle.green
-            )
-            cancel_button = discord.ui.Button(
-                label="Cancel", style=discord.ButtonStyle.red
-            )
-            confirm_button.callback = confirm_callback
-            cancel_button.callback = cancel_callback
-            view = discord.ui.View()
-            view.add_item(confirm_button)
-            view.add_item(cancel_button)
-            await original.edit(
-                content=f"Your package is fine!\nDo you want to continue with the release of the **{app_title}** by **{author}** *(v{version})*?",
-                view=view,
-            )
+            if str(interaction.user.id) in authorised_members:
+                confirm_button = discord.ui.Button(
+                    label="Confirm", style=discord.ButtonStyle.green
+                )
+                cancel_button = discord.ui.Button(
+                    label="Cancel", style=discord.ButtonStyle.red
+                )
+                confirm_button.callback = confirm_callback
+                cancel_button.callback = cancel_callback
+                view = discord.ui.View()
+                view.add_item(confirm_button)
+                view.add_item(cancel_button)
+                await original.edit(
+                    content=f"Your package is fine!\nDo you want to continue with the release of the **{app_title}** by **{author}** *(v{version})*?",
+                    view=view,
+                )
+            else:
+                await original.edit(
+                    content=f"The package is fine, but you aren't listed as an authorised member to make changes to **{app_title}** by **{author}**.\nIf you want to make changes on behalf of the original author, you need to ask him to add you to the authorised members with the `/community_app edit` command"
+                )
 
         else:
             await original.edit(
@@ -926,20 +923,18 @@ class DroptopCommands(commands.Cog):
     @community_app_group.command(name="delete")
     @app_commands.describe(
         community_app="The name of the community app you can delete",
-        delete_release_channel="If to delete the release channel (default yes)",
     )
     @app_commands.autocomplete(
         community_app=authorised_community_app_autocomplete,
-        delete_release_channel=delete_channel_autocomplete,
     )
     async def community_app_delete(
         self,
         interaction: discord.Interaction,
         community_app: str,
-        delete_release_channel: Optional[str] = "True",
     ):
         """Deletes a Community App Release."""
 
+        delete_release_channel = True
         view = ConfirmDeletion(community_app)
         await interaction.response.send_message(
             f"Are you sure you want to permanently delete:\n```diff\n- {community_app}\n```\n*(This action is irreversible)*",
@@ -952,11 +947,8 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            data = github_reader(
-                self.bot.configs["github_private_key"],
-                "data/community_apps/community_apps.json",
-            )
-            for app in data["apps"]:
+            _, data = get_community_app()
+            for app in data:
                 if community_app == f'{app["name"]} - {app["author"]}':
                     uuid = app["uuid"]
             json_delete(self.bot.configs["github_private_key"], "app", uuid)
@@ -1022,9 +1014,7 @@ class DroptopCommands(commands.Cog):
         status, data = await get_community_theme()
         for theme in data:
             if interaction.user.id in theme["authorised_members"]:
-                community_themes_editable.append(
-                    f'{theme["name"]} - {theme["author"]}'
-                )
+                community_themes_editable.append(f'{theme["name"]} - {theme["author"]}')
         return [
             app_commands.Choice(name=community_theme_name, value=community_theme_name)
             for community_theme_name in community_themes_editable
@@ -1145,9 +1135,7 @@ class DroptopCommands(commands.Cog):
                     "Skins\Droptop\@Resources\Themes\ThemePreviewImage.png"  # Linux
                 )
 
-            if preview_image in rmskin_archive.namelist():
-                pass
-            else:
+            if preview_image not in rmskin_archive.namelist():
                 await interaction.followup.send(
                     "No image preview was found inside your rmskin package!\nBe sure to insert an image during the packaging process and repackage your theme.",
                     ephemeral=True,
@@ -1158,20 +1146,25 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            _, data = await get_community_theme()
+            status, theme = await get_community_theme()
 
-            for theme in data:
-                if UUID == theme["uuid"]:
-                    new = False
-                    default_description = theme["desc"]
-                    default_github_profile = theme["author_link"]
-                    default_github_repo = theme["official_link"]
-                    break
-                else:
-                    new = True
-                    default_description = ""
-                    default_github_profile = ""
-                    default_github_repo = ""
+            if status == 200:
+                new = False
+                default_description = theme["desc"]
+                default_github_profile = theme["author_link"]
+                default_github_repo = theme["official_link"]
+                authorised_members = theme["authorised_members"]
+            else:
+                new = True
+                default_description = ""
+                default_github_profile = ""
+                default_github_repo = ""
+                authorised_members = [
+                    self.configs["author_id"],
+                    self.configs["cari_id"],
+                ]
+                if str(interaction.user.id) not in authorised_members:
+                    authorised_members.append(str(interaction.user.id))
 
             async def confirm_callback(interaction):
                 confirm_button.disabled = True
@@ -1188,6 +1181,7 @@ class DroptopCommands(commands.Cog):
                         default_description,
                         default_github_profile,
                         default_github_repo,
+                        authorised_members,
                     )
                 )
 
@@ -1201,21 +1195,26 @@ class DroptopCommands(commands.Cog):
                 )
                 rmskin_path.unlink()
 
-            confirm_button = discord.ui.Button(
-                label="Confirm", style=discord.ButtonStyle.green
-            )
-            cancel_button = discord.ui.Button(
-                label="Cancel", style=discord.ButtonStyle.red
-            )
-            confirm_button.callback = confirm_callback
-            cancel_button.callback = cancel_callback
-            view = discord.ui.View()
-            view.add_item(confirm_button)
-            view.add_item(cancel_button)
-            await original.edit(
-                content=f"Your package is fine!\nDo you want to continue with the release of the **{theme_title}** by **{author}** *(v{version})*?",
-                view=view,
-            )
+            if str(interaction.user.id) in authorised_members:
+                confirm_button = discord.ui.Button(
+                    label="Confirm", style=discord.ButtonStyle.green
+                )
+                cancel_button = discord.ui.Button(
+                    label="Cancel", style=discord.ButtonStyle.red
+                )
+                confirm_button.callback = confirm_callback
+                cancel_button.callback = cancel_callback
+                view = discord.ui.View()
+                view.add_item(confirm_button)
+                view.add_item(cancel_button)
+                await original.edit(
+                    content=f"Your package is fine!\nDo you want to continue with the release of the **{theme_title}** by **{author}** *(v{version})*?",
+                    view=view,
+                )
+            else:
+                await original.edit(
+                    content=f"The package is fine, but you aren't listed as an authorised member to make changes to **{theme_title}** by **{author}**.\nIf you want to make changes on behalf of the original author, you need to ask him to add you to the authorised members with the `/community_theme edit` command"
+                )
 
         else:
             await original.edit(
@@ -1292,20 +1291,18 @@ class DroptopCommands(commands.Cog):
     @community_theme_group.command(name="delete")
     @app_commands.describe(
         community_theme="The name of the community theme you can delete",
-        delete_release_channel="If to delete the release channel",
     )
     @app_commands.autocomplete(
         community_theme=authorised_community_theme_autocomplete,
-        delete_release_channel=delete_channel_autocomplete,
     )
     async def community_theme_delete(
         self,
         interaction: discord.Interaction,
         community_theme: str,
-        delete_release_channel: Optional[str] = "True",
     ):
         """Deletes a Community Theme Release."""
 
+        delete_release_channel = True
         view = ConfirmDeletion(community_theme)
         await interaction.response.send_message(
             f"Are you sure you want to permanently delete:\n```diff\n- {community_theme}\n```\n*(This action is irreversible)*",
@@ -1318,15 +1315,9 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            data = github_reader(
-                self.bot.configs["github_private_key"],
-                "data/community_themes/community_themes.json",
-            )
-            for theme in data["themes"]:
-                if (
-                    community_theme
-                    == f'{theme["name"]} - {theme["author"]}'
-                ):
+            _, data = get_community_theme()
+            for theme in data:
+                if community_theme == f'{theme["name"]} - {theme["author"]}':
                     uuid = theme["uuid"]
             json_delete(self.bot.configs["github_private_key"], "theme", uuid)
             rmskin_delete(
@@ -1458,6 +1449,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
         default_description,
         default_github_profile,
         default_github_repo,
+        authorised_members,
     ):
         super().__init__()
         self.db_client = db_client
@@ -1469,6 +1461,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
         self.default_description = default_description
         self.default_github_profile = default_github_profile
         self.default_github_repo = default_github_repo
+        self.authorised_members = authorised_members
 
         self.description = discord.ui.TextInput(
             label="Description",
@@ -1508,8 +1501,6 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             "Your app is being released... Please wait...", ephemeral=True
         )
         original = await interaction.original_response()
-        _, community_json = await get_community_app()
-        authorised_members = []
 
         with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
             ini_path = Path("tmp/RMSKIN.ini")
@@ -1534,21 +1525,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             os.rename(f"tmp/{preview_image}", image_path)
             webp_path = to_webp(image_path)
 
-        for item in community_json:
-            app_tags = item
-            if app_tags["uuid"] == UUID:
-                for member in app_tags["authorised_members"]:
-                    authorised_members.append(member)
-
-        if self.new:
-            authorised_members = [
-                self.configs["author_id"],
-                self.configs["cari_id"],
-            ]
-            if interaction.user.id not in authorised_members:
-                authorised_members.append(interaction.user.id)
-
-        if interaction.user.id in authorised_members:
+        if str(interaction.user.id) in self.authorised_members:
             rmskin_creation = push_rmskin(
                 self.configs["github_private_key"], "app", self.rmskin_name
             )
@@ -1559,7 +1536,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             download_link, image_link, app_id, uuid = await db_new(
                 self.db_client,
                 "app",
-                authorised_members=authorised_members,
+                authorised_members=self.authorised_members,
                 title=app_title,
                 author=author,
                 description=self.description.value,
@@ -1633,6 +1610,8 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
                     os.rmdir(folder)
 
         else:
+            webp_path.unlink()
+            self.rmskin_path.unlink()
             await interaction.response.send_message(
                 f"You aren't authorised to publish updates, modify or delete {app_title}.\nAsk {author} to add you as an authorised user.",
                 ephemeral=True,
@@ -1641,6 +1620,10 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
+        ini_path.unlink(missing_ok=True)
+        webp_path.unlink(missing_ok=True)
+        self.rmskin_path.unlink(missing_ok=True)
+
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
@@ -1654,14 +1637,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
         embed.add_field(
             name="Channel", value=f"<#{interaction.channel_id}>", inline=False
         )
-        embed.add_field(
-            name="Command", value=f"{interaction.command.qualified_name}", inline=False
-        )
-        embed.add_field(
-            name="Command mention",
-            value=f"{interaction.command.extras['mention']}",
-            inline=False,
-        )
+        embed.add_field(name="Modal", value="`NewAppRelease`", inline=False)
         embed.add_field(name="Error", value=error, inline=False)
         traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
@@ -1671,253 +1647,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
-        )
-
-
-class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
-    def __init__(
-        self,
-        db_client,
-        configs,
-        rmskin_path,
-        rmskin_name,
-        channel,
-        new,
-        default_description,
-        default_github_profile,
-        default_github_repo,
-    ):
-        super().__init__()
-        self.db_client = db_client
-        self.configs = configs
-        self.rmskin_path = rmskin_path
-        self.rmskin_name = rmskin_name
-        self.channel = channel
-        self.new = new
-        self.default_description = default_description
-        self.default_github_profile = default_github_profile
-        self.default_github_repo = default_github_repo
-
-        self.description = discord.ui.TextInput(
-            label="Description",
-            style=discord.TextStyle.paragraph,
-            placeholder="Description here...",
-            default=self.default_description,
-            required=False,
-        )
-
-        self.changenotes = discord.ui.TextInput(
-            label="Changenotes",
-            style=discord.TextStyle.paragraph,
-            placeholder="Changenotes here...",
-            required=False,
-        )
-
-        self.github_profile = discord.ui.TextInput(
-            label="Github Profile",
-            placeholder="https://github.com/your-nickname",
-            default=self.default_github_profile,
-            required=False,
-        )
-
-        self.github_repo = discord.ui.TextInput(
-            label="Github Repository",
-            placeholder="https://github.com/your-nickname/your-theme-repo",
-            default=self.default_github_repo,
-            required=False,
-        )
-
-        self.add_item(self.description)
-        self.add_item(self.changenotes)
-        self.add_item(self.github_profile)
-        self.add_item(self.github_repo)
-
-    async def on_submit(self, interaction: discord.Interaction):
-
-        await interaction.response.send_message(
-            "Your theme is being released... Please wait...", ephemeral=True
-        )
-        original = await interaction.original_response()
-        community_json = github_reader(
-            self.configs["github_private_key"],
-            "data/community_themes/community_themes.json",
-        )
-        authorised_members = []
-
-        with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
-            ini_path = Path("tmp/RMSKIN.ini")
-            rmskin_archive.extract("RMSKIN.ini", "tmp")
-            config = configparser.ConfigParser()
-            config.read(ini_path)
-            theme_title = config["rmskin"]["Name"]
-            author = config["rmskin"]["Author"]
-            version = config["rmskin"]["Version"]
-            UUID = config["rmskin"]["GUID"]
-
-            ini_path.unlink()
-
-            if os.sep == "\\":
-                preview_image = (
-                    "Skins/Droptop/@Resources/Themes/ThemePreviewImage.png"  # Windows
-                )
-            else:
-                preview_image = (
-                    "Skins\Droptop\@Resources\Themes\ThemePreviewImage.png"  # Linux
-                )
-
-            image_name = f"{theme_title.replace(' ', '_')}-{author.replace(' ', '_')}"
-            image_path = Path(f"tmp/{image_name}.png")
-            rmskin_archive.extract(preview_image, "tmp")
-            os.rename(f"tmp/{preview_image}", image_path)
-            webp_path = to_webp(image_path)
-
-        for item in community_json["themes"]:
-            theme_tags = item
-            if theme_tags["uuid"] == UUID:
-                for member in theme_tags["authorised_members"]:
-                    authorised_members.append(member)
-
-        if self.new:
-            authorised_members = [
-                self.configs["author_id"],
-                self.configs["cari_id"],
-            ]
-            if interaction.user.id not in authorised_members:
-                authorised_members.append(interaction.user.id)
-
-        if interaction.user.id in authorised_members:
-
-            rmskin_creation = push_rmskin(
-                self.configs["github_private_key"], "theme", self.rmskin_name
-            )
-            image_creation = push_image(
-                self.configs["github_private_key"], "theme", image_name
-            )
-
-            download_link, image_link, theme_id, uuid = await db_new(
-                self.db_client,
-                "theme",
-                authorised_members=authorised_members,
-                title=theme_title,
-                author=author,
-                description=self.description.value,
-                changenotes=self.changenotes.value,
-                rmskin_name=self.rmskin_name,
-                image_name=image_name,
-                version=version,
-                uuid=UUID,
-                author_link=self.github_profile.value,
-                github_repo=self.github_repo.value,
-            )
-
-            view = discord.ui.View()
-            style = discord.ButtonStyle.url
-            download_button = discord.ui.Button(
-                style=style, label="Download", url=download_link
-            )
-            site_button = discord.ui.Button(
-                style=style,
-                label="See on Website",
-                url=f"https://droptopfour.com/community-themes?id={theme_id}",
-            )
-            view.add_item(item=download_button)
-            view.add_item(item=site_button)
-            if self.description.value:
-                embed = discord.Embed(
-                    title=f"{theme_title} - {author}",
-                    description=f"{self.description.value}",
-                    color=discord.Color.from_rgb(75, 215, 100),
-                )
-            else:
-                embed = discord.Embed(
-                    title=f"{theme_title} - {author}",
-                    description="",
-                    color=discord.Color.from_rgb(75, 215, 100),
-                )
-            embed.set_author(
-                name="New Community Theme Release",
-                url=self.configs["website"] + "/community-themes",
-            )
-            if self.changenotes.value:
-                embed.add_field(
-                    name="Changenotes:", value=self.changenotes.value, inline=False
-                )
-            embed.set_footer(
-                text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )",
-                icon_url=interaction.user.avatar.url,
-            )
-            embed.set_image(url=image_link)
-            all_threads = []
-            for thread in self.channel.threads:
-                all_threads.append(thread)
-
-            async for thread in self.channel.archived_threads():
-                all_threads.append(thread)
-
-            for thread in all_threads:
-                if thread.name == f"{theme_title} - {author}":
-                    await thread.send(embed=embed, view=view)
-                    async for message in thread.history(oldest_first=True, limit=1):
-                        await message.edit(embed=embed, view=view)
-                    break
-            else:
-                await self.channel.create_thread(
-                    name=f"{theme_title} - {author}", embed=embed, view=view
-                )
-
-            webp_path.unlink()
-            await original.edit(
-                content=f"You successfully published **{theme_title}** in <#{self.channel.id}>"
-            )
-            self.rmskin_path.unlink()
-
-            root = "tmp"
-            folders = list(os.walk(root))
-            for folder, _, _ in folders[::-1]:
-                if len(os.listdir(folder)) == 0:
-                    os.rmdir(folder)
-
-        else:
-            await interaction.followup.send(
-                f"You aren't authorised to publish updates, modify or delete {theme_title}.\nAsk {author} to add you as an authorised user.",
-                ephemeral=True,
-            )
-
-    async def on_error(
-        self, interaction: discord.Interaction, error: Exception
-    ) -> None:
-        await interaction.followup.send(
-            f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
-        )
-
-        channel = interaction.guild.get_channel(self.configs["commandlog_channel"])
-
-        embed = discord.Embed(
-            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
-        )
-        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
-        embed.add_field(
-            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
-        )
-        embed.add_field(
-            name="Command", value=f"{interaction.command.qualified_name}", inline=False
-        )
-        embed.add_field(
-            name="Command mention",
-            value=f"{interaction.command.extras['mention']}",
-            inline=False,
-        )
-        embed.add_field(name="Error", value=error, inline=False)
-        traceback_str = "".join(traceback.format_tb(error.__traceback__))
-        embed.add_field(
-            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
-        )
-
-        await channel.send(embed=embed)
-
-        _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Modal: `NewAppRelease`; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -1942,11 +1672,9 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         self.suffix = suffix
         self.authorised_members = authorised_members
 
-        data = github_reader(
-            self.configs["github_private_key"],
-            "data/community_apps/community_apps.json",
-        )
-        for app in data["apps"]:
+        # TODO: add api endpoint to search for app/theme from name & author
+        _, data = get_community_app()
+        for app in data:
             if self.community_app == f"{app['app']['name']} - {app['app']['author']}":
                 self.uuid = app["uuid"]
                 self.default_name = app["name"]
@@ -2121,13 +1849,15 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         if self.image_preview:
             webp_path.unlink()
         await interaction.followup.send(
-            f"You successfully published **{self.community_app}** in <#{self.channel.id}>",
+            f"You successfully edited **{self.community_app}** in <#{self.channel.id}>",
             ephemeral=True,
         )
 
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
+        webp_path.unlink(missing_ok=True)
+
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
@@ -2141,14 +1871,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         embed.add_field(
             name="Channel", value=f"<#{interaction.channel_id}>", inline=False
         )
-        embed.add_field(
-            name="Command", value=f"{interaction.command.qualified_name}", inline=False
-        )
-        embed.add_field(
-            name="Command mention",
-            value=f"{interaction.command.extras['mention']}",
-            inline=False,
-        )
+        embed.add_field(name="Modal", value="`EditAppRelease`", inline=False)
         embed.add_field(name="Error", value=error, inline=False)
         traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
@@ -2158,7 +1881,234 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Modal: `EditAppRelease`; Error: {error}; Traceback: {traceback_str}"
+        )
+
+
+class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
+    def __init__(
+        self,
+        db_client,
+        configs,
+        rmskin_path,
+        rmskin_name,
+        channel,
+        new,
+        default_description,
+        default_github_profile,
+        default_github_repo,
+        authorised_members,
+    ):
+        super().__init__()
+        self.db_client = db_client
+        self.configs = configs
+        self.rmskin_path = rmskin_path
+        self.rmskin_name = rmskin_name
+        self.channel = channel
+        self.new = new
+        self.default_description = default_description
+        self.default_github_profile = default_github_profile
+        self.default_github_repo = default_github_repo
+        self.authorised_members = authorised_members
+
+        self.description = discord.ui.TextInput(
+            label="Description",
+            style=discord.TextStyle.paragraph,
+            placeholder="Description here...",
+            default=self.default_description,
+            required=False,
+        )
+
+        self.changenotes = discord.ui.TextInput(
+            label="Changenotes",
+            style=discord.TextStyle.paragraph,
+            placeholder="Changenotes here...",
+            required=False,
+        )
+
+        self.github_profile = discord.ui.TextInput(
+            label="Github Profile",
+            placeholder="https://github.com/your-nickname",
+            default=self.default_github_profile,
+            required=False,
+        )
+
+        self.github_repo = discord.ui.TextInput(
+            label="Github Repository",
+            placeholder="https://github.com/your-nickname/your-theme-repo",
+            default=self.default_github_repo,
+            required=False,
+        )
+
+        self.add_item(self.description)
+        self.add_item(self.changenotes)
+        self.add_item(self.github_profile)
+        self.add_item(self.github_repo)
+
+    async def on_submit(self, interaction: discord.Interaction):
+
+        await interaction.response.send_message(
+            "Your theme is being released... Please wait...", ephemeral=True
+        )
+        original = await interaction.original_response()
+
+        with zipfile.ZipFile(self.rmskin_path, "r") as rmskin_archive:
+            ini_path = Path("tmp/RMSKIN.ini")
+            rmskin_archive.extract("RMSKIN.ini", "tmp")
+            config = configparser.ConfigParser()
+            config.read(ini_path)
+            theme_title = config["rmskin"]["Name"]
+            author = config["rmskin"]["Author"]
+            version = config["rmskin"]["Version"]
+            UUID = config["rmskin"]["GUID"]
+
+            ini_path.unlink()
+
+            if os.sep == "\\":
+                preview_image = (
+                    "Skins/Droptop/@Resources/Themes/ThemePreviewImage.png"  # Windows
+                )
+            else:
+                preview_image = (
+                    "Skins\Droptop\@Resources\Themes\ThemePreviewImage.png"  # Linux
+                )
+
+            image_name = f"{theme_title.replace(' ', '_')}-{author.replace(' ', '_')}"
+            image_path = Path(f"tmp/{image_name}.png")
+            rmskin_archive.extract(preview_image, "tmp")
+            os.rename(f"tmp/{preview_image}", image_path)
+            webp_path = to_webp(image_path)
+
+        if str(interaction.user.id) in self.authorised_members:
+            rmskin_creation = push_rmskin(
+                self.configs["github_private_key"], "theme", self.rmskin_name
+            )
+            image_creation = push_image(
+                self.configs["github_private_key"], "theme", image_name
+            )
+
+            download_link, image_link, theme_id, uuid = await db_new(
+                self.db_client,
+                "theme",
+                authorised_members=self.authorised_members,
+                title=theme_title,
+                author=author,
+                description=self.description.value,
+                changenotes=self.changenotes.value,
+                rmskin_name=self.rmskin_name,
+                image_name=image_name,
+                version=version,
+                uuid=UUID,
+                author_link=self.github_profile.value,
+                github_repo=self.github_repo.value,
+            )
+
+            view = discord.ui.View()
+            style = discord.ButtonStyle.url
+            download_button = discord.ui.Button(
+                style=style, label="Download", url=download_link
+            )
+            site_button = discord.ui.Button(
+                style=style,
+                label="See on Website",
+                url=f"https://droptopfour.com/community-themes?id={theme_id}",
+            )
+            view.add_item(item=download_button)
+            view.add_item(item=site_button)
+            if self.description.value:
+                embed = discord.Embed(
+                    title=f"{theme_title} - {author}",
+                    description=f"{self.description.value}",
+                    color=discord.Color.from_rgb(75, 215, 100),
+                )
+            else:
+                embed = discord.Embed(
+                    title=f"{theme_title} - {author}",
+                    description="",
+                    color=discord.Color.from_rgb(75, 215, 100),
+                )
+            embed.set_author(
+                name="New Community Theme Release",
+                url=self.configs["website"] + "/community-themes",
+            )
+            if self.changenotes.value:
+                embed.add_field(
+                    name="Changenotes:", value=self.changenotes.value, inline=False
+                )
+            embed.set_footer(
+                text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )",
+                icon_url=interaction.user.avatar.url,
+            )
+            embed.set_image(url=image_link)
+            all_threads = []
+            for thread in self.channel.threads:
+                all_threads.append(thread)
+
+            async for thread in self.channel.archived_threads():
+                all_threads.append(thread)
+
+            for thread in all_threads:
+                if thread.name == f"{theme_title} - {author}":
+                    await thread.send(embed=embed, view=view)
+                    async for message in thread.history(oldest_first=True, limit=1):
+                        await message.edit(embed=embed, view=view)
+                    break
+            else:
+                await self.channel.create_thread(
+                    name=f"{theme_title} - {author}", embed=embed, view=view
+                )
+
+            webp_path.unlink()
+            await original.edit(
+                content=f"You successfully published **{theme_title}** in <#{self.channel.id}>"
+            )
+            self.rmskin_path.unlink()
+
+            root = "tmp"
+            folders = list(os.walk(root))
+            for folder, _, _ in folders[::-1]:
+                if len(os.listdir(folder)) == 0:
+                    os.rmdir(folder)
+
+        else:
+            webp_path.unlink()
+            self.rmskin_path.unlink()
+            await interaction.followup.send(
+                f"You aren't authorised to publish updates, modify or delete {theme_title}.\nAsk {author} to add you as an authorised user.",
+                ephemeral=True,
+            )
+
+    async def on_error(
+        self, interaction: discord.Interaction, error: Exception
+    ) -> None:
+        ini_path.unlink(missing_ok=True)
+        webp_path.unlink(missing_ok=True)
+        self.rmskin_path.unlink(missing_ok=True)
+
+        await interaction.followup.send(
+            f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
+        )
+
+        channel = interaction.guild.get_channel(self.configs["commandlog_channel"])
+
+        embed = discord.Embed(
+            title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
+        )
+        embed.add_field(name="User", value=f"<@{interaction.user.id}>", inline=False)
+        embed.add_field(
+            name="Channel", value=f"<#{interaction.channel_id}>", inline=False
+        )
+        embed.add_field(name="Modal", value="`NewThemeRelease`", inline=False)
+        embed.add_field(name="Error", value=error, inline=False)
+        traceback_str = "".join(traceback.format_tb(error.__traceback__))
+        embed.add_field(
+            name="Traceback", value=f"```fix\n{traceback_str}\n```", inline=False
+        )
+
+        await channel.send(embed=embed)
+
+        _logger.error(
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Modal: `NewThemeRelease`; Error: {error}; Traceback: {traceback_str}"
         )
 
 
@@ -2181,17 +2131,12 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         self.channel = channel
         self.image_preview = image_preview
         self.suffix = suffix
-        self.authorised_members = authorised_members
+        self.authorised_members = authorised_membersauthorised_members
 
-        data = github_reader(
-            self.configs["github_private_key"],
-            "data/community_themes/community_themes.json",
-        )
-        for theme in data["themes"]:
-            if (
-                self.community_theme
-                == f'{theme["name"]} - {theme["author"]}'
-            ):
+        # TODO: add api endpoint to search for app/theme from name & author
+        _, data = get_community_theme()
+        for theme in data:
+            if self.community_theme == f'{theme["name"]} - {theme["author"]}':
                 self.uuid = theme["uuid"]
                 self.default_name = theme["name"]
                 self.default_author = theme["author"]
@@ -2370,6 +2315,8 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
+        webp_path.unlink(missing_ok=True)
+
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
         )
@@ -2383,14 +2330,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         embed.add_field(
             name="Channel", value=f"<#{interaction.channel_id}>", inline=False
         )
-        embed.add_field(
-            name="Command", value=f"{interaction.command.qualified_name}", inline=False
-        )
-        embed.add_field(
-            name="Command mention",
-            value=f"{interaction.command.extras['mention']}",
-            inline=False,
-        )
+        embed.add_field(name="Modal", value="`EditThemeRelease`", inline=False)
         embed.add_field(name="Error", value=error, inline=False)
         traceback_str = "".join(traceback.format_tb(error.__traceback__))
         embed.add_field(
@@ -2400,14 +2340,14 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         await channel.send(embed=embed)
 
         _logger.error(
-            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Command: {interaction.command.qualified_name}; Error: {error}; Traceback: {traceback_str}"
+            f"User: <@{interaction.user.id}>; Channel: <#{interaction.channel_id}>; Modal: `EditThemeRelease`; Error: {error}; Traceback: {traceback_str}"
         )
 
 
 class ConfirmDeletion(discord.ui.View):
-    def __init__(self, community_app):
+    def __init__(self, community_creation):
         super().__init__()
-        self.community_app = community_app
+        self.community_creation = community_creation
         self.value = None
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.red)
@@ -2416,7 +2356,8 @@ class ConfirmDeletion(discord.ui.View):
     ):
         self.value = True
         await interaction.response.send_message(
-            f"The `{self.community_app}` package is being deleted...", ephemeral=True
+            f"The `{self.community_creation}` package is being deleted...",
+            ephemeral=True,
         )
         self.stop()
 
@@ -2424,7 +2365,7 @@ class ConfirmDeletion(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = False
         await interaction.response.send_message(
-            f"The `{self.community_app}` package **will NOT** be deleted.",
+            f"The `{self.community_creation}` package **will NOT** be deleted.",
             ephemeral=True,
         )
         self.stop()
