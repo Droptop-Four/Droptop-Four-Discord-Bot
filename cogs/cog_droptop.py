@@ -790,8 +790,8 @@ class DroptopCommands(commands.Cog):
                 default_github_profile = ""
                 default_github_repo = ""
                 authorised_members = [
-                    self.configs["author_id"],
-                    self.configs["cari_id"],
+                    self.bot.configs["author_id"],
+                    self.bot.configs["cari_id"],
                 ]
                 if str(interaction.user.id) not in authorised_members:
                     authorised_members.append(str(interaction.user.id))
@@ -1159,8 +1159,8 @@ class DroptopCommands(commands.Cog):
                 default_github_profile = ""
                 default_github_repo = ""
                 authorised_members = [
-                    self.configs["author_id"],
-                    self.configs["cari_id"],
+                    self.bot.configs["author_id"],
+                    self.bot.configs["cari_id"],
                 ]
                 if str(interaction.user.id) not in authorised_members:
                     authorised_members.append(str(interaction.user.id))
