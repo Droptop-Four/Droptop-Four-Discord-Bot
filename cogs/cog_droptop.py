@@ -1038,6 +1038,7 @@ class DroptopCommands(commands.Cog):
             name = theme["name"]
             author = theme["author"]
             description = theme["desc"]
+            version = theme["version"]
             download_link = theme["direct_download_link"]
             image_url = theme["image_url"]
             downloads = theme["downloads"]
@@ -1061,6 +1062,7 @@ class DroptopCommands(commands.Cog):
                 color=discord.Color.from_rgb(75, 215, 100),
             )
             embed.add_field(name="Version: ", value=version, inline=False)
+            embed.add_field(name="Downloads:", value=downloads, inline=True)
             embed.set_author(
                 name="Community Theme Info",
                 url=self.bot.configs["website"] + "/community-themes",
@@ -2131,7 +2133,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         self.channel = channel
         self.image_preview = image_preview
         self.suffix = suffix
-        self.authorised_members = authorised_membersauthorised_members
+        self.authorised_members = authorised_members
 
         # TODO: add api endpoint to search for app/theme from name & author
         _, data = get_community_theme()
@@ -2140,6 +2142,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                 self.uuid = theme["uuid"]
                 self.default_name = theme["name"]
                 self.default_author = theme["author"]
+                self.version = theme["version"]
                 self.default_description = theme["desc"]
                 self.default_github_profile = theme["author_link"]
                 self.default_github_repo = theme["official_link"]
@@ -2240,6 +2243,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
             name="New Community Theme Release",
             url=self.configs["website"] + "/community-themes",
         )
+        embed.add_field(name="Version: ", value=self.version, inline=False)
         embed.set_footer(
             text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
             icon_url=interaction.user.avatar.url,
