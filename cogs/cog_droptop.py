@@ -1145,7 +1145,7 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            status, theme = await get_community_theme()
+            status, theme = await get_community_theme(uuid=UUID)
 
             if status == 200:
                 new = False
@@ -1172,6 +1172,7 @@ class DroptopCommands(commands.Cog):
 
                 await interaction.response.send_modal(
                     NewThemeRelease(
+                        self.bot.db_client,
                         self.bot.configs,
                         rmskin_path,
                         rmskin_name,
