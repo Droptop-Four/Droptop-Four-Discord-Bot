@@ -236,6 +236,8 @@ async def db_edit(
     author_link=None,
     github_repo=None,
     authorised_members=None,
+    version=None,
+    changenotes=None
 ):
     """
     Edits the specified app or theme
@@ -249,6 +251,8 @@ async def db_edit(
         author_link (str): The link of the author
         github_repo (str): The link of the repo
         authorised_members (list): A list of authorised members to edit apps/themes
+        version (str): The version of the package
+        changenotes (str): The changenotes of the version
 
     Returns:
         download_link: The download link of the app/theme
@@ -274,12 +278,23 @@ async def db_edit(
         updated_data["official_link"] = github_repo
     if not authorised_members:
         authorised_members = []
+    
+    if changenotes:
+        changelog = [{"version": version, "changenotes": changenotes}]
+    else:
+        changelog = []
 
     result = collection.update_one(
         {"uuid": uuid},
         {
             "$set": updated_data,
             "$addToSet": {"authorised_members": {"$each": authorised_members}},
+            "$push": {
+                "changelog": {
+                    "$each": [changelog],
+                    "$position": 0
+                }
+            }
         },
     )
 
