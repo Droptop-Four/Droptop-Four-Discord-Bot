@@ -1535,21 +1535,35 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
                 self.configs["github_private_key"], "app", image_name
             )
 
-            download_link, image_link, app_id, uuid = await db_new(
-                self.db_client,
-                "app",
-                authorised_members=self.authorised_members,
-                title=app_title,
-                author=author,
-                description=self.description.value,
-                changenotes=self.changenotes.value,
-                rmskin_name=self.rmskin_name,
-                image_name=image_name,
-                version=version,
-                uuid=UUID,
-                author_link=self.github_profile.value,
-                github_repo=self.github_repo.value,
-            )
+            if self.new:
+                download_link, image_link, app_id, uuid = await db_new(
+                    self.db_client,
+                    "app",
+                    authorised_members=self.authorised_members,
+                    title=app_title,
+                    author=author,
+                    description=self.description.value,
+                    changenotes=self.changenotes.value,
+                    rmskin_name=self.rmskin_name,
+                    image_name=image_name,
+                    version=version,
+                    uuid=UUID,
+                    author_link=self.github_profile.value,
+                    github_repo=self.github_repo.value,
+                )
+            else:
+                download_link, image_link, app_id = await db_edit(
+                    self.db_client,
+                    "app",
+                    UUID,
+                    author=author,
+                    description=self.description.value,
+                    author_link=self.github_profile.value,
+                    github_repo=self.github_repo.value,
+                    authorised_members=self.authorised_members,
+                    version=version,
+                    changenotes=self.changenotes.value,
+                )
 
             view = discord.ui.View()
             style = discord.ButtonStyle.url
@@ -1989,21 +2003,36 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                 self.configs["github_private_key"], "theme", image_name
             )
 
-            download_link, image_link, theme_id, uuid = await db_new(
-                self.db_client,
-                "theme",
-                authorised_members=self.authorised_members,
-                title=theme_title,
-                author=author,
-                description=self.description.value,
-                changenotes=self.changenotes.value,
-                rmskin_name=self.rmskin_name,
-                image_name=image_name,
-                version=version,
-                uuid=UUID,
-                author_link=self.github_profile.value,
-                github_repo=self.github_repo.value,
-            )
+            if self.new:
+                download_link, image_link, theme_id, uuid = await db_new(
+                    self.db_client,
+                    "theme",
+                    authorised_members=self.authorised_members,
+                    title=theme_title,
+                    author=author,
+                    description=self.description.value,
+                    changenotes=self.changenotes.value,
+                    rmskin_name=self.rmskin_name,
+                    image_name=image_name,
+                    version=version,
+                    uuid=UUID,
+                    author_link=self.github_profile.value,
+                    github_repo=self.github_repo.value,
+                )
+            else:
+                download_link, image_link, theme_id = await db_edit(
+                    self.db_client,
+                    "theme",
+                    UUID,
+                    author=author,
+                    description=self.description.value,
+                    author_link=self.github_profile.value,
+                    github_repo=self.github_repo.value,
+                    authorised_members=self.authorised_members,
+                    version=version,
+                    changenotes=self.changenotes.value,
+                )
+                uuid=UUID
 
             view = discord.ui.View()
             style = discord.ButtonStyle.url
