@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from pymongo import DESCENDING, MongoClient
 
-from .droptop import get_community_app, get_community_theme
+# from .droptop import get_community_app, get_community_theme
 
 _logger = logging.getLogger(__name__)
 
@@ -35,6 +35,132 @@ def initialize_mongodb(id):
 
     except Exception as e:
         _logger.critical(f"Connection to the database failed! -> {e}")
+        return False, e
+
+
+def db_get_downloads(db_client, type, *, uuid=None):
+    """
+    Gets the number of downloads of Droptop Four
+
+    Args:
+        db_client (MongoClient): The db client
+        type (str): The type of the download. Can be 'droptop', 'app' or 'theme'
+        uuid (str): The UUID of the app or theme
+
+    Returns:
+        status (int): The status code of the request
+        data (dict): The data of the request
+    """
+
+    try:
+        if type == "droptop":
+            db = db_client[os.getenv("droptop_cluster")]
+            collection = db["Downloads"]
+            data = collection.find_one({"title": "downloads"}, {"_id": False})
+
+        elif type == "app":
+            db = db_client[os.getenv("droptop_creations_cluster")]
+            collection = db["Community_Apps"]
+            data = (collection.find_one({"uuid": uuid}, {"_id": False}))["downloads"]
+
+        elif type == "theme":
+            db = db_client[os.getenv("droptop_creations_cluster")]
+            collection = db["Community_Themes"]
+            data = (collection.find_one({"uuid": uuid}, {"_id": False}))["downloads"]
+
+        else:
+            return True, None
+
+        return True, data
+
+    except Exception as e:
+        _logger.error(f"Failed to get the downloads for {type} -> {e}")
+        return False, e
+
+
+
+def db_get_version(db_client):
+    """
+    Gets the version of Droptop
+
+    Args:
+        db_client (MongoClient): The db client
+
+    Returns:
+        status (int): The status code of the request
+        data (dict): The data of the request
+    """
+
+    try:
+        db = db_client[os.getenv("droptop_cluster")]
+        collection = db["Version"]
+
+        data = collection.find_one({"title": "version"}, {"_id": False})
+
+        return True, data["base"]
+
+    except Exception as e:
+        _logger.error(f"Failed to get the version -> {e}")
+        return False, e
+
+
+def db_get_creation(
+    db_client,
+    type,
+    *,
+    id=None,
+    uuid=None,
+    name=None,
+    name_author=None,
+    authorised_members_list=None,
+):
+    """
+    Gets all the Community Apps or Themes of Droptop
+
+    Args:
+        db_client (MongoClient): The db client
+        type (str): The type of package [app, theme]
+        id (int): The ID of the app
+        uuid (str): The UUID of the app
+        name (str): The name of the app
+        name_author (str): The name & the author of the app
+        authorised_members_list (list): A list of authorised members that can edit apps/themes
+
+    Returns:
+        status (int): The status code of the request
+        data (dict): The data of the request
+    """
+
+    try:
+        db = db_client[os.getenv("droptop_creations_cluster")]
+        if type == "app":
+            collection = db["Community_Apps"]
+        elif type == "theme":
+            collection = db["Community_Themes"]
+
+        query = {}
+        if id:
+            query["id"] = id
+        elif uuid:
+            query["uuid"] = uuid
+        elif name:
+            query["name"] = name
+        elif name_author:
+            name, author = name_author.split(" - ")
+            query["name"] = name
+            query["author"] = author
+
+        if authorised_members_list:
+            query["authorised_members"] = {"$in": authorised_members_list}
+        if id or uuid or name:
+            data = collection.find_one(query, {"_id": False})
+        else:
+            data = list(collection.find(query, {"_id": False}))
+
+        return True, data
+
+    except Exception as e:
+        _logger.error(f"Failed to get the creation -> {e}")
         return False, e
 
 
@@ -88,9 +214,8 @@ async def db_new(
         collection = db["Community_Themes"]
 
     if type == "app":
-        status, app = await get_community_app(uuid=uuid)
-        if status == 200 and app["version"]:
-
+        success, app = db_get_creation(self.bot.db_client, "app", uuid=uuid)
+        if success and app and app["version"] != version:
             if not description:
                 description = ""
             if not version:
@@ -127,13 +252,15 @@ async def db_new(
             download_link = app["direct_download_link"]
             image_link = app["image_url"]
             item_id = app["id"]
-        else:
+
+        elif success and not app:
             new_creation = True
+        else:
+            return None, None, None, None
 
     else:
-        status, theme = await get_community_theme(uuid=uuid)
-        if status == 200 and theme["version"] != version:
-
+        success, theme = db_get_creation(self.bot.db_client, "theme", uuid=uuid)
+        if success and theme and theme["version"] != version:
             if not description:
                 description = ""
             if not version:
@@ -170,8 +297,10 @@ async def db_new(
             download_link = theme["direct_download_link"]
             image_link = theme["image_url"]
             item_id = theme["id"]
-        else:
+        elif success and not theme:
             new_creation = True
+        else:
+            return None, None, None, None
 
     if new_creation:
         last_element = collection.find_one(sort=[("id", DESCENDING)])
@@ -237,7 +366,7 @@ async def db_edit(
     github_repo=None,
     authorised_members=None,
     version=None,
-    changenotes=None
+    changenotes=None,
 ):
     """
     Edits the specified app or theme
@@ -278,7 +407,7 @@ async def db_edit(
         updated_data["official_link"] = github_repo
     if not authorised_members:
         authorised_members = []
-    
+
     if changenotes:
         changelog = [{"version": version, "changenotes": changenotes}]
     else:
@@ -289,25 +418,20 @@ async def db_edit(
         {
             "$set": updated_data,
             "$addToSet": {"authorised_members": {"$each": authorised_members}},
-            "$push": {
-                "changelog": {
-                    "$each": [changelog],
-                    "$position": 0
-                }
-            }
+            "$push": {"changelog": {"$each": [changelog], "$position": 0}},
         },
     )
 
-    if type == "app":
-        _, creation = await get_community_app(uuid=uuid)
-    else:
-        _, creation = await get_community_theme(uuid=uuid)
+    success, creation = db_get_creation(self.bot.db_client, type, uuid=UUID)
 
-    return (
-        creation["direct_download_link"],
-        creation["image_url"],
-        creation["id"],
-    )
+    if success and creation:
+        return (
+            creation["direct_download_link"],
+            creation["image_url"],
+            creation["id"],
+        )
+    else:
+        return None, None, None
 
 
 def db_delete(db_client, type, uuid):

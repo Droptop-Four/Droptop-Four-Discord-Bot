@@ -18,10 +18,17 @@ __all__ = [
 
 from .command_mention import command_mention
 from .crowdin import initialize_crowdin
-from .database import db_delete, db_edit, db_new, initialize_mongodb
+from .database import (
+    db_delete,
+    db_edit,
+    db_get_creation,
+    db_get_version,
+    db_new,
+    initialize_mongodb,
+)
 from .date_validator import validate_date
 from .deviantart import get_metadata
-from .droptop import get_community_app, get_community_theme, get_downloads, get_version
+# from .droptop import get_community_app, get_community_theme, get_version, get_downloads
 from .firebase import initialize_firebase, sync_files
 from .generators import generate_uuid_string
 from .github import (

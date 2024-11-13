@@ -25,7 +25,7 @@ async def fetch(session, url):
     complete_url = base_url + api_version + url
 
     async with session.get(complete_url) as response:
-        return await response.text(), response.status
+        return response.status, await response.text() 
 
 
 async def get_downloads(type, *, uuid=None):
@@ -51,7 +51,7 @@ async def get_downloads(type, *, uuid=None):
         return 404, None
 
     async with aiohttp.ClientSession() as session:
-        data, status = await fetch(session, url)
+        status, data = await fetch(session, url)
         data = json.loads(data)
         return status, data
 
@@ -67,12 +67,12 @@ async def get_version():
 
     url = "/version"
     async with aiohttp.ClientSession() as session:
-        data, status = await fetch(session, url)
+        status, data = await fetch(session, url)
         data = json.loads(data)
         return status, data
 
 
-async def get_community_app(*, id=None, uuid=None, name=None):
+async def get_community_app(*, id=None, uuid=None, name=None, name_author=None):
     """
     Gets all the Community Apps of Droptop
 
@@ -80,6 +80,7 @@ async def get_community_app(*, id=None, uuid=None, name=None):
         id (int): The ID of the app
         uuid (str): The UUID of the app
         name (str): The name of the app
+        name_author (str): The name & the author of the app
 
     Returns:
         status (int): The status code of the request
@@ -88,21 +89,23 @@ async def get_community_app(*, id=None, uuid=None, name=None):
 
     if id:
         url = f"/community-apps/id/{id}"
-    elif name:
-        url = f"/community-apps/name/{name}"
     elif uuid:
         url = f"/community-apps/uuid/{uuid}"
+    elif name:
+        url = f"/community-apps/name/{name}"
+    elif name_author:
+        url = f"/community-apps/name-author/{name_author}"
     else:
         url = "/community-apps"
 
     async with aiohttp.ClientSession() as session:
-        data, status = await fetch(session, url)
+        status, data = await fetch(session, url)
         data = json.loads(data)
 
     return status, data
 
 
-async def get_community_theme(*, id=None, uuid=None, name=None):
+async def get_community_theme(*, id=None, uuid=None, name=None, name_author=None):
     """
     Gets all the Community Themes of Droptop
 
@@ -110,6 +113,7 @@ async def get_community_theme(*, id=None, uuid=None, name=None):
         id (int): The ID of the theme
         uuid (str): The UUID of the theme
         name (str): The name of the theme
+        name_author (str): The name & the author of the theme
 
     Returns:
         status (int): The status code of the request
@@ -118,14 +122,16 @@ async def get_community_theme(*, id=None, uuid=None, name=None):
 
     if id:
         url = f"/community-themes/id/{id}"
-    elif name:
-        url = f"/community-themes/name/{name}"
     elif uuid:
         url = f"/community-themes/uuid/{uuid}"
+    elif name:
+        url = f"/community-themes/name/{name}"
+    elif name_author:
+        url = f"/community-themes/name-author/{name_author}"
     else:
         url = "/community-themes"
 
     async with aiohttp.ClientSession() as session:
-        data, status = await fetch(session, url)
+        status, data = await fetch(session, url)
         data = json.loads(data)
         return status, data

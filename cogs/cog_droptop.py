@@ -12,20 +12,19 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utils import (
+from utils import (  # get_community_app,; get_community_theme,
     analyze_invoice,
     db_delete,
     db_edit,
+    db_get_creation,
+    db_get_downloads,
+    db_get_version,
     db_new,
     get_all_sales,
-    get_community_app,
-    get_community_theme,
-    get_downloads,
     get_followers,
     get_metadata,
     get_stars,
     get_title_author,
-    get_version,
     github_reader,
     image_delete,
     img_rename,
@@ -174,8 +173,8 @@ class DroptopCommands(commands.Cog):
 
         message = await interaction.original_response()
 
-        status, data = await get_downloads("droptop")
-        if status == 200:
+        success, data = db_get_downloads(self.bot.db_client, "droptop")
+        if success:
             github_basic_downloads, github_update_downloads, supporter_downloads = (
                 data["basic_downloads"],
                 data["update_downloads"],
@@ -349,7 +348,7 @@ class DroptopCommands(commands.Cog):
         data = github_reader(
             self.bot.configs["github_private_key"], "data/droptop_info.json"
         )
-        _, version = get_version()
+        success, version = db_get_version(self.bot.db_client)
 
         if variant:
             if variant == "Basic":
@@ -409,9 +408,10 @@ class DroptopCommands(commands.Cog):
                 embed.add_field(
                     name=field["name"], value=field["content"], inline=field["inline"]
                 )
-            embed.add_field(
-                name="Latest Version", value=version["version"], inline=False
-            )
+            if success:
+                embed.add_field(
+                    name="Latest Version", value=version["version"], inline=False
+                )
             embed.set_footer(text=data["messages"][0]["content"][0]["footer"])
             await interaction.response.send_message(embed=embed)
 
@@ -629,16 +629,16 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_apps_names = []
 
-        status, data = await get_community_app()
-        for app in data:
-            community_apps_names.append(app["name"])
+        success, data = db_get_creation(self.bot.db_client, "app")
+        if success and data:
+            for app in data:
+                community_apps_names.append(f'{app["name"]} - {app["author"]}')
         return [
             app_commands.Choice(name=community_app_name, value=community_app_name)
             for community_app_name in community_apps_names
             if current.lower() in community_app_name.lower()
         ][:25]
 
-    # TODO: Update to use api endpoint that returns apps/themes that a specified user CAN modify
     async def authorised_community_app_autocomplete(
         self,
         interaction: discord.Interaction,
@@ -646,9 +646,13 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_apps_editable = []
 
-        status, data = await get_community_app()
-        for app in data:
-            if str(interaction.user.id) in app["authorised_members"]:
+        success, data = db_get_creation(
+            self.bot.db_client,
+            "app",
+            authorised_members_list=[str(interaction.user.id)],
+        )
+        if success and data:
+            for app in data:
                 community_apps_editable.append(f'{app["name"]} - {app["author"]}')
         return [
             app_commands.Choice(name=community_app_name, value=community_app_name)
@@ -666,9 +670,9 @@ class DroptopCommands(commands.Cog):
     ) -> None:
         """Displays info about Droptop Four Community Apps"""
 
-        status, app = await get_community_app(name=name)
+        success, app = db_get_creation(self.bot.db_client, "app", name_author=name)
 
-        if status == 200:
+        if success and app:
             id = app["id"]
             uuid = app["uuid"]
             author = app["author"]
@@ -709,15 +713,16 @@ class DroptopCommands(commands.Cog):
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
 
-        elif status == 404:
-            await interaction.response.send_message(
-                f"The {name} community app doesn't exists.", ephemeral=True
-            )
         else:
-            await interaction.response.send_message(
-                f"An error occurred while trying to get the information of the {name} community app.",
-                ephemeral=True,
-            )
+            if not app:
+                await interaction.response.send_message(
+                    f"The {name} community app doesn't exists.", ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    f"An error occurred while trying to get the information of the {name} community app.",
+                    ephemeral=True,
+                )
 
     @community_app_group.command(name="new_release")
     @app_commands.describe(rmskin_package="The package of your Community App")
@@ -776,15 +781,15 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            status, app = await get_community_app(uuid=UUID)
+            success, app = db_get_creation(self.bot.db_client, "app", uuid=UUID)
 
-            if status == 200:
+            if success and app:
                 new = False
                 default_description = app["desc"]
                 default_github_profile = app["author_link"]
                 default_github_repo = app["official_link"]
                 authorised_members = app["authorised_members"]
-            else:
+            elif success and not app:
                 new = True
                 default_description = ""
                 default_github_profile = ""
@@ -795,6 +800,11 @@ class DroptopCommands(commands.Cog):
                 ]
                 if str(interaction.user.id) not in authorised_members:
                     authorised_members.append(str(interaction.user.id))
+            else:
+                await interaction.followup.send(
+                    f"An error occurred while trying to get the information of the {app_title} community app.",
+                    ephemeral=True,
+                )
 
             async def confirm_callback(interaction):
                 confirm_button.disabled = True
@@ -880,43 +890,42 @@ class DroptopCommands(commands.Cog):
 
         if image_preview:
             if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-                await interaction.response.send_modal(
-                    EditAppRelease(
-                        self.bot.db_client,
-                        self.bot.configs,
-                        community_app,
-                        channel,
-                        image_preview=image_preview,
-                        suffix="jpg",
-                        authorised_members=authorised_members,
-                    )
-                )
+                image_type = "jpg"
             elif image_preview.filename.lower().endswith(".webp"):
-                await interaction.response.send_modal(
-                    EditAppRelease(
-                        self.bot.db_client,
-                        self.bot.configs,
-                        community_app,
-                        channel,
-                        image_preview=image_preview,
-                        suffix="webp",
-                        authorised_members=authorised_members,
-                    )
-                )
+                image_type = "webp"
             else:
                 await interaction.response.send_message(
-                    "No image was found, be sure to put it in the right hitbox the next time.",
+                    "No valid image was found, be sure to put a valid one.",
                     ephemeral=True,
                 )
         else:
+            image_type = None
+
+        success, app = db_get_creation(
+            self.bot.db_client, "app", name_author=community_app
+        )
+
+        if success and app:
             await interaction.response.send_modal(
                 EditAppRelease(
                     self.bot.db_client,
                     self.bot.configs,
                     community_app,
                     channel,
+                    app,
+                    image_preview=image_preview,
+                    image_type=image_type,
                     authorised_members=authorised_members,
                 )
+            )
+        elif success and not app:
+            await interaction.response.send_message(
+                f"The {community_app} community app doesn't exists.", ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                f"An error occurred while trying to get the information of the {community_app} community app.",
+                ephemeral=True,
             )
 
     @community_app_group.command(name="delete")
@@ -946,14 +955,26 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            _, data = await get_community_app()
-            for app in data:
-                if community_app == f'{app["name"]} - {app["author"]}':
-                    uuid = app["uuid"]
-            json_delete(self.bot.configs["github_private_key"], "app", uuid)
+            success, app = db_get_creation(
+                self.bot.db_client, "app", name_author=community_app
+            )
+            if success and app:
+                uuid = app["uuid"]
+            elif success and not app:
+                await interaction.followup.send(
+                    f"The {community_app} community app doesn't exists.", ephemeral=True
+                )
+            else:
+                await interaction.followup.send(
+                    f"An error occurred while trying to get the information of the {community_app} community app.",
+                    ephemeral=True,
+                )
+
+            # json_delete(self.bot.configs["github_private_key"], "app", uuid)
             rmskin_delete(self.bot.configs["github_private_key"], "app", community_app)
             image_delete(self.bot.configs["github_private_key"], "app", community_app)
 
+            # TODO: make db_delete with name_author too since it's unique as uuid
             db_delete(self.bot.db_client, "app", uuid)
 
             if delete_release_channel == "True":
@@ -994,9 +1015,10 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_themes_names = []
 
-        status, data = await get_community_theme()
-        for theme in data:
-            community_themes_names.append(theme["name"])
+        success, data = db_get_creation(self.bot.db_client, "theme")
+        if success and data:
+            for theme in data:
+                community_themes_names.append(f'{theme["name"]} - {theme["author"]}')
         return [
             app_commands.Choice(name=community_theme_name, value=community_theme_name)
             for community_theme_name in community_themes_names
@@ -1010,9 +1032,13 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_themes_editable = []
 
-        status, data = await get_community_theme()
-        for theme in data:
-            if str(interaction.user.id) in theme["authorised_members"]:
+        success, data = db_get_creation(
+            self.bot.db_client,
+            "theme",
+            authorised_members_list=[str(interaction.user.id)],
+        )
+        if success and data:
+            for theme in data:
                 community_themes_editable.append(f'{theme["name"]} - {theme["author"]}')
         return [
             app_commands.Choice(name=community_theme_name, value=community_theme_name)
@@ -1025,14 +1051,14 @@ class DroptopCommands(commands.Cog):
         name="The name of the community theme you want info about (Only 25 elements are shown in the auto-completition list)"
     )
     @app_commands.autocomplete(name=community_themes_autocomplete)
-    async def community_theme_info(
+    async def community_themes_info(
         self, interaction: discord.Interaction, name: str
     ) -> None:
         """Displays info about Droptop Four Community Themes"""
 
-        status, theme = await get_community_theme(name=name)
+        success, theme = db_get_creation(self.bot.db_client, "theme", name_author=name)
 
-        if status == 200:
+        if success and theme:
             id = theme["id"]
             uuid = theme["uuid"]
             name = theme["name"]
@@ -1074,15 +1100,16 @@ class DroptopCommands(commands.Cog):
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
 
-        elif status == 404:
-            await interaction.response.send_message(
-                f"The {name} community theme doesn't exists.", ephemeral=True
-            )
         else:
-            await interaction.response.send_message(
-                f"An error occurred while trying to get the information of the {name} community theme.",
-                ephemeral=True,
-            )
+            if not theme:
+                await interaction.response.send_message(
+                    f"The {name} community theme doesn't exists.", ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    f"An error occurred while trying to get the information of the {name} community theme.",
+                    ephemeral=True,
+                )
 
     @community_theme_group.command(name="new_release")
     @app_commands.describe(
@@ -1147,15 +1174,15 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            status, theme = await get_community_theme(uuid=UUID)
+            success, theme = db_get_creation(self.bot.db_client, "theme", uuid=UUID)
 
-            if status == 200:
+            if success and theme:
                 new = False
                 default_description = theme["desc"]
                 default_github_profile = theme["author_link"]
                 default_github_repo = theme["official_link"]
                 authorised_members = theme["authorised_members"]
-            else:
+            elif success and not theme:
                 new = True
                 default_description = ""
                 default_github_profile = ""
@@ -1166,6 +1193,11 @@ class DroptopCommands(commands.Cog):
                 ]
                 if str(interaction.user.id) not in authorised_members:
                     authorised_members.append(str(interaction.user.id))
+            else:
+                await interaction.followup.send(
+                    f"An error occurred while trying to get the information of the {theme_title} community theme.",
+                    ephemeral=True,
+                )
 
             async def confirm_callback(interaction):
                 confirm_button.disabled = True
@@ -1251,43 +1283,41 @@ class DroptopCommands(commands.Cog):
 
         if image_preview:
             if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-                await interaction.response.send_modal(
-                    EditThemeRelease(
-                        self.bot.db_client,
-                        self.bot.configs,
-                        community_theme,
-                        channel,
-                        image_preview=image_preview,
-                        suffix="jpg",
-                        authorised_members=authorised_members,
-                    )
-                )
+                iamge_type = "jpg"
             elif image_preview.filename.lower().endswith(".webp"):
-                await interaction.response.send_modal(
-                    EditThemeRelease(
-                        self.bot.db_client,
-                        self.bot.configs,
-                        community_theme,
-                        channel,
-                        image_preview=image_preview,
-                        suffix="webp",
-                        authorised_members=authorised_members,
-                    )
-                )
+                image_type = "webp"
             else:
                 await interaction.response.send_message(
                     "No image was found, be sure to put it in the right hitbox the next time.",
                     ephemeral=True,
                 )
         else:
+            image_type = None
+
+        success, theme = db_get_creation(
+            self.bot.db_client, "theme", name_author=community_theme
+        )
+        if success and theme:
             await interaction.response.send_modal(
                 EditThemeRelease(
                     self.bot.db_client,
                     self.bot.configs,
                     community_theme,
                     channel,
+                    theme,
+                    image_preview=image_preview,
+                    image_type=image_type,
                     authorised_members=authorised_members,
                 )
+            )
+        elif success and not theme:
+            await interaction.response.send_message(
+                f"The {community_theme} community theme doesn't exists.", ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                f"An error occurred while trying to get the information of the {community_theme} community theme.",
+                ephemeral=True,
             )
 
     @community_theme_group.command(name="delete")
@@ -1317,11 +1347,23 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            _, data = await get_community_theme()
-            for theme in data:
-                if community_theme == f'{theme["name"]} - {theme["author"]}':
-                    uuid = theme["uuid"]
-            json_delete(self.bot.configs["github_private_key"], "theme", uuid)
+            success, theme = db_get_creation(
+                self.bot.db_client, "theme", name_author=community_theme
+            )
+            if success and theme:
+                uuid = theme["uuid"]
+            elif success and not theme:
+                await interaction.followup.send(
+                    f"The {community_theme} community theme doesn't exists.",
+                    ephemeral=True,
+                )
+            else:
+                await interaction.followup.send(
+                    f"An error occurred while trying to get the information of the {community_theme} community theme.",
+                    ephemeral=True,
+                )
+
+            # json_delete(self.bot.configs["github_private_key"], "theme", uuid)
             rmskin_delete(
                 self.bot.configs["github_private_key"], "theme", community_theme
             )
@@ -1329,6 +1371,7 @@ class DroptopCommands(commands.Cog):
                 self.bot.configs["github_private_key"], "theme", community_theme
             )
 
+            # TODO: make db_delete with name_author too since it's unique as uuid
             db_delete(self.bot.db_client, "theme", uuid)
 
             if delete_release_channel == "True":
@@ -1668,15 +1711,16 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 
 
 class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
-    async def __init__(
+    def __init__(
         self,
         db_client,
         configs,
         community_app,
         channel,
+        app,
         *,
         image_preview=None,
-        suffix=None,
+        image_type=None,
         authorised_members=None,
     ):
         super().__init__()
@@ -1684,22 +1728,19 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         self.configs = configs
         self.community_app = community_app
         self.channel = channel
+        self.app = app
         self.image_preview = image_preview
-        self.suffix = suffix
+        self.image_type = image_type
         self.authorised_members = authorised_members
 
-        # TODO: add api endpoint to search for app/theme from name & author
-        _, data = await get_community_app()
-        for app in data:
-            if self.community_app == f"{app['app']['name']} - {app['app']['author']}":
-                self.uuid = app["uuid"]
-                self.default_name = app["name"]
-                self.default_author = app["author"]
-                self.version = app["version"]
-                self.default_description = app["desc"]
-                self.default_github_profile = app["author_link"]
-                self.default_github_repo = app["official_link"]
-                self.image_url = app["image_url"]
+        self.uuid = app["uuid"]
+        self.default_name = app["name"]
+        self.default_author = app["author"]
+        self.version = app["version"]
+        self.default_description = app["desc"]
+        self.default_github_profile = app["author_link"]
+        self.default_github_repo = app["official_link"]
+        self.image_url = app["image_url"]
 
         self.author = discord.ui.TextInput(
             label="Author",
@@ -1741,7 +1782,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         )
 
         if self.image_preview:
-            if self.suffix == "jpg":
+            if self.image_type == "jpg":
                 image_extension = Path(self.image_preview.filename).suffix
                 image_name = self.image_url.replace(
                     f"https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_apps/img/",
@@ -1902,7 +1943,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 
 
 class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
-    async def __init__(
+    def __init__(
         self,
         db_client,
         configs,
@@ -2032,7 +2073,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                     version=version,
                     changenotes=self.changenotes.value,
                 )
-                uuid=UUID
+                uuid = UUID
 
             view = discord.ui.View()
             style = discord.ButtonStyle.url
@@ -2144,15 +2185,16 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 
 
 class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
-    async def __init__(
+    def __init__(
         self,
         db_client,
         configs,
         community_theme,
         channel,
+        theme,
         *,
         image_preview=None,
-        suffix=None,
+        image_type=None,
         authorised_members=None,
     ):
         super().__init__()
@@ -2160,22 +2202,19 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         self.configs = configs
         self.community_theme = community_theme
         self.channel = channel
+        self.theme = theme
         self.image_preview = image_preview
-        self.suffix = suffix
+        self.image_type = image_type
         self.authorised_members = authorised_members
 
-        # TODO: add api endpoint to search for app/theme from name & author
-        _, data = await get_community_theme()
-        for theme in data:
-            if self.community_theme == f'{theme["name"]} - {theme["author"]}':
-                self.uuid = theme["uuid"]
-                self.default_name = theme["name"]
-                self.default_author = theme["author"]
-                self.version = theme["version"]
-                self.default_description = theme["desc"]
-                self.default_github_profile = theme["author_link"]
-                self.default_github_repo = theme["official_link"]
-                self.image_url = theme["image_url"]
+        self.uuid = theme["uuid"]
+        self.default_name = theme["name"]
+        self.default_author = theme["author"]
+        self.version = theme["version"]
+        self.default_description = theme["desc"]
+        self.default_github_profile = theme["author_link"]
+        self.default_github_repo = theme["official_link"]
+        self.image_url = theme["image_url"]
 
         self.author = discord.ui.TextInput(
             label="Author",
@@ -2217,7 +2256,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         )
 
         if self.image_preview:
-            if self.suffix == "jpg":
+            if self.image_type == "jpg":
                 image_extension = Path(self.image_preview.filename).suffix
                 image_name = self.image_url.replace(
                     "https://raw.githubusercontent.com/Droptop-Four/GlobalData/main/data/community_themes/img/",

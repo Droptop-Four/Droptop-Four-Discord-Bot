@@ -3,7 +3,7 @@
 	Discord: https://discord.gg/hQGDm4F5Ef
 	Author: Bunz (bunz#3066)
 	Date created: 21/10/2022
-	Bot Version: 4.1
+	Bot Version: 4.2
 	Python Version: 3.11.4
 	Cogs: 5
 """
@@ -85,7 +85,7 @@ async def on_ready():
 
 @bot.event
 async def setup_hook():
-    extensions = [
+    cogs = [
         "cogs.cog_admin",
         "cogs.cog_dev",
         "cogs.cog_mod",
@@ -93,8 +93,8 @@ async def setup_hook():
         "cogs.cog_misc",
     ]
 
-    for extension in extensions:
-        await bot.load_extension(extension)
+    for cog in cogs:
+        await bot.load_extension(cog)
     bot.tree.clear_commands(guild=discord.Object(id=bot.configs["server_id"]))
     guild = await bot.tree.sync()
     for synced in guild:
