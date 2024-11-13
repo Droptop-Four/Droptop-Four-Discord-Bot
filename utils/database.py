@@ -164,7 +164,7 @@ def db_get_creation(
         return False, e
 
 
-async def db_new(
+def db_new(
     db_client,
     type,
     *,
@@ -355,7 +355,7 @@ async def db_new(
     return download_link, image_link, item_id, uuid
 
 
-async def db_edit(
+def db_edit(
     db_client,
     type,
     uuid,
@@ -422,7 +422,7 @@ async def db_edit(
         },
     )
 
-    success, creation = db_get_creation(db_client, type, uuid=UUID)
+    success, creation = db_get_creation(db_client, type, uuid=uuid)
 
     if success and creation:
         return (
