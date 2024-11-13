@@ -648,7 +648,7 @@ class DroptopCommands(commands.Cog):
 
         status, data = await get_community_app()
         for app in data:
-            if interaction.user.id in app["authorised_members"]:
+            if str(interaction.user.id) in app["authorised_members"]:
                 community_apps_editable.append(f'{app["name"]} - {app["author"]}')
         return [
             app_commands.Choice(name=community_app_name, value=community_app_name)
@@ -1012,7 +1012,7 @@ class DroptopCommands(commands.Cog):
 
         status, data = await get_community_theme()
         for theme in data:
-            if interaction.user.id in theme["authorised_members"]:
+            if str(interaction.user.id) in theme["authorised_members"]:
                 community_themes_editable.append(f'{theme["name"]} - {theme["author"]}')
         return [
             app_commands.Choice(name=community_theme_name, value=community_theme_name)
