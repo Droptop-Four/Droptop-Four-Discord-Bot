@@ -9,7 +9,7 @@ from discord.ext.tasks import loop
 
 from utils import (
     edit_release,
-    get_version,
+    db_get_version,
     github_reader,
     json_update,
     sync_files,
@@ -465,8 +465,8 @@ class AdminCommands(commands.Cog):
     @loop(seconds=600)
     async def version_stats(self):
         channel = self.bot.get_channel(self.bot.configs["versionstats_channel"])
-        status, data = await get_version()
-        if status == 200:
+        success, data = db_get_version(self.bot.db_client)
+        if success:
             await channel.edit(name="🆕╏Version: " + str(data["version"]))
 
     @loop(seconds=600)
