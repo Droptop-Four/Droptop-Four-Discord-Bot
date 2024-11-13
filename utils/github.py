@@ -15,6 +15,13 @@ _logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+BOT_ENVIRONMENT = os.getenv("DEBUG") == "True"
+
+if BOT_ENVIRONMENT:
+    load_dotenv(".env.local")
+else:
+    load_dotenv(".env.prod")
+
 auth_app = os.getenv("github_auth_app")
 
 global_data_repo = os.getenv("global_data_repo")

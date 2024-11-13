@@ -1679,8 +1679,10 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        ini_path.unlink(missing_ok=True)
-        webp_path.unlink(missing_ok=True)
+        if "ini_path" in locals():
+            ini_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
         self.rmskin_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
@@ -1913,7 +1915,8 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        webp_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
@@ -2153,8 +2156,10 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        ini_path.unlink(missing_ok=True)
-        webp_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
+        if "ini_path" in locals():
+            ini_path.unlink(missing_ok=True)
         self.rmskin_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
@@ -2387,7 +2392,8 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        webp_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
