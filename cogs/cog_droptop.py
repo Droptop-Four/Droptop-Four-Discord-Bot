@@ -1283,7 +1283,7 @@ class DroptopCommands(commands.Cog):
 
         if image_preview:
             if image_preview.filename.lower().endswith((".jpg", ".jpeg", ".png")):
-                iamge_type = "jpg"
+                image_type = "jpg"
             elif image_preview.filename.lower().endswith(".webp"):
                 image_type = "webp"
             else:
