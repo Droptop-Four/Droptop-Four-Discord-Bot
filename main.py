@@ -30,6 +30,12 @@ from utils import (
 
 load_dotenv()
 
+BOT_ENVIRONMENT = os.getenv("DEBUG") == "True"
+
+if BOT_ENVIRONMENT:
+    load_dotenv(".env.local")
+else:
+    load_dotenv(".env.prod")
 
 logger = logging.getLogger("main")
 

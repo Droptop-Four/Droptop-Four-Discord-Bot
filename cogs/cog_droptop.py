@@ -1579,7 +1579,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
 
             if self.new:
-                download_link, image_link, app_id, uuid = await db_new(
+                download_link, image_link, app_id, uuid = db_new(
                     self.db_client,
                     "app",
                     authorised_members=self.authorised_members,
@@ -1595,7 +1595,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
                     github_repo=self.github_repo.value,
                 )
             else:
-                download_link, image_link, app_id = await db_edit(
+                download_link, image_link, app_id = db_edit(
                     self.db_client,
                     "app",
                     UUID,
@@ -1679,8 +1679,10 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        ini_path.unlink(missing_ok=True)
-        webp_path.unlink(missing_ok=True)
+        if "ini_path" in locals():
+            ini_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
         self.rmskin_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
@@ -1805,7 +1807,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                 self.configs["github_private_key"], "app", image_name
             )
 
-        download_link, image_link, app_id = await db_edit(
+        download_link, image_link, app_id = db_edit(
             self.db_client,
             "app",
             self.uuid,
@@ -1913,7 +1915,8 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        webp_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
@@ -2045,7 +2048,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             )
 
             if self.new:
-                download_link, image_link, theme_id, uuid = await db_new(
+                download_link, image_link, theme_id, uuid = db_new(
                     self.db_client,
                     "theme",
                     authorised_members=self.authorised_members,
@@ -2061,7 +2064,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                     github_repo=self.github_repo.value,
                 )
             else:
-                download_link, image_link, theme_id = await db_edit(
+                download_link, image_link, theme_id = db_edit(
                     self.db_client,
                     "theme",
                     UUID,
@@ -2153,8 +2156,10 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        ini_path.unlink(missing_ok=True)
-        webp_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
+        if "ini_path" in locals():
+            ini_path.unlink(missing_ok=True)
         self.rmskin_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
@@ -2279,7 +2284,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                 self.configs["github_private_key"], "theme", image_name
             )
 
-        download_link, image_link, theme_id = await db_edit(
+        download_link, image_link, theme_id = db_edit(
             self.db_client,
             "theme",
             self.uuid,
@@ -2387,7 +2392,8 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        webp_path.unlink(missing_ok=True)
+        if "webp_path" in locals():
+            webp_path.unlink(missing_ok=True)
 
         await interaction.followup.send(
             f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
