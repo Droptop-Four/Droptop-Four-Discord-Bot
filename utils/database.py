@@ -214,7 +214,7 @@ async def db_new(
         collection = db["Community_Themes"]
 
     if type == "app":
-        success, app = db_get_creation(self.bot.db_client, "app", uuid=uuid)
+        success, app = db_get_creation(db_client, "app", uuid=uuid)
         if success and app and app["version"] != version:
             if not description:
                 description = ""
@@ -259,7 +259,7 @@ async def db_new(
             return None, None, None, None
 
     else:
-        success, theme = db_get_creation(self.bot.db_client, "theme", uuid=uuid)
+        success, theme = db_get_creation(db_client, "theme", uuid=uuid)
         if success and theme and theme["version"] != version:
             if not description:
                 description = ""
@@ -422,7 +422,7 @@ async def db_edit(
         },
     )
 
-    success, creation = db_get_creation(self.bot.db_client, type, uuid=UUID)
+    success, creation = db_get_creation(db_client, type, uuid=UUID)
 
     if success and creation:
         return (
