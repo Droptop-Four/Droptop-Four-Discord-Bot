@@ -484,19 +484,19 @@ class AdminCommands(commands.Cog):
 
         await interaction.response.send_modal(NewVersion(self.bot.configs))
 
-    @app_commands.command(name="poll")
-    @app_commands.default_permissions(manage_nicknames=True)
-    @app_commands.describe(
-        emoji_1="The first emoji you want people to react with",
-        emoji_2="The second emoji you want people to react with",
-    )
-    @app_commands.guild_only()
-    async def poll(self, interaction: discord.Interaction, emoji_1: str, emoji_2: str):
-        """Creates a poll"""
+    # @app_commands.command(name="poll")
+    # @app_commands.default_permissions(manage_nicknames=True)
+    # @app_commands.describe(
+    #     emoji_1="The first emoji you want people to react with",
+    #     emoji_2="The second emoji you want people to react with",
+    # )
+    # @app_commands.guild_only()
+    # async def poll(self, interaction: discord.Interaction, emoji_1: str, emoji_2: str):
+    #     """Creates a poll"""
 
-        await interaction.response.send_modal(
-            NewPoll(self.bot.configs, emoji_1, emoji_2)
-        )
+    #     await interaction.response.send_modal(
+    #         NewPoll(self.bot.configs, emoji_1, emoji_2)
+    #     )
 
     @app_commands.command(name="sync_firebase")
     @app_commands.guild_only()
