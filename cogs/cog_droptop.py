@@ -1668,7 +1668,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
 
 
 class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
-    def __init__(
+    async def __init__(
         self,
         db_client,
         configs,
@@ -1902,7 +1902,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
 
 
 class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
-    def __init__(
+    async def __init__(
         self,
         db_client,
         configs,
@@ -2144,7 +2144,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
 
 
 class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
-    def __init__(
+    async def __init__(
         self,
         db_client,
         configs,
