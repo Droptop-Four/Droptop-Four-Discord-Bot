@@ -66,18 +66,17 @@ def upload_file(file, bucket_url):
         success (bool): If the uploading succeded or not
     """
 
-    print(f"Uploading file {file}...")
+    _logger.info(f"Uploading file {file}...")
     bucket = storage.bucket(bucket_url)
 
     blob = bucket.blob(file)
-    print("Uploading...")
     try:
         blob.upload_from_filename(f"tmp/{file}", timeout=300)
-        print("Uploaded successfully")
+        _logger.info("Uploaded successfully")
         success = True
 
     except Exception as e:
-        print(f"Failed to upload file: {e}")
+        _logger.error(f"Failed to upload file: {e}")
         success = False
 
     if success:
@@ -85,9 +84,7 @@ def upload_file(file, bucket_url):
             blob.make_public()
         except:
             pass
-        url = blob.public_url
-        print(url)
-        print("---\n")
+        # url = blob.public_url
 
     return success
 
