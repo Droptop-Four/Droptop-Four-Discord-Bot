@@ -22,6 +22,7 @@ from .database import (
     db_delete,
     db_edit,
     db_get_creation,
+    db_get_downloads,
     db_get_version,
     db_new,
     initialize_mongodb,
