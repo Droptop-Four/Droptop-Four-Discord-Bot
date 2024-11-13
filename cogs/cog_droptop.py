@@ -946,7 +946,7 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            _, data = get_community_app()
+            _, data = await get_community_app()
             for app in data:
                 if community_app == f'{app["name"]} - {app["author"]}':
                     uuid = app["uuid"]
@@ -1317,7 +1317,7 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            _, data = get_community_theme()
+            _, data = await get_community_theme()
             for theme in data:
                 if community_theme == f'{theme["name"]} - {theme["author"]}':
                     uuid = theme["uuid"]
@@ -1689,7 +1689,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         self.authorised_members = authorised_members
 
         # TODO: add api endpoint to search for app/theme from name & author
-        _, data = get_community_app()
+        _, data = await get_community_app()
         for app in data:
             if self.community_app == f"{app['app']['name']} - {app['app']['author']}":
                 self.uuid = app["uuid"]
@@ -2165,7 +2165,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         self.authorised_members = authorised_members
 
         # TODO: add api endpoint to search for app/theme from name & author
-        _, data = get_community_theme()
+        _, data = await get_community_theme()
         for theme in data:
             if self.community_theme == f'{theme["name"]} - {theme["author"]}':
                 self.uuid = theme["uuid"]
