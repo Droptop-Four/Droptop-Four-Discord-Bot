@@ -1,23 +1,22 @@
 services:
-   bot:
-     image: ghcr.io/66bunz/droptop-four-discord-bot:main
-     volumes:
-       - ./.env:/droptop_bot/.env:ro
-       - ./.env.prod:/droptop_bot/.env.prod:ro
-       - ./.env.local:/droptop_bot/.env.local:ro
+  bot:
+    image: ghcr.io/droptop-four/droptop-four-discord-bot:main
+    volumes:
+     - ./.env:/droptop_bot/.env:ro
+     - ./.env.prod:/droptop_bot/.env.prod:ro
+     - ./.env.local:/droptop_bot/.env.local:ro
+    restart: always
 
-   watchtower:
-     image: containrrr/watchtower
-     volumes:
-       - /var/run/docker.sock:/var/run/docker.sock
-     env_file:
-        - .env
-        - .env.docker.${ENVIRONMENT:-local}
-     environment:
-       WATCHTOWER_NOTIFICATION_URL: "discord://${DISCORD_TOKEN}@${DISCORD_ID}"
-       WATCHTOWER_NOTIFICATION_TEMPLATE: |-
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_NOTIFICATION_URL: "discord://${DISCORD_TOKEN}@${DISCORD_ID}"
+      WATCHTOWER_NOTIFICATION_TEMPLATE: |-
          {{range .}}{{.Time.Format "12-01-2020 15:04:05"}} ({{.Level}})':' {{.Message}}{{println}}{{end}}
 
-       WATCHTOWER_NOTIFICATIONS: shoutrrr
-       WATCHTOWER_CLEANUP: "true"
-       WATCHTOWER_POLL_INTERVAL: 300
+      WATCHTOWER_NOTIFICATIONS: shoutrrr
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: 300
+    restart: always
