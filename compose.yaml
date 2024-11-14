@@ -2,15 +2,16 @@ services:
   bot:
     image: ghcr.io/droptop-four/droptop-four-discord-bot:main
     volumes:
-     - ./.env:/droptop_bot/.env:ro
-     - ./.env.prod:/droptop_bot/.env.prod:ro
-     - ./.env.local:/droptop_bot/.env.local:ro
+      - ./.env:/droptop_bot/.env:ro
+      - ./.env.prod:/droptop_bot/.env.prod:ro
+      - ./.env.local:/droptop_bot/.env.local:ro
     restart: always
 
   watchtower:
     image: containrrr/watchtower
     volumes:
-     - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       WATCHTOWER_NOTIFICATION_URL: "discord://${DISCORD_TOKEN}@${DISCORD_ID}"
       WATCHTOWER_NOTIFICATION_TEMPLATE: |-
