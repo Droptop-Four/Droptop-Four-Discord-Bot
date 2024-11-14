@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-BOT_ENVIRONMENT = os.getenv("DEBUG") == "True"
+BOT_ENVIRONMENT = os.getenv("ENVIRONMENT", "local") == "local"
 
 if BOT_ENVIRONMENT:
     load_dotenv(".env.local")
@@ -83,7 +83,6 @@ def db_get_downloads(db_client, type, *, uuid=None):
     except Exception as e:
         _logger.error(f"Failed to get the downloads for {type} -> {e}")
         return False, e
-
 
 
 def db_get_version(db_client):
