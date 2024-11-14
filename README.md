@@ -3,8 +3,8 @@
 <br />
 <p align="center">
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot">
-        <img src="https://user-images.githubusercontent.com/66331265/229746054-eb3759dd-fb32-4f1f-9d9d-45b5f3764c33.png"
-            alt="Logo" width="300" height="300">
+    <img src="https://user-images.githubusercontent.com/66331265/229746054-eb3759dd-fb32-4f1f-9d9d-45b5f3764c33.png"
+        alt="Logo" width="300" height="300">
     </a>
 </p>
 
@@ -22,37 +22,37 @@
 
 <p align="center">
     <a href="https://droptopfour.com"><img
-            src="https://img.shields.io/static/v1?label=Droptop+Four&message=Website&color=50AE5C&style=for-the-badge" alt="Droptop Four Website"></a>
+        src="https://img.shields.io/static/v1?label=Droptop+Four&message=Website&color=50AE5C&style=for-the-badge" alt="Droptop Four Website"></a>
 </p>
 
 <!-- BUTTONS -->
 
 <p align="center">
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot/stargazers"><img
-            src="https://img.shields.io/github/stars/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Stars"></a>
+        src="https://img.shields.io/github/stars/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Stars"></a>
     ·
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot/network"><img
-            src="https://img.shields.io/github/forks/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Forks"></a>
+        src="https://img.shields.io/github/forks/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Forks"></a>
     ·
     <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.10.8-blue.svg"
-            alt="Python Version"></a>
+        alt="Python Version"></a>
     ·
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot/blob/master/LICENSE"><img
-            src="https://img.shields.io/github/license/66Bunz/Droptop-Four-Discord-Bot.svg" alt="License"></a>
+        src="https://img.shields.io/github/license/66Bunz/Droptop-Four-Discord-Bot.svg" alt="License"></a>
     ·
     <a href="#"><img 
-            src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/66Bunz/0082c3b7bfd24146abe41c5ff336164f/raw/Droptop-Four-Discord-Bot.json"></a>
+        src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/66Bunz/0082c3b7bfd24146abe41c5ff336164f/raw/Droptop-Four-Discord-Bot.json"></a>
     ·
     <a href="https://GitHub.com/66Bunz/Droptop-Four-Discord-Bot/issues/"><img
-            src="https://img.shields.io/github/issues/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Issues"></a>
+        src="https://img.shields.io/github/issues/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Issues"></a>
     ·
     <a href="https://GitHub.com/66Bunz/Droptop-Four-Discord-Bot/pull/"><img
-            src="https://img.shields.io/github/issues-pr/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Pull Requests"></a>
+        src="https://img.shields.io/github/issues-pr/66Bunz/Droptop-Four-Discord-Bot.svg" alt="Pull Requests"></a>
 </p>
 <!-- DROPTOPFOUR DOWNLOAD -->
 <p align="center">
     <a href="https://github.com/Droptop-Four/Droptop-Four/releases/latest"><img
-            src="https://img.shields.io/static/v1?label=Download&message=Droptop+Four&color=50AE5C&style=for-the-badge" alt="Download Droptop Four"></a>
+        src="https://img.shields.io/static/v1?label=Download&message=Droptop+Four&color=50AE5C&style=for-the-badge" alt="Download Droptop Four"></a>
 </p>
 
 <!-- DROPTOPFOUR DISCORD -->
@@ -86,18 +86,38 @@
 
 ### Use the Bot
 
-- Install all dependencies with `pip install -r requirements.txt`
+- Install Docker
+
+- Copy the [`compose.yaml`](compose.yaml) file
 
 - Create an `.env` file with the following configurations:
-  
-  ```bash
-  sentry_dsn=
-  mongodb_id=
-  db_cluster=
-  github_auth_app=
-  global_data_repo=
-  community_apps_repo=
-  community_themes_repo=
-  ```
 
-- Start the bot with `python main.py`
+    ```bash
+    ENVIRONMENT = "local"  # Set to "prod" to use production variables
+    ```
+
+- Create `.env.docker.local` and `.env.docker.prod` files with the following configurations:
+
+    ```bash
+    DISCORD_TOKEN = 
+    DISCORD_ID = 
+    ```
+
+- Create `.env.local` and `.env.prod` files with the following configurations:
+
+    ```bash
+    sentry_dsn = 
+
+    mongodb_id = 
+    config_cluster = 
+    droptop_creations_cluster = 
+    droptop_cluster = 
+
+    github_auth_app = 
+
+    global_data_repo = 
+    community_apps_repo = 
+    community_themes_repo = 
+    ```
+
+- Start the bot with `docker compose up`
