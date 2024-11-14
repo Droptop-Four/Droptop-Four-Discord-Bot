@@ -120,4 +120,4 @@
     community_themes_repo = 
     ```
 
-- Start the bot with `docker compose up`
+- Start the bot with `docker compose --env-file .env.docker.local up`
