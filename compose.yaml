@@ -1,6 +1,6 @@
 services:
    bot:
-     image: ghcr.io/66bunz/droptop-four-discord-bot:main
+     image: ghcr.io/droptop-four/droptop-four-discord-bot:main
      volumes:
        - ./.env:/droptop_bot/.env:ro
        - ./.env.prod:/droptop_bot/.env.prod:ro
