@@ -131,7 +131,7 @@ dmypy.json
 
 .breakpoints
 .replit
-/.github
+# /.github
 *.nix
 /tmp
 
