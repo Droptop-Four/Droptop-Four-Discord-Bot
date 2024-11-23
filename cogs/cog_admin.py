@@ -162,7 +162,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 text="UserID: ( {} ) | sID: ( {} )".format(
                     interaction.user.id, interaction.user.display_name
                 ),
-                icon_url=interaction.user.avatar.url,
+                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
             )
 
             await annchannel.send(f"New Droptop Announcement! {dtbrping.mention}")
