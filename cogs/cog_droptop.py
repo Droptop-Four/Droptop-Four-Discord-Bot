@@ -708,7 +708,7 @@ class DroptopCommands(commands.Cog):
             embed.add_field(name="Downloads:", value=downloads, inline=True)
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )",
-                icon_url=interaction.user.avatar.url,
+                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
             )
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
@@ -1095,7 +1095,7 @@ class DroptopCommands(commands.Cog):
             )
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )",
-                icon_url=interaction.user.avatar.url,
+                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
             )
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
@@ -1635,7 +1635,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | uuid: ( {UUID} )",
-                icon_url=interaction.user.avatar.url,
+                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
             )
             embed.set_image(url=image_link)
             all_threads = []
@@ -1842,7 +1842,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
         embed.add_field(name="Version: ", value=self.version, inline=False)
         embed.set_footer(
             text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-            icon_url=interaction.user.avatar.url,
+            icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
         )
         if self.image_preview:
             image_file = await self.image_preview.to_file(filename="image.png")
@@ -1873,7 +1873,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                     )
                     newembed.set_footer(
                         text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-                        icon_url=interaction.user.avatar.url,
+                        icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
                     )
                     if self.image_preview:
                         image_file = await self.image_preview.to_file(
@@ -2112,7 +2112,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                 )
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )",
-                icon_url=interaction.user.avatar.url,
+                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
             )
             embed.set_image(url=image_link)
             all_threads = []
@@ -2319,7 +2319,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
         embed.add_field(name="Version: ", value=self.version, inline=False)
         embed.set_footer(
             text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-            icon_url=interaction.user.avatar.url,
+            icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
         )
         if self.image_preview:
             image_file = await self.image_preview.to_file(filename="image.png")
@@ -2350,7 +2350,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                     )
                     newembed.set_footer(
                         text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-                        icon_url=interaction.user.avatar.url,
+                        icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
                     )
                     if self.image_preview:
                         image_file = await self.image_preview.to_file(
