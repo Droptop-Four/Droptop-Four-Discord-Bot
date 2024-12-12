@@ -403,6 +403,8 @@ def db_edit(
 
     updated_data = {}
 
+    if version:
+        updated_data["version"] = version
     if author:
         updated_data["author"] = author
     if description:
@@ -424,7 +426,7 @@ def db_edit(
         {
             "$set": updated_data,
             "$addToSet": {"authorised_members": {"$each": authorised_members}},
-            "$push": {"changelog": {"$each": [changelog], "$position": 0}},
+            "$push": {"changelog": {"$each": changelog, "$position": 0}},
         },
     )
 
