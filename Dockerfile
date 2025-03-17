@@ -1,14 +1,14 @@
-FROM python:latest
+FROM python:3.13-alpine
 
 WORKDIR /droptop_bot
 
 COPY . .
 
-RUN apt-get update && apt-get install -y \
-    libjpeg-dev \
-    zlib1g-dev \
+RUN apk update && apk add \
+    jpeg-dev \
+    zlib-dev \
     libpng-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/cache/apk/*
 
 RUN pip install -r requirements.txt
 
