@@ -4,7 +4,7 @@
 	Author: Bunz (bunz#3066)
 	Date created: 21/10/2022
 	Bot Version: 4.2
-	Python Version: 3.11.4
+	Python Version: 3.13
 	Cogs: 5
 """
 
