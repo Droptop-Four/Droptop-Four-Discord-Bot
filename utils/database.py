@@ -10,12 +10,12 @@ _logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-BOT_ENVIRONMENT = os.getenv("ENVIRONMENT", "local") == "local"
+# BOT_ENVIRONMENT = os.getenv("ENVIRONMENT", "local") == "local"
 
-if BOT_ENVIRONMENT:
-    load_dotenv(".env.local")
-else:
-    load_dotenv(".env.prod")
+# if BOT_ENVIRONMENT:
+#     load_dotenv(".env.local")
+# else:
+#     load_dotenv(".env.prod")
 
 
 global_data_repo = os.getenv("global_data_repo")
