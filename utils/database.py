@@ -45,6 +45,41 @@ def initialize_mongodb(id):
         return False, e
 
 
+def db_add_to_changelog(db_client, versiontuple, features, modifications, bugfixes):
+    """
+    Adds a new entry to the changelog of Droptop
+
+    Args:
+        db_client (MongoClient): The db client
+        versiontuple (tuple): The version tuple
+        features (list): A list of features
+        modifications (list): A list of modifications
+        bugfixes (list): A list of bugfixes
+
+    Returns:
+        status (int): The status code of the request
+    """
+
+    try:
+        db = db_client[os.getenv("droptop_cluster")]
+        collection = db["Changelog"]
+
+        changelog_entry = {
+            "version": f"{versiontuple[0]}.{versiontuple[1]}",
+            "features": features,
+            "modifications": modifications,
+            "bug_fixes": bugfixes,
+        }
+
+        collection.insert_one(changelog_entry)
+
+        return True
+
+    except Exception as e:
+        _logger.error(f"Failed to add to the changelog -> {e}")
+        return False
+
+
 def db_get_downloads(db_client, type, *, uuid=None):
     """
     Gets the number of downloads of Droptop Four
@@ -110,6 +145,41 @@ def db_get_version(db_client):
         return False, e
 
 
+def db_new_version(db_client, versiontuple):
+    """
+    Updates the version of Droptop
+
+    Args:
+        db_client (MongoClient): The db client
+        versiontuple (tuple): The new version of Droptop
+
+    Returns:
+        status (int): The status code of the request
+    """
+
+    try:
+        db = db_client[os.getenv("droptop_cluster")]
+        collection = db["Version"]
+
+        collection.update_one(
+            {"title": "version"},
+            {
+                "$set": {
+                    "base": {
+                        "version": versiontuple[0],
+                        "miniversion": versiontuple[1],
+                    }
+                }
+            },
+        )
+
+        return True
+
+    except Exception as e:
+        _logger.error(f"Failed to update the version -> {e}")
+        return False
+
+
 def db_get_creation(
     db_client,
     type,
@@ -170,7 +240,7 @@ def db_get_creation(
         return False, e
 
 
-def db_new(
+def db_new_creation(
     db_client,
     type,
     *,
@@ -294,7 +364,7 @@ def db_new(
                         "desc": description,
                         "version": version,
                         "author_link": author_link,
-                        "official_link": official_link,
+                        "official_link": github_repo,
                         "changelog": changelog,
                     }
                 },
@@ -361,7 +431,7 @@ def db_new(
     return download_link, image_link, item_id, uuid
 
 
-def db_edit(
+def db_edit_creation(
     db_client,
     type,
     uuid,
@@ -442,7 +512,7 @@ def db_edit(
         return None, None, None
 
 
-def db_delete(db_client, type, uuid):
+def db_delete_creation(db_client, type, uuid):
     """
     Deletes the specified app or theme from its json file
 

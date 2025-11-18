@@ -8,8 +8,10 @@ from discord.ext import commands
 from discord.ext.tasks import loop
 
 from utils import (
-    edit_release,
+    db_add_to_changelog,
     db_get_version,
+    db_new_version,
+    edit_release,
     github_reader,
     json_update,
     validate_date,
@@ -20,9 +22,10 @@ _logger = logging.getLogger(__name__)
 
 
 class NewVersion(discord.ui.Modal, title="New Version"):
-    def __init__(self, configs):
+    def __init__(self, configs, db_client):
         super().__init__()
         self.configs = configs
+        self.db_client = db_client
 
         self.version = discord.ui.TextInput(
             label="Version",
@@ -111,6 +114,12 @@ class NewVersion(discord.ui.Modal, title="New Version"):
             updated_version_json = json_update(
                 self.configs["github_private_key"], "version", version=versiontuple
             )
+
+            db_new_version(
+                self.db_client,
+                versiontuple,
+            )
+
             updated_changelog_json = json_update(
                 self.configs["github_private_key"],
                 "changelog",
@@ -118,6 +127,10 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 cl_features=features,
                 cl_modifications=modifications,
                 cl_bugfixes=bugfixes,
+            )
+
+            db_add_to_changelog(
+                self.db_client, versiontuple, features, modifications, bugfixes
             )
 
             view = discord.ui.View()
@@ -161,7 +174,9 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 text="UserID: ( {} ) | sID: ( {} )".format(
                     interaction.user.id, interaction.user.display_name
                 ),
-                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
+                icon_url=(
+                    interaction.user.avatar.url if interaction.user.avatar else None
+                ),
             )
 
             await annchannel.send(f"New Droptop Announcement! {dtbrping.mention}")
@@ -192,7 +207,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
     async def on_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(self.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -281,7 +296,7 @@ class NewPoll(discord.ui.Modal, title="New Poll"):
             f"Oops! Something went wrong.\n{error}", ephemeral=True
         )
 
-        channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
+        channel = interaction.guild.get_channel(self.configs["commandlog_channel"])
 
         embed = discord.Embed(
             title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -392,7 +407,7 @@ class NewAnnouncement(discord.ui.Modal, title="New Announcement"):
                 f"Oops! Something went wrong, contact Bunz.\n{error}", ephemeral=True
             )
 
-            channel = interaction.guild.get_channel(bot.configs["commandlog_channel"])
+            channel = interaction.guild.get_channel(self.configs["commandlog_channel"])
 
             embed = discord.Embed(
                 title="!!ERROR!!", color=discord.Color.from_rgb(255, 0, 0)
@@ -466,7 +481,9 @@ class AdminCommands(commands.Cog):
     async def new_version(self, interaction: discord.Interaction):
         """Creates a new version of droptop."""
 
-        await interaction.response.send_modal(NewVersion(self.bot.configs))
+        await interaction.response.send_modal(
+            NewVersion(self.bot.configs, self.bot.db_client)
+        )
 
     # @app_commands.command(name="poll")
     # @app_commands.default_permissions(manage_nicknames=True)
