@@ -12,7 +12,6 @@ Deprecated>=1.2.14
 discord.py>=2.3.2
 dnspython>=2.5.0
 emoji>=2.10.0
-firebase-admin>=6.4.0
 frozenlist>=1.4.1
 google-api-core>=2.15.0
 google-api-python-client>=2.115.0

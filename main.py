@@ -22,8 +22,6 @@ from dotenv import load_dotenv
 
 from utils import (
     command_mention,
-    date_time,
-    initialize_firebase,
     initialize_logger,
     initialize_mongodb,
 )
@@ -69,15 +67,8 @@ if db_status:
     config_collection = db["Configs"]
     bot.configs = config_collection.find_one({}, {"_id": 0})
 
-    firebase_status, firebase_error = initialize_firebase(
-        json.loads(bot.configs["firebase_creds"])
-    )
-
     bot.cari_logo = bot.configs["cari_logo"]
     bot.droptopfour_logo = bot.configs["droptopfour_logo"]
-else:
-    firebase_status = False
-    firebase_error = "Database failed to initialize, so Firebase was not initialized."
 
 
 @bot.event
@@ -228,7 +219,7 @@ async def on_tree_error(interaction, error):
     )
 
 
-if db_status and firebase_status and logger_status:
+if db_status and logger_status:
     logger.info("Bot is ready to start")
 
     if not os.path.exists("tmp"):
@@ -249,7 +240,5 @@ else:
     logger.warning("Bot is not ready")
     if not db_status:
         logger.warning("MongoDB is not ready")
-    if not firebase_status:
-        logger.warning("Firebase is not ready")
     if not logger_status:
         logger.warning("Logger is not ready")

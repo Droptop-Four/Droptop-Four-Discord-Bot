@@ -12,7 +12,6 @@ from utils import (
     db_get_version,
     github_reader,
     json_update,
-    sync_files,
     validate_date,
     version_validator,
 )
@@ -185,21 +184,6 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                     ephemeral=True,
                 )
                 return
-
-            await interaction.followup.send(
-                "Syncing files on firebase...", ephemeral=True
-            )
-
-            files = [
-                "https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Basic_Version.rmskin",
-                "https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Update.rmskin",
-            ]
-            names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
-            bucket_url = self.configs["firebase_bucket_url"]
-            webhook_url = self.configs["log_channel_webhook_url"]
-
-            sync_files(files, names, bucket_url, webhook_url)
-
         else:
             await interaction.response.send_message(
                 f"Version `{self.version.value}` is not accettable", ephemeral=True
@@ -497,25 +481,6 @@ class AdminCommands(commands.Cog):
     #     await interaction.response.send_modal(
     #         NewPoll(self.bot.configs, emoji_1, emoji_2)
     #     )
-
-    @app_commands.command(name="sync_firebase")
-    @app_commands.guild_only()
-    async def sync_firebase(self, interaction: discord.Interaction):
-        """Syncs firebase with github"""
-
-        await interaction.response.send_message(
-            "Syncing files on firebase...", ephemeral=True
-        )
-
-        files = [
-            "https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Basic_Version.rmskin",
-            "https://github.com/Droptop-Four/Droptop-Four/releases/latest/download/Droptop_Update.rmskin",
-        ]
-        names = ["Droptop Basic Version.rmskin", "Droptop Update.rmskin"]
-        bucket_url = self.bot.configs["firebase_bucket_url"]
-        webhook_url = self.bot.configs["log_channel_webhook_url"]
-
-        sync_files(files, names, bucket_url, webhook_url)
 
     async def type_autocomplete(
         self,
