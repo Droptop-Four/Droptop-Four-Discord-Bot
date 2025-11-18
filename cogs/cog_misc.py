@@ -70,29 +70,6 @@ class MiscCommands(commands.Cog):
         )
         await interaction.user.add_roles(role)
 
-    @app_commands.command(name="send")
-    @app_commands.rename(text_to_send="text")
-    @app_commands.describe(text_to_send="Text to send in the current channel")
-    async def send(self, interaction: discord.Interaction, text_to_send: str):
-        """Sends the text into the current channel."""
-
-        await interaction.response.send_message(text_to_send)
-
-    @app_commands.command(name="joined")
-    @app_commands.describe(
-        member="The member you want to get the joined date from; defaults to the user who uses the command"
-    )
-    async def joined(
-        self, interaction: discord.Interaction, member: Optional[discord.Member] = None
-    ):
-        """Says when a member joined."""
-
-        member = member or interaction.user
-        await interaction.response.send_message(
-            f"{member} joined {discord.utils.format_dt(member.joined_at)}",
-            ephemeral=True,
-        )
-
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(MiscCommands(bot))

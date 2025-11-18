@@ -14,12 +14,12 @@ from discord.ext import commands
 
 from utils import (  # get_community_app,; get_community_theme,
     analyze_invoice,
-    db_delete,
-    db_edit,
+    db_delete_creation,
+    db_edit_creation,
     db_get_creation,
     db_get_downloads,
     db_get_version,
-    db_new,
+    db_new_creation,
     get_all_sales,
     get_followers,
     get_metadata,
@@ -708,7 +708,9 @@ class DroptopCommands(commands.Cog):
             embed.add_field(name="Downloads:", value=downloads, inline=True)
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )",
-                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
+                icon_url=(
+                    interaction.user.avatar.url if interaction.user.avatar else None
+                ),
             )
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
@@ -974,8 +976,8 @@ class DroptopCommands(commands.Cog):
             rmskin_delete(self.bot.configs["github_private_key"], "app", community_app)
             image_delete(self.bot.configs["github_private_key"], "app", community_app)
 
-            # TODO: make db_delete with name_author too since it's unique as uuid
-            db_delete(self.bot.db_client, "app", uuid)
+            # TODO: make db_delete_creation with name_author too since it's unique as uuid
+            db_delete_creation(self.bot.db_client, "app", uuid)
 
             if delete_release_channel == "True":
                 channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
@@ -1095,7 +1097,9 @@ class DroptopCommands(commands.Cog):
             )
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | sID: ( {interaction.user.display_name} )",
-                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
+                icon_url=(
+                    interaction.user.avatar.url if interaction.user.avatar else None
+                ),
             )
             embed.set_image(url=image_url)
             await interaction.response.send_message(embed=embed, view=view)
@@ -1371,8 +1375,8 @@ class DroptopCommands(commands.Cog):
                 self.bot.configs["github_private_key"], "theme", community_theme
             )
 
-            # TODO: make db_delete with name_author too since it's unique as uuid
-            db_delete(self.bot.db_client, "theme", uuid)
+            # TODO: make db_delete_creation with name_author too since it's unique as uuid
+            db_delete_creation(self.bot.db_client, "theme", uuid)
 
             if delete_release_channel == "True":
                 channel = self.bot.get_channel(
@@ -1579,7 +1583,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
 
             if self.new:
-                download_link, image_link, app_id, uuid = db_new(
+                download_link, image_link, app_id, uuid = db_new_creation(
                     self.db_client,
                     "app",
                     authorised_members=self.authorised_members,
@@ -1595,7 +1599,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
                     github_repo=self.github_repo.value,
                 )
             else:
-                download_link, image_link, app_id = db_edit(
+                download_link, image_link, app_id = db_edit_creation(
                     self.db_client,
                     "app",
                     UUID,
@@ -1635,7 +1639,9 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | uuid: ( {UUID} )",
-                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
+                icon_url=(
+                    interaction.user.avatar.url if interaction.user.avatar else None
+                ),
             )
             embed.set_image(url=image_link)
             all_threads = []
@@ -1807,7 +1813,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                 self.configs["github_private_key"], "app", image_name
             )
 
-        download_link, image_link, app_id = db_edit(
+        download_link, image_link, app_id = db_edit_creation(
             self.db_client,
             "app",
             self.uuid,
@@ -1873,7 +1879,11 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                     )
                     newembed.set_footer(
                         text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-                        icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
+                        icon_url=(
+                            interaction.user.avatar.url
+                            if interaction.user.avatar
+                            else None
+                        ),
                     )
                     if self.image_preview:
                         image_file = await self.image_preview.to_file(
@@ -2048,7 +2058,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             )
 
             if self.new:
-                download_link, image_link, theme_id, uuid = db_new(
+                download_link, image_link, theme_id, uuid = db_new_creation(
                     self.db_client,
                     "theme",
                     authorised_members=self.authorised_members,
@@ -2064,7 +2074,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                     github_repo=self.github_repo.value,
                 )
             else:
-                download_link, image_link, theme_id = db_edit(
+                download_link, image_link, theme_id = db_edit_creation(
                     self.db_client,
                     "theme",
                     UUID,
@@ -2112,7 +2122,9 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                 )
             embed.set_footer(
                 text=f"UserID: ( {interaction.user.id} ) | uuid: ( {uuid} )",
-                icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
+                icon_url=(
+                    interaction.user.avatar.url if interaction.user.avatar else None
+                ),
             )
             embed.set_image(url=image_link)
             all_threads = []
@@ -2284,7 +2296,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                 self.configs["github_private_key"], "theme", image_name
             )
 
-        download_link, image_link, theme_id = db_edit(
+        download_link, image_link, theme_id = db_edit_creation(
             self.db_client,
             "theme",
             self.uuid,
@@ -2350,7 +2362,11 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                     )
                     newembed.set_footer(
                         text=f"UserID: ( {interaction.user.id} ) | uuid: ( {self.uuid} )",
-                        icon_url=interaction.user.avatar.url if interaction.user.avatar else None,
+                        icon_url=(
+                            interaction.user.avatar.url
+                            if interaction.user.avatar
+                            else None
+                        ),
                     )
                     if self.image_preview:
                         image_file = await self.image_preview.to_file(

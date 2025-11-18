@@ -9,7 +9,7 @@ base_url = "https://api.droptopfour.com/"
 api_version = "v1"
 
 
-async def fetch(session, url):
+async def _fetch(session, url):
     """
     Fetch an url
 
@@ -51,7 +51,7 @@ async def get_downloads(type, *, uuid=None):
         return 404, None
 
     async with aiohttp.ClientSession() as session:
-        status, data = await fetch(session, url)
+        status, data = await _fetch(session, url)
         data = json.loads(data)
         return status, data
 
@@ -67,7 +67,7 @@ async def get_version():
 
     url = "/version"
     async with aiohttp.ClientSession() as session:
-        status, data = await fetch(session, url)
+        status, data = await _fetch(session, url)
         data = json.loads(data)
         return status, data
 
@@ -99,7 +99,7 @@ async def get_community_app(*, id=None, uuid=None, name=None, name_author=None):
         url = "/community-apps"
 
     async with aiohttp.ClientSession() as session:
-        status, data = await fetch(session, url)
+        status, data = await _fetch(session, url)
         data = json.loads(data)
 
     return status, data
@@ -132,6 +132,6 @@ async def get_community_theme(*, id=None, uuid=None, name=None, name_author=None
         url = "/community-themes"
 
     async with aiohttp.ClientSession() as session:
-        status, data = await fetch(session, url)
+        status, data = await _fetch(session, url)
         data = json.loads(data)
         return status, data
