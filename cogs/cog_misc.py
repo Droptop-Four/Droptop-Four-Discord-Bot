@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from time import time
 from typing import Optional
 
@@ -44,7 +44,7 @@ class MiscCommands(commands.Cog):
     async def uptime(self, interaction: discord.Interaction):
         """Returns the uptime of the bot"""
 
-        delta_uptime = datetime.utcnow() - self.bot.launch_time
+        delta_uptime = datetime.now(UTC) - self.bot.launch_time
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
         days, hours = divmod(hours, 24)

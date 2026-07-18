@@ -13,7 +13,7 @@ import logging
 import os
 import re
 import traceback
-from datetime import datetime
+from datetime import datetime, UTC
 
 import discord
 from discord import app_commands
@@ -50,7 +50,7 @@ bot = commands.Bot(
     case_insensitive=True,
 )
 
-bot.launch_time = datetime.utcnow()
+bot.launch_time = datetime.now(UTC)
 
 try:
     logger_status = initialize_logger(os.getenv("sentry_dsn"))
