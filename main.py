@@ -1,19 +1,18 @@
 """
-	Project name: Droptop Four Discord Bot
-	Discord: https://discord.gg/hQGDm4F5Ef
-	Author: Bunz (bunz#3066)
-	Date created: 21/10/2022
-	Bot Version: 4.2
-	Python Version: 3.13
-	Cogs: 5
+Project name: Droptop Four Discord Bot
+Discord: https://discord.gg/hQGDm4F5Ef
+Author: Bunz (bunz#3066)
+Date created: 21/10/2022
+Bot Version: 4.3
+Python Version: 3.13
+Cogs: 5
 """
 
-import json
 import logging
 import os
 import re
 import traceback
-from datetime import datetime
+from datetime import UTC, datetime
 
 import discord
 from discord import app_commands
@@ -50,7 +49,7 @@ bot = commands.Bot(
     case_insensitive=True,
 )
 
-bot.launch_time = datetime.utcnow()
+bot.launch_time = datetime.now(UTC)
 
 try:
     logger_status = initialize_logger(os.getenv("sentry_dsn"))
@@ -58,30 +57,40 @@ except Exception as e:
     logger_status = False
     logger.critical(f"Logger failed to initialize!\n{e}")
 
-db_id, config_cluster = os.getenv("mongodb_id"), os.getenv("config_cluster")
-
-db_status, bot.db_client = initialize_mongodb(db_id)
-
-if db_status:
-    db = bot.db_client[config_cluster]
-    config_collection = db["Configs"]
-    bot.configs = config_collection.find_one({}, {"_id": 0})
-
-    bot.cari_logo = bot.configs["cari_logo"]
-    bot.droptopfour_logo = bot.configs["droptopfour_logo"]
-
-
-@bot.event
-async def on_ready():
-
-    logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
-    for guild in bot.guilds:
-        logger.info("Connected to server: {}".format(guild))
-    logger.info("------")
-
 
 @bot.event
 async def setup_hook():
+    """
+    Runs inside the bot's own event loop (before login/connect), so this is
+    the correct place to create the AsyncMongoClient. Creating it earlier,
+    at module level before bot.run() starts its loop, would bind the client
+    to the wrong event loop.
+    """
+
+    db_id, config_cluster = os.getenv("mongodb_id"), os.getenv("config_cluster")
+
+    bot.db_status, bot.db_client = await initialize_mongodb(db_id)
+
+    if bot.db_status:
+        db = bot.db_client[config_cluster]
+        config_collection = db["Configs"]
+        bot.configs = await config_collection.find_one({}, {"_id": 0})
+
+        bot.cari_logo = bot.configs["cari_logo"]
+        bot.droptopfour_logo = bot.configs["droptopfour_logo"]
+
+    bot.ready_to_run = bot.db_status and logger_status
+
+    if not bot.ready_to_run:
+        logger.warning("Bot is not ready")
+        if not bot.db_status:
+            logger.warning("MongoDB is not ready")
+        if not logger_status:
+            logger.warning("Logger is not ready")
+        return
+
+    logger.info("Bot is ready to start")
+
     cogs = [
         "cogs.cog_admin",
         "cogs.cog_dev",
@@ -106,6 +115,21 @@ async def setup_hook():
                 )
         if command.name == "solved":
             bot.solved_command = command_mention(child.qualified_name, synced.id)
+
+
+@bot.event
+async def on_ready():
+    if not bot.ready_to_run:
+        logger.warning(
+            "Bot logged in but is not ready (DB/logger not initialized). Shutting down."
+        )
+        await bot.close()
+        return
+
+    logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})")
+    for guild in bot.guilds:
+        logger.info("Connected to server: {}".format(guild))
+    logger.info("------")
 
 
 @bot.event
@@ -219,9 +243,7 @@ async def on_tree_error(interaction, error):
     )
 
 
-if db_status and logger_status:
-    logger.info("Bot is ready to start")
-
+if __name__ == "__main__":
     if not os.path.exists("tmp"):
         os.makedirs("tmp")
         logger.info("Created temp folder")
@@ -229,16 +251,12 @@ if db_status and logger_status:
             pass
         logger.info("Created placeholder file")
 
+    discord_token = os.getenv("discord_token")
+
     try:
-        bot.run(bot.configs["discord_token"])
+        bot.run(discord_token)
     except discord.HTTPException as e:
         if e.status == 429:
             logger.warning("Rate limit detected. Restarting...")
             os.kill(1, 1)
         logger.warning(e)
-else:
-    logger.warning("Bot is not ready")
-    if not db_status:
-        logger.warning("MongoDB is not ready")
-    if not logger_status:
-        logger.warning("Logger is not ready")

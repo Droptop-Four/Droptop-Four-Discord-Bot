@@ -2,7 +2,8 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from pymongo import DESCENDING, MongoClient
+from pymongo import DESCENDING, AsyncMongoClient
+from pymongo.server_api import ServerApi
 
 # from .droptop import get_community_app, get_community_theme
 
@@ -23,7 +24,7 @@ community_apps_repo = os.getenv("community_apps_repo")
 community_themes_repo = os.getenv("community_themes_repo")
 
 
-def initialize_mongodb(id):
+async def initialize_mongodb(id):
     """
     Initializes the connection to the MongoDB database.
 
@@ -36,7 +37,11 @@ def initialize_mongodb(id):
     """
 
     try:
-        client = MongoClient(id)
+        client = AsyncMongoClient(
+            id,
+            server_api=ServerApi(version="1", strict=True, deprecation_errors=True),
+        )
+        await client.admin.command("ping")
         _logger.info("Connection to the database successfully initialized")
         return True, client
 
@@ -45,12 +50,14 @@ def initialize_mongodb(id):
         return False, e
 
 
-def db_add_to_changelog(db_client, versiontuple, features, modifications, bugfixes):
+async def db_add_to_changelog(
+    db_client, versiontuple, features, modifications, bugfixes
+):
     """
     Adds a new entry to the changelog of Droptop
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
         versiontuple (tuple): The version tuple
         features (list): A list of features
         modifications (list): A list of modifications
@@ -71,7 +78,7 @@ def db_add_to_changelog(db_client, versiontuple, features, modifications, bugfix
             "bug_fixes": bugfixes,
         }
 
-        collection.insert_one(changelog_entry)
+        await collection.insert_one(changelog_entry)
 
         return True
 
@@ -80,12 +87,12 @@ def db_add_to_changelog(db_client, versiontuple, features, modifications, bugfix
         return False
 
 
-def db_get_downloads(db_client, type, *, uuid=None):
+async def db_get_downloads(db_client, type, *, uuid=None):
     """
     Gets the number of downloads of Droptop Four
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
         type (str): The type of the download. Can be 'droptop', 'app' or 'theme'
         uuid (str): The UUID of the app or theme
 
@@ -98,17 +105,21 @@ def db_get_downloads(db_client, type, *, uuid=None):
         if type == "droptop":
             db = db_client[os.getenv("droptop_cluster")]
             collection = db["Downloads"]
-            data = collection.find_one({"title": "downloads"}, {"_id": False})
+            data = await collection.find_one({"title": "downloads"}, {"_id": False})
 
         elif type == "app":
             db = db_client[os.getenv("droptop_creations_cluster")]
             collection = db["Community_Apps"]
-            data = (collection.find_one({"uuid": uuid}, {"_id": False}))["downloads"]
+            data = (await collection.find_one({"uuid": uuid}, {"_id": False}))[
+                "downloads"
+            ]
 
         elif type == "theme":
             db = db_client[os.getenv("droptop_creations_cluster")]
             collection = db["Community_Themes"]
-            data = (collection.find_one({"uuid": uuid}, {"_id": False}))["downloads"]
+            data = (await collection.find_one({"uuid": uuid}, {"_id": False}))[
+                "downloads"
+            ]
 
         else:
             return True, None
@@ -120,12 +131,12 @@ def db_get_downloads(db_client, type, *, uuid=None):
         return False, e
 
 
-def db_get_version(db_client):
+async def db_get_version(db_client):
     """
     Gets the version of Droptop
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
 
     Returns:
         status (int): The status code of the request
@@ -136,7 +147,7 @@ def db_get_version(db_client):
         db = db_client[os.getenv("droptop_cluster")]
         collection = db["Version"]
 
-        data = collection.find_one({"title": "version"}, {"_id": False})
+        data = await collection.find_one({"title": "version"}, {"_id": False})
 
         return True, data["base"]
 
@@ -145,12 +156,12 @@ def db_get_version(db_client):
         return False, e
 
 
-def db_new_version(db_client, versiontuple):
+async def db_new_version(db_client, versiontuple):
     """
     Updates the version of Droptop
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
         versiontuple (tuple): The new version of Droptop
 
     Returns:
@@ -161,7 +172,7 @@ def db_new_version(db_client, versiontuple):
         db = db_client[os.getenv("droptop_cluster")]
         collection = db["Version"]
 
-        collection.update_one(
+        await collection.update_one(
             {"title": "version"},
             {
                 "$set": {
@@ -180,7 +191,7 @@ def db_new_version(db_client, versiontuple):
         return False
 
 
-def db_get_creation(
+async def db_get_creation(
     db_client,
     type,
     *,
@@ -194,7 +205,7 @@ def db_get_creation(
     Gets all the Community Apps or Themes of Droptop
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
         type (str): The type of package [app, theme]
         id (int): The ID of the app
         uuid (str): The UUID of the app
@@ -229,9 +240,9 @@ def db_get_creation(
         if authorised_members_list:
             query["authorised_members"] = {"$in": authorised_members_list}
         if id or uuid or name:
-            data = collection.find_one(query, {"_id": False})
+            data = await collection.find_one(query, {"_id": False})
         else:
-            data = list(collection.find(query, {"_id": False}))
+            data = list(await collection.find(query, {"_id": False}))
 
         return True, data
 
@@ -240,7 +251,7 @@ def db_get_creation(
         return False, e
 
 
-def db_new_creation(
+async def db_new_creation(
     db_client,
     type,
     *,
@@ -260,7 +271,7 @@ def db_new_creation(
     Creates a new app or theme
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
         type (str): The type of package [app, theme]
         authorised_members (list): A list of authorised members to edit apps/themes
         title (str): The title of the package
@@ -290,7 +301,7 @@ def db_new_creation(
         collection = db["Community_Themes"]
 
     if type == "app":
-        success, app = db_get_creation(db_client, "app", uuid=uuid)
+        success, app = await db_get_creation(db_client, "app", uuid=uuid)
         if success and app and app["version"] != version:
             if not description:
                 description = ""
@@ -312,7 +323,7 @@ def db_new_creation(
             else:
                 changelog = app["changelog"]
 
-            collection.update_one(
+            await collection.update_one(
                 {"uuid": uuid},
                 {
                     "$set": {
@@ -335,7 +346,7 @@ def db_new_creation(
             return None, None, None, None
 
     else:
-        success, theme = db_get_creation(db_client, "theme", uuid=uuid)
+        success, theme = await db_get_creation(db_client, "theme", uuid=uuid)
         if success and theme and theme["version"] != version:
             if not description:
                 description = ""
@@ -357,7 +368,7 @@ def db_new_creation(
             else:
                 changelog = theme["changelog"]
 
-            collection.update_one(
+            await collection.update_one(
                 {"uuid": uuid},
                 {
                     "$set": {
@@ -379,7 +390,7 @@ def db_new_creation(
             return None, None, None, None
 
     if new_creation:
-        last_element = collection.find_one(sort=[("id", DESCENDING)])
+        last_element = await collection.find_one(sort=[("id", DESCENDING)])
         item_id = last_element["id"] + 1
 
         if type == "app":
@@ -426,12 +437,12 @@ def db_new_creation(
         else:
             creation["changelog"] = []
 
-        collection.insert_one(creation)
+        await collection.insert_one(creation)
 
     return download_link, image_link, item_id, uuid
 
 
-def db_edit_creation(
+async def db_edit_creation(
     db_client,
     type,
     uuid,
@@ -448,7 +459,7 @@ def db_edit_creation(
     Edits the specified app or theme
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
         type (str): The type of package [app, theme]
         uuid (str): The uuid of the app/theme
         author (str): The author of the package
@@ -491,7 +502,7 @@ def db_edit_creation(
     else:
         changelog = []
 
-    result = collection.update_one(
+    result = await collection.update_one(
         {"uuid": uuid},
         {
             "$set": updated_data,
@@ -500,7 +511,7 @@ def db_edit_creation(
         },
     )
 
-    success, creation = db_get_creation(db_client, type, uuid=uuid)
+    success, creation = await db_get_creation(db_client, type, uuid=uuid)
 
     if success and creation:
         return (
@@ -512,12 +523,12 @@ def db_edit_creation(
         return None, None, None
 
 
-def db_delete_creation(db_client, type, uuid):
+async def db_delete_creation(db_client, type, uuid):
     """
     Deletes the specified app or theme from its json file
 
     Args:
-        db_client (MongoClient): The db client
+        db_client (AsyncMongoClient): The db client
         type (str): The type of package [app, theme]
         uuid (str): The uuid of the app/theme
     """
@@ -528,4 +539,4 @@ def db_delete_creation(db_client, type, uuid):
     elif type == "theme":
         collection = db["Community_Themes"]
 
-    collection.delete_one({"uuid": uuid})
+    await collection.delete_one({"uuid": uuid})

@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 import github
-import requests
 from dotenv import load_dotenv
 
 from .generators import generate_uuid_string
@@ -133,7 +132,7 @@ def edit_release(private_key, version, cl_features, cl_modifications, cl_bugfixe
             for bugfix in cl_bugfixes:
                 message += f"- {bugfix}\n"
 
-        message += f"\n\n# >>> :arrow_down: [Download Droptop](https://droptopfour.com/download) :arrow_down: <<<\n"
+        message += "\n\n# >>> :arrow_down: [Download Droptop](https://droptopfour.com/download) :arrow_down: <<<\n"
 
         release.update_release(
             name=f"Droptop Four v{mainversion}.{miniversion}", message=message
