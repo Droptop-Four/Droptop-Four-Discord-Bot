@@ -1,5 +1,9 @@
 <!-- PROJECT LOGO -->
 
+<!-- Updated mongo connection to be async -->
+<!-- Migrated from pip to uv -->
+<!-- Push to github and udpate server -->
+
 <br />
 <p align="center">
     <a href="https://github.com/66Bunz/Droptop-Four-Discord-Bot">
@@ -85,6 +89,13 @@
 </p><br><br>
 
 ### Use the Bot
+
+- For local development, install `uv`, then create the environment and install the locked dependencies:
+
+    ```bash
+    uv sync
+    uv run python main.py
+    ```
 
 - Install Docker
 

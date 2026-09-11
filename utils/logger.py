@@ -1,5 +1,3 @@
-import datetime as dt
-import json
 import logging.config
 
 import discord

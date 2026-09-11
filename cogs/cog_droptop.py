@@ -173,7 +173,7 @@ class DroptopCommands(commands.Cog):
 
         message = await interaction.original_response()
 
-        success, data = db_get_downloads(self.bot.db_client, "droptop")
+        success, data = await db_get_downloads(self.bot.db_client, "droptop")
         if success:
             github_basic_downloads, github_update_downloads, supporter_downloads = (
                 data["basic_downloads"],
@@ -348,7 +348,7 @@ class DroptopCommands(commands.Cog):
         data = github_reader(
             self.bot.configs["github_private_key"], "data/droptop_info.json"
         )
-        success, version = db_get_version(self.bot.db_client)
+        success, version = await db_get_version(self.bot.db_client)
 
         if variant:
             if variant == "Basic":
@@ -629,7 +629,7 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_apps_names = []
 
-        success, data = db_get_creation(self.bot.db_client, "app")
+        success, data = await db_get_creation(self.bot.db_client, "app")
         if success and data:
             for app in data:
                 community_apps_names.append(f'{app["name"]} - {app["author"]}')
@@ -646,7 +646,7 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_apps_editable = []
 
-        success, data = db_get_creation(
+        success, data = await db_get_creation(
             self.bot.db_client,
             "app",
             authorised_members_list=[str(interaction.user.id)],
@@ -670,7 +670,7 @@ class DroptopCommands(commands.Cog):
     ) -> None:
         """Displays info about Droptop Four Community Apps"""
 
-        success, app = db_get_creation(self.bot.db_client, "app", name_author=name)
+        success, app = await db_get_creation(self.bot.db_client, "app", name_author=name)
 
         if success and app:
             id = app["id"]
@@ -754,6 +754,8 @@ class DroptopCommands(commands.Cog):
             app_title = config["rmskin"]["Name"]
             author = config["rmskin"]["Author"]
             version = config["rmskin"]["Version"]
+            print(app_title, author, version)
+            
             try:
                 UUID = config["rmskin"]["GUID"]
             except:
@@ -764,6 +766,7 @@ class DroptopCommands(commands.Cog):
                 rmskin_archive.close()
                 ini_path.unlink()
                 return
+            print(UUID)
 
             ini_path.unlink()
 
@@ -783,7 +786,9 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            success, app = db_get_creation(self.bot.db_client, "app", uuid=UUID)
+            success, app = await db_get_creation(self.bot.db_client, "app", uuid=UUID)
+            
+            print(success, app)
 
             if success and app:
                 new = False
@@ -903,7 +908,7 @@ class DroptopCommands(commands.Cog):
         else:
             image_type = None
 
-        success, app = db_get_creation(
+        success, app = await db_get_creation(
             self.bot.db_client, "app", name_author=community_app
         )
 
@@ -957,7 +962,7 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            success, app = db_get_creation(
+            success, app = await db_get_creation(
                 self.bot.db_client, "app", name_author=community_app
             )
             if success and app:
@@ -977,7 +982,7 @@ class DroptopCommands(commands.Cog):
             image_delete(self.bot.configs["github_private_key"], "app", community_app)
 
             # TODO: make db_delete_creation with name_author too since it's unique as uuid
-            db_delete_creation(self.bot.db_client, "app", uuid)
+            await db_delete_creation(self.bot.db_client, "app", uuid)
 
             if delete_release_channel == "True":
                 channel = self.bot.get_channel(self.bot.configs["appreleases_channel"])
@@ -1017,7 +1022,7 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_themes_names = []
 
-        success, data = db_get_creation(self.bot.db_client, "theme")
+        success, data = await db_get_creation(self.bot.db_client, "theme")
         if success and data:
             for theme in data:
                 community_themes_names.append(f'{theme["name"]} - {theme["author"]}')
@@ -1034,7 +1039,7 @@ class DroptopCommands(commands.Cog):
     ) -> List[app_commands.Choice[str]]:
         community_themes_editable = []
 
-        success, data = db_get_creation(
+        success, data = await db_get_creation(
             self.bot.db_client,
             "theme",
             authorised_members_list=[str(interaction.user.id)],
@@ -1058,7 +1063,7 @@ class DroptopCommands(commands.Cog):
     ) -> None:
         """Displays info about Droptop Four Community Themes"""
 
-        success, theme = db_get_creation(self.bot.db_client, "theme", name_author=name)
+        success, theme = await db_get_creation(self.bot.db_client, "theme", name_author=name)
 
         if success and theme:
             id = theme["id"]
@@ -1178,7 +1183,7 @@ class DroptopCommands(commands.Cog):
 
             rmskin_archive.close()
 
-            success, theme = db_get_creation(self.bot.db_client, "theme", uuid=UUID)
+            success, theme = await db_get_creation(self.bot.db_client, "theme", uuid=UUID)
 
             if success and theme:
                 new = False
@@ -1298,7 +1303,7 @@ class DroptopCommands(commands.Cog):
         else:
             image_type = None
 
-        success, theme = db_get_creation(
+        success, theme = await db_get_creation(
             self.bot.db_client, "theme", name_author=community_theme
         )
         if success and theme:
@@ -1351,7 +1356,7 @@ class DroptopCommands(commands.Cog):
                 "You took to long to reply, and the command expired.", ephemeral=True
             )
         elif view.value:
-            success, theme = db_get_creation(
+            success, theme = await db_get_creation(
                 self.bot.db_client, "theme", name_author=community_theme
             )
             if success and theme:
@@ -1376,7 +1381,7 @@ class DroptopCommands(commands.Cog):
             )
 
             # TODO: make db_delete_creation with name_author too since it's unique as uuid
-            db_delete_creation(self.bot.db_client, "theme", uuid)
+            await db_delete_creation(self.bot.db_client, "theme", uuid)
 
             if delete_release_channel == "True":
                 channel = self.bot.get_channel(
@@ -1583,7 +1588,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
             )
 
             if self.new:
-                download_link, image_link, app_id, uuid = db_new_creation(
+                download_link, image_link, app_id, uuid = await db_new_creation(
                     self.db_client,
                     "app",
                     authorised_members=self.authorised_members,
@@ -1599,7 +1604,7 @@ class NewAppRelease(discord.ui.Modal, title="New App Release"):
                     github_repo=self.github_repo.value,
                 )
             else:
-                download_link, image_link, app_id = db_edit_creation(
+                download_link, image_link, app_id = await db_edit_creation(
                     self.db_client,
                     "app",
                     UUID,
@@ -1813,7 +1818,7 @@ class EditAppRelease(discord.ui.Modal, title="Edit App Release"):
                 self.configs["github_private_key"], "app", image_name
             )
 
-        download_link, image_link, app_id = db_edit_creation(
+        download_link, image_link, app_id = await db_edit_creation(
             self.db_client,
             "app",
             self.uuid,
@@ -2058,7 +2063,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
             )
 
             if self.new:
-                download_link, image_link, theme_id, uuid = db_new_creation(
+                download_link, image_link, theme_id, uuid = await db_new_creation(
                     self.db_client,
                     "theme",
                     authorised_members=self.authorised_members,
@@ -2074,7 +2079,7 @@ class NewThemeRelease(discord.ui.Modal, title="New Theme Release"):
                     github_repo=self.github_repo.value,
                 )
             else:
-                download_link, image_link, theme_id = db_edit_creation(
+                download_link, image_link, theme_id = await db_edit_creation(
                     self.db_client,
                     "theme",
                     UUID,
@@ -2296,7 +2301,7 @@ class EditThemeRelease(discord.ui.Modal, title="Edit Theme Release"):
                 self.configs["github_private_key"], "theme", image_name
             )
 
-        download_link, image_link, theme_id = db_edit_creation(
+        download_link, image_link, theme_id = await db_edit_creation(
             self.db_client,
             "theme",
             self.uuid,

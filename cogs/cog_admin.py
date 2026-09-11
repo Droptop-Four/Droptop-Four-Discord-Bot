@@ -12,7 +12,6 @@ from utils import (
     db_get_version,
     db_new_version,
     edit_release,
-    github_reader,
     json_update,
     validate_date,
     version_validator,
@@ -115,7 +114,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 self.configs["github_private_key"], "version", version=versiontuple
             )
 
-            db_new_version(
+            await db_new_version(
                 self.db_client,
                 versiontuple,
             )
@@ -129,7 +128,7 @@ class NewVersion(discord.ui.Modal, title="New Version"):
                 cl_bugfixes=bugfixes,
             )
 
-            db_add_to_changelog(
+            await db_add_to_changelog(
                 self.db_client, versiontuple, features, modifications, bugfixes
             )
 
@@ -464,7 +463,7 @@ class AdminCommands(commands.Cog):
     @loop(seconds=600)
     async def version_stats(self):
         channel = self.bot.get_channel(self.bot.configs["versionstats_channel"])
-        success, data = db_get_version(self.bot.db_client)
+        success, data = await db_get_version(self.bot.db_client)
         if success:
             await channel.edit(name="🆕╏Version: " + str(data["version"]))
 
